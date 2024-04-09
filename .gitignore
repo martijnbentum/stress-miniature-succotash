@@ -1,3 +1,5 @@
+*/__pycache__/
 db.sqlite3
 */migrations/
 stress_env/
+*.pyc
