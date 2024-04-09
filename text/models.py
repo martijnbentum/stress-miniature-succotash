@@ -15,13 +15,17 @@ class Dataset(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     name = models.CharField(max_length=100, unique=True, **required)
     description = models.CharField(max_length=1000)
-    language = models.ForeignKey('Language',**dargs)
+    languages = models.ManyToManyField('Language', blank=True, default=None)
 
     def __str__(self):
-        m = self.name 
-        if self.language:
-            m += ' ' + self.language.language
+        m = self.name + ' ' + self.language_str
         return m
+
+    @property
+    def language_str(self):
+        if not self.languages:
+            return ''
+        return ', '.join([l.language for l in self.languages.all()])
 
 class Audio(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
@@ -29,9 +33,17 @@ class Audio(models.Model):
     filename = models.CharField(max_length=300, **required)
     sample_rate = models.IntegerField(default=None)
     n_channels = models.IntegerField(default=None)
+    duration = models.FloatField(default=None)
+    info = models.CharField(max_length=1000, default='')
+    language = models.ForeignKey('Language',**dargs)
+    dataset = models.ForeignKey('Dataset',**dargs)
 
     def __str__(self):
-        return self.filename
+        m = self.identifier + ' ' + str(self.duration) 
+        if self.language:
+            m += ' ' + self.language.language
+        return m
+    
 
 class TextGrid(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
