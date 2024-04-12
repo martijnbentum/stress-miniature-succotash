@@ -45,20 +45,27 @@ class Audio(models.Model):
         return m
     
 
-class TextGrid(models.Model):
+class Textgrid(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     identifier = models.CharField(max_length=100, unique=True, **required)
     audio = models.ForeignKey('Audio',**dargs)
     filename = models.CharField(max_length=300, **required)
     table_filename = models.CharField(max_length=300, default='')
     phoneme_set_name = models.CharField(max_length=30, default='')
+    speakers = models.ManyToManyField('Speaker', blank=True, default=None)
+    n_speakers = models.IntegerField(default=None, **not_required)
 
     def __str__(self):
-        return self.filename
+        return self.identifier + ' ' + self.phoneme_set_name
+
+    def load(self):
+        import textgrids
+        return textgrids.TextGrid(self.filename)
 
 class Phrase(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     identifier = models.CharField(max_length=100, unique=True, **required)
+    speaker = models.ForeignKey('Speaker',**dargs)
     phrase = models.CharField(max_length=1000)
     language = models.ForeignKey('Language',**dargs)
     audio = models.ForeignKey('Audio',**dargs)
@@ -69,28 +76,32 @@ class Speaker(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     identifier = models.CharField(max_length=100, unique=True, **required)
     name = models.CharField(max_length=100)
-    phrase = models.ManyToManyField('Phrase', blank=True, default=None)
+    birth_year = models.IntegerField(default=None, **not_required)
     age = models.IntegerField(default=None, **not_required)
     gender = models.CharField(max_length=10, default='')
+    info = models.CharField(max_length=1000, default='')
 
     def __str__(self):
-        return self.name + ' ' + self.gender
+        return self.identifier+ ' ' + self.gender + ' ' + str(self.age)
 
 class Word(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
+    speaker = models.ForeignKey('Speaker',**dargs)
     phrase = models.ForeignKey('Phrase',**dargs)
     index = models.IntegerField(default=None, **not_required)
     word = models.CharField(max_length=100, **required)
     ipa = models.CharField(max_length=100)
     language = models.ForeignKey('Language',**dargs)
     isolation = models.BooleanField(default=None, **not_required)
+    overlap = models.BooleanField(default=None, **not_required)
     n_syllables = models.IntegerField(default=None, **not_required)
     n_phonemes = models.IntegerField(default=None, **not_required)
     audio = models.ForeignKey('Audio',**dargs)
     start_time = models.FloatField(default=None)
     end_time = models.FloatField(default=None)
+    info = models.CharField(max_length=1000, default='')
 
     def __str__(self):
         return self.word + ' ' + self.ipa 
