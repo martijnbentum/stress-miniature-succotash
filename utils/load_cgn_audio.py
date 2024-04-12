@@ -2,7 +2,6 @@ from . import locations_pony as locations
 import json
 from pathlib import Path
 from progressbar import progressbar
-from text.models import Audio, Dataset, Language
 import subprocess
 
 def cgn_audio_files(comps = 'abefghijklno',languages = ['nl','fl']):
@@ -28,6 +27,7 @@ def soxinfo_to_dict(soxinfo):
     return d
 
 def handle_audio_file(file_info):
+    from text.models import Audio, Dataset, Language
     dutch = Language.objects.get(language='Dutch')
     dataset = Dataset.objects.get(name='CGN')
     filename = file_info['filename']
