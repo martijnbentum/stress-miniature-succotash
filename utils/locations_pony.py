@@ -4,6 +4,7 @@ from pathlib import Path
 cgn_root = Path('/vol/bigdata/corpora2/CGN2')
 cgn_data = cgn_root / 'data'
 cgn_audio = cgn_data / 'audio/wav'
+cgn_speaker_file = cgn_data / 'meta/text/speakers.txt'
 # cgn transcription root
 cgn_transcription = Path('/vol/tensusers/mbentum/CGN_AUDIO_EXTRACT')
 cgn_awd = cgn_transcription / 'awd'
