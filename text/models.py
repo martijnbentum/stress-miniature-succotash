@@ -134,8 +134,15 @@ class Phoneme(models.Model):
     speaker = models.ForeignKey('Speaker',**dargs)
     start_time = models.FloatField(default=None, **not_required)
     end_time = models.FloatField(default=None, **not_required)
-    bpc = models.CharField(max_length=30, default='')
+    bpc = models.ManyToManyField('BPC',blank=True, default=None)
 
     def __str__(self):
         return self.ipa + ' ' + self.bpc + ' ' + str(self.stress)
     
+class BPC(models.Model):
+    bpc = models.CharField(max_length=10, default='', unique=True, **required)
+    ipa = models.CharField(max_length=200, default='')
+    info = models.CharField(max_length=1000, default='')
+
+    def __str__(self):
+        return self.bpc 
