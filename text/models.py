@@ -113,6 +113,7 @@ class Syllable(models.Model):
     ipa = models.CharField(max_length=100, default='')
     stress = models.BooleanField(default=None, **not_required)
     audio = models.ForeignKey('Audio',**dargs)
+    speaker = models.ForeignKey('Speaker',**dargs)
     start_time = models.FloatField(default=None)
     end_time = models.FloatField(default=None)
 
@@ -122,13 +123,15 @@ class Syllable(models.Model):
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     identifier = models.CharField(max_length=100, unique=True, **required)
+    phoneme = models.CharField(max_length=5, default='')
     word = models.ForeignKey('Word',**dargs)
     word_index = models.IntegerField(default=None)
     syllable = models.ForeignKey('Syllable',**dargs)
     syllable_index = models.IntegerField(default=None)
-    ipa = models.CharField(max_length=10, default='')
+    ipa = models.CharField(max_length=5, default='')
     stress = models.BooleanField(default=None, **not_required)
     audio = models.ForeignKey('Audio',**dargs)
+    speaker = models.ForeignKey('Speaker',**dargs)
     start_time = models.FloatField(default=None, **not_required)
     end_time = models.FloatField(default=None, **not_required)
     bpc = models.CharField(max_length=30, default='')
