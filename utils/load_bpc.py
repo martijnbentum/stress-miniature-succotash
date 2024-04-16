@@ -6,8 +6,7 @@ def make_bpcs():
     '''make a BPCs instance with all broad phonetic classes.'''
     names = 'plosive,nasal,approximant,fricative,voiced,voiceless'
     names += ',high,mid,low,front,central'
-    names += ',back,close,open'
-    names += ',diphtong,consonant,vowel'
+    names += ',back,diphtong,consonant,vowel'
     names = names.split(',')
     bpcs = 'p t k b d g,n m ŋ ɲ,l r j w ʋ,s ʃ ʒ h f x z v ɣ'
     bpcs += ',b d g m n ŋ ɲ l r j w ʋ ʒ z v'
@@ -18,8 +17,6 @@ def make_bpcs():
     bpcs += ',y i ɪ e ɛ a'
     bpcs += ',œ ø ʉ ɨ ə ɜ ä'
     bpcs += ',u ʊ o ɔ ɑ ɒ'
-    bpcs += ','
-    bpcs += ','
     bpcs += ',ɛi œy ɑu ɔi ɔu'
     bpcs += ',p t k b d g n m ŋ ɲ l r j w ʋ s ʃ ʒ h'
     bpcs += ' f x z v ɣ'
