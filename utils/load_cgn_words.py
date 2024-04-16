@@ -76,9 +76,11 @@ def handle_word(word_interval, word_index, speaker, textgrid, interval_index):
     d = {}
     d['identifier'] = make_word_identifier(textgrid.identifier, 
         speaker.identifier, word_index)
+    '''
     try: Word.objects.get(identifier=d['identifier'])
     except Word.DoesNotExist: pass
     else: return False, True
+    '''
     d['dataset'] = textgrid.audio.dataset
     d['speaker'] = speaker
     d['index'] = word_index
