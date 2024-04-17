@@ -15,7 +15,7 @@ def word_to_phoneme_intervals(speaker,word,textgrid):
     all_phoneme_intervals = textgrid.load()[speaker_id + '_SEG']
     output = []
     for phoneme_interval in all_phoneme_intervals:
-        if phoneme_interval.text in ['',' ','sp']: continue
+        if phoneme_interval.text in ['',' ','sp','[]']: continue
         if '!' in phoneme_interval.text: continue
         start, end = phoneme_interval.xmin, phoneme_interval.xmax
         if start >= word.start_time and end <= word.end_time:
