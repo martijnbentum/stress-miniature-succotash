@@ -1,4 +1,4 @@
-from utils import locations_pony as locations
+from utils import locations as locations
 import textgrids
 from pathlib import Path 
 from progressbar import progressbar

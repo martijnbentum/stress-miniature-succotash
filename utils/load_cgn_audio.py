@@ -1,4 +1,4 @@
-from . import locations_pony as locations
+from . import locations as locations
 import json
 from pathlib import Path
 from progressbar import progressbar

@@ -1,5 +1,5 @@
 import json
-from . import locations_pony as locations
+from . import locations as locations
 from progressbar import progressbar
 
 gender = {'sex1':'male','sex2':'female','sexX':'unknown'}
