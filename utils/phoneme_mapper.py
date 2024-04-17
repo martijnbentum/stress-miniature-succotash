@@ -67,6 +67,7 @@ class Mapper:
             self.cgn_to_ipa[cgn] = ipa
             self.cgn_to_disc[cgn] = disc
         self.ipa_to_disc['oʊ'] = '5'
+        self.cgn_to_ipa['J'] = 'ɲ'
 
 
     def _add_arpabet(self):
