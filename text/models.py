@@ -127,17 +127,22 @@ class Phoneme(models.Model):
     word = models.ForeignKey('Word',**dargs)
     word_index = models.IntegerField(default=None)
     syllable = models.ForeignKey('Syllable',**dargs)
-    syllable_index = models.IntegerField(default=None)
+    syllable_index = models.IntegerField(default=None, **not_required)
     ipa = models.CharField(max_length=5, default='')
     stress = models.BooleanField(default=None, **not_required)
     audio = models.ForeignKey('Audio',**dargs)
     speaker = models.ForeignKey('Speaker',**dargs)
+    language= models.ForeignKey('Language',**dargs)
     start_time = models.FloatField(default=None, **not_required)
     end_time = models.FloatField(default=None, **not_required)
-    bpc = models.ManyToManyField('BPC',blank=True, default=None)
+    bpcs = models.ManyToManyField('BPC',blank=True, default=None)
+    bpcs_str = models.CharField(max_length=100, default='')
 
     def __str__(self):
-        return self.ipa + ' ' + self.bpc + ' ' + str(self.stress)
+        m = self.ipa + ' ' + self.bpcs_str 
+        if self.stress:
+            m += ' ' + str(self.stress)
+        return m
     
 class BPC(models.Model):
     bpc = models.CharField(max_length=10, default='', unique=True, **required)
