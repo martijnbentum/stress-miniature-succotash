@@ -25,19 +25,31 @@ def make_bpcs():
     bpcs = [x.split() for x in bpcs.split(',')]
     return dict(zip(names,bpcs))
 
-def ipa_to_bpc_dict():
+def ipa_to_bpc_dict(add_longer=False):
     '''return the broad phonetic class of a given IPA symbol.'''
     d = {}
     bpcs = make_bpcs()
     ipas = []
+    vowels = bpcs['vowel']
     for phonemes in bpcs.values():
         ipas.extend(phonemes)
     for ipa in ipas:
         for bpc, phonemes in bpcs.items():
             if not ipa in d.keys(): d[ipa] = []
             if ipa in phonemes and bpc not in d[ipa]: d[ipa].append( bpc ) 
-            if ipa == 'ʊ': print(bpc, d[ipa])
+            if ipa in vowels:
+                if ipa + longer not in d.keys(): d[ipa + longer] = []
+                if ipa in phonemes and bpc not in d[ipa + longer]: 
+                    d[ipa + longer].append( bpc ) 
     return d
+
+def ipa_to_bpc_instances(add_longer=False):
+    from text.models import BPC
+    d = ipa_to_bpc_dict()
+    output = {}
+    for ipa, bpcs in d.items():
+        output[ipa] = BPC.objects.filter(bpc__in=bpcs)
+    return output
 
 def handle_bpc(bpc, bpcs):
     from text.models import BPC
