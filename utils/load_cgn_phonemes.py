@@ -1,6 +1,11 @@
+from utils import load_bpc
 from utils import load_cgn_textgrids
+from utils import phoneme_mapper
+from progressbar import progressbar
 
 
+cgn_to_ipa = phoneme_mapper.Mapper('dutch').cgn_to_ipa
+ipa_to_bpc = load_bpc.ipa_to_bpc_instances(add_longer=True)
 
 def make_phoneme_identifier(word, phoneme_index):
     return word.identifier + '_' + str(phoneme_index)
@@ -17,25 +22,58 @@ def word_to_phoneme_intervals(speaker,word,textgrid):
             output.append(phoneme_interval)
     return output
 
-def handle_word(word):
+def handle_word(word, language):
     speaker = word.speaker
+    audio = word.audio
     textgrid = audio.textgrid_set.get(phoneme_set_name='cgn')
     phoneme_intervals = word_to_phoneme_intervals(speaker,word,textgrid)
-    audio = word.audio
+    n_created = 0
+    phonemes = []
+    for phoneme_index, phoneme_interval in enumerate(phoneme_intervals):
+        phoneme, created = handle_phoneme(phoneme_interval, phoneme_index, 
+            word, audio, speaker, language)
+        if created: n_created += 1
+        phonemes.append(phoneme)
+        ipa = [phoneme.ipa for phoneme in phonemes]
+        word.ipa = ' '.join(ipa)
+        word.save()
+    return n_created
+        
     
+def handle_words(words = None, start_index = 0, skip_if_ipa = True):
+    from text.models import Language, Word
+    dutch = Language.objects.get(language='Dutch')
+    if not words: words = Word.objects.all()
+    n_created = 0
+    for word in progressbar(words[start_index:]):
+        if skip_if_ipa and word.ipa: continue
+        n_created += handle_word(word, dutch)
+    print('Created', n_created, 'phonemes.')
 
-
-
-def handle_phoneme(phoneme_interval, phoneme_index, word, speaker, audio,
-    cgn_to_ipa= None):
+def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
+    language, check_bpcs = False):
+    from text.models import Phoneme
+    d = {}
     d['identifier'] = make_phoneme_identifier(word, phoneme_index)
     d['phoneme'] = phoneme_interval.text
-    d['ipa'] = cgn_to_ipa[phoneme]
+    d['ipa'] = cgn_to_ipa[d['phoneme']]
+    d['word'] = word
     d['word_index'] = phoneme_index
     d['start_time'] = phoneme_interval.xmin
     d['end_time'] = phoneme_interval.xmax
     d['audio'] = audio
-    d['bpc'] = ''
+    d['speaker'] = speaker
+    d['language'] = language
+    bpcs = ipa_to_bpc[d['ipa']]
+    d['bpcs_str'] = ','.join([bpc.bpc for bpc in bpcs])
+    phoneme, created = Phoneme.objects.get_or_create(**d)
+    if created: phoneme.bpcs.add(*bpcs)
+    else:
+        linked_bpcs = phoneme.bpcs.all()
+        for bpc in bpcs:
+            if speaker not in linked_bpcs:
+                phoneme.bpcs.add(bpc)
+    return phoneme, created
 
 
 
