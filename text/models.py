@@ -80,9 +80,12 @@ class Speaker(models.Model):
     age = models.IntegerField(default=None, **not_required)
     gender = models.CharField(max_length=10, default='')
     info = models.CharField(max_length=1000, default='')
+    dataset = models.ForeignKey('Dataset',**dargs)
 
     def __str__(self):
-        return self.identifier+ ' ' + self.gender + ' ' + str(self.age)
+        identifier = self.identifier
+        if len(identifier) > 9: identifier = identifier[:9] + '...'
+        return identifier+ ' ' + self.gender + ' ' + str(self.age)
 
 class Word(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
