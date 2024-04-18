@@ -28,7 +28,7 @@ cv_root_folders = [cv_dutch, cv_hungarian, cv_italian, cv_polish, cv_spanish]
     
 def get_cv_path(cv_root_folder, folder_name):
     if cv_root_folder not in cv_root_folders: return None
-    if folder_name not in 'textgrid,clips,transcription'.split(','):
+    if folder_name not in 'textgrids,clips,transcriptions'.split(','):
         return None
     return cv_root_folder / folder_name
 
