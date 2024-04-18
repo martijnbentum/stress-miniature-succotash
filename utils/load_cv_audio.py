@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from progressbar import progressbar
 from utils import audio
+from utils import load_cv_speakers 
 
 def load_dataset(dataset_name):
     from text.models import Dataset
@@ -33,9 +34,10 @@ def get_language_root_folder(language_name):
     return None
 
 def get_audio_files(language_name):
+    validated_dict = load_cv_speakers.validated_dict(language_name)
     cv_root_folder = get_language_root_folder(language_name)
     audio_folder = locations.get_cv_path(cv_root_folder, 'clips')
-    audio_files = audio_folder.glob('*.mp3')
+    audio_files = [audio_folder / k for k in validated_dict.keys()]
     audio_files = [{'filename':f,'identifier':f.stem, 'language':language_name} 
         for f in audio_files]
     return audio_files
