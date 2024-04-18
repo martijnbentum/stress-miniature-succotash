@@ -16,7 +16,7 @@ def get_maus_textgrid_filename(filename, cv_root_folder ):
 def load_speaker(audio, validated_dict):
     from text.models import Speaker
     audio_filename = Path(audio.filename).name
-    if not audio_filename in validated_dict.keys(): Return False
+    if not audio_filename in validated_dict.keys(): return False
     line = validated_dict[audio_filename]
     speaker = Speaker.objects.get(identifier=line['client_id'])
     return speaker
