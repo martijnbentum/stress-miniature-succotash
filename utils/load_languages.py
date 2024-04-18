@@ -1,9 +1,9 @@
 from text.models import Language
 
-languages = 'Dutch,English,French,German,Italian,Spanish,Polish'
+languages = 'Dutch,English,French,German,Italian,Spanish,Polish,Hungarian'
 languages = languages.split(',')
 
-isos = 'nl,en,fr,de,it,es,pl'
+isos = 'nl,en,fr,de,it,es,pl,hu'
 isos = isos.split(',')
 
 def make_languages():
