@@ -1,10 +1,10 @@
 from utils import load_bpc
 from utils import load_cv_textgrids
-from utils import phoneme_mapper
+from utils import maus_phoneme_mapper
 from progressbar import progressbar
 
 
-cgn_to_ipa = phoneme_mapper.Mapper('dutch').cgn_to_ipa
+maus_to_ipa = maus_phoneme_mapper.Mapper('dutch').maus_to_ipa
 ipa_to_bpc = load_bpc.ipa_to_bpc_instances(add_longer=True)
 
 def make_phoneme_identifier(word, phoneme_index):
@@ -25,7 +25,7 @@ def word_to_phoneme_intervals(speaker,word,textgrid):
 def handle_word(word, language):
     speaker = word.speaker
     audio = word.audio
-    textgrid = audio.textgrid_set.get(phoneme_set_name='cgn')
+    textgrid = audio.textgrid_set.get(phoneme_set_name='maus')
     phoneme_intervals = word_to_phoneme_intervals(speaker,word,textgrid)
     n_created = 0
     phonemes = []
