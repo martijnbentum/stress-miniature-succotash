@@ -18,13 +18,16 @@ mald_root = ld_root / 'MALD'
 coolest_root = ld_root / 'MALD'
 
 cv_dutch = common_voice_root / 'COMMON_VOICE_DUTCH'
+cv_german = common_voice_root / 'COMMON_VOICE_GERMAN'
+cv_french = common_voice_root / 'COMMON_VOICE_FRENCH'
 cv_hungarian = common_voice_root / 'COMMON_VOICE_HUNGARIAN'
 cv_italian = common_voice_root / 'COMMON_VOICE_ITALIAN'
 cv_polish = common_voice_root / 'COMMON_VOICE_POLISH'
 cv_spanish = common_voice_root / 'COMMON_VOICE_SPANISH'
 cv_turkish = common_voice_root / 'COMMON_VOICE_TURKISH'
 
-cv_root_folders = [cv_dutch, cv_hungarian, cv_italian, cv_polish, cv_spanish] 
+cv_root_folders = [cv_dutch, cv_hungarian, cv_italian, cv_polish, cv_spanish,
+    cv_german, cv_french] 
 
 def get_language_cv_root_folder(language):
     for cv_root_folder in cv_root_folders:
