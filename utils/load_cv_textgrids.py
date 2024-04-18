@@ -37,7 +37,7 @@ def load_in_maus_textgrid(audio,cv_root_folder,validated_dict):
 
 def handle_language(language_name):
     from text.models import Audio
-    cv_root_folder = load_cv_audio.get_language_root_folder(language_name)
+    cv_root_folder = locations.get_language_cv_root_folder(language_name)
     validated_dict = load_cv_speakers.validated_dict(language_name)
     language = load_cv_audio.load_language(language_name)
     dataset = load_cv_audio.load_dataset('COMMON VOICE')

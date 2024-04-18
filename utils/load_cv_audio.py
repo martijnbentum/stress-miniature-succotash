@@ -27,15 +27,10 @@ def handle_audio_file(file_info, language, dataset):
     _, created = Audio.objects.get_or_create(**d)
     return created
 
-def get_language_root_folder(language_name):
-    for cv_root_folder in locations.cv_root_folders:
-        language = cv_root_folder.stem.split('_')[-1].lower()
-        if language == language_name: return cv_root_folder
-    return None
 
 def get_audio_files(language_name):
     validated_dict = load_cv_speakers.validated_dict(language_name)
-    cv_root_folder = get_language_root_folder(language_name)
+    cv_root_folder = locations.get_language_cv_root_folder(language_name)
     audio_folder = locations.get_cv_path(cv_root_folder, 'clips')
     audio_files = [audio_folder / k for k in validated_dict.keys()]
     audio_files = [{'filename':f,'identifier':f.stem, 'language':language_name} 

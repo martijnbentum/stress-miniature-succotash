@@ -11,7 +11,7 @@ gender_dict = {'':'','other':'other','female':'female','male':'male',
         
 
 def load_validated(language):
-    root_folder = load_cv_audio.get_language_root_folder(language)
+    root_folder = locations.get_language_cv_root_folder(language_name)
     filename = root_folder / 'validated.tsv'
     with open(filename) as f:
         t = [line.split('\t') for line in f.read().split('\n')]
