@@ -10,7 +10,7 @@ gender_dict = {'':'','other':'other','female':'female','male':'male',
     'female_feminine':'female','male_masculine':'male'}
         
 
-def load_validated(language):
+def load_validated(language_name):
     root_folder = locations.get_language_cv_root_folder(language_name)
     filename = root_folder / 'validated.tsv'
     with open(filename) as f:
