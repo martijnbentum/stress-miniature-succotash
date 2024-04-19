@@ -67,12 +67,7 @@ def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
     bpcs = ipa_to_bpc[d['ipa']]
     d['bpcs_str'] = ','.join([bpc.bpc for bpc in bpcs])
     phoneme, created = Phoneme.objects.get_or_create(**d)
-    if created: phoneme.bpcs.add(*bpcs)
-    else:
-        linked_bpcs = phoneme.bpcs.all()
-        for bpc in bpcs:
-            if speaker not in linked_bpcs:
-                phoneme.bpcs.add(bpc)
+    phoneme.bpcs.add(*bpcs)
     return phoneme, created
 
 
