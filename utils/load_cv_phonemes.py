@@ -4,25 +4,25 @@ from utils import maus_phoneme_mapper
 from progressbar import progressbar
 
 
-maus_to_ipa = maus_phoneme_mapper.Mapper('dutch').maus_to_ipa
 ipa_to_bpc = load_bpc.ipa_to_bpc_instances(add_longer=True)
 
-def make_phoneme_identifier(word, phoneme_index):
-    return word.identifier + '_' + str(phoneme_index)
+def handle_language(language_name, skip_if_ipa = True):
+    from text.models import Language, Dataset
+    language = Language.objects.get(language__iexact=language_name)
+    dataset = Dataset.objects.get(name = 'COMMON VOICE')
+    maus_to_ipa = maus_phoneme_mapper.Maus(language_name).maus_to_ipa()
+    handle_words(language, dataset, maus_to_ipa, skip_if_ipa)
 
-def word_to_phoneme_intervals(speaker,word,textgrid):
-    speaker_id = speaker.identifier
-    all_phoneme_intervals = textgrid.load()[speaker_id + '_SEG']
-    output = []
-    for phoneme_interval in all_phoneme_intervals:
-        if phoneme_interval.text in ['',' ','sp','[]']: continue
-        if '!' in phoneme_interval.text: continue
-        start, end = phoneme_interval.xmin, phoneme_interval.xmax
-        if start >= word.start_time and end <= word.end_time:
-            output.append(phoneme_interval)
-    return output
+def handle_words(language, dataset, maus_to_ipa, skip_if_ipa = True):
+    from text.models import Word
+    words = Word.objects.filter(language=language, dataset=dataset)
+    n_created = 0
+    for word in progressbar(words):
+        if skip_if_ipa and word.ipa: continue
+        n_created += handle_word(word, language, maus_to_ipa)
+    print('Created', n_created, 'phonemes for', language.language)
 
-def handle_word(word, language):
+def handle_word(word, language, maus_to_ipa):
     speaker = word.speaker
     audio = word.audio
     textgrid = audio.textgrid_set.get(phoneme_set_name='maus')
@@ -31,32 +31,21 @@ def handle_word(word, language):
     phonemes = []
     for phoneme_index, phoneme_interval in enumerate(phoneme_intervals):
         phoneme, created = handle_phoneme(phoneme_interval, phoneme_index, 
-            word, audio, speaker, language)
+            word, audio, speaker, language, maus_to_ipa)
         if created: n_created += 1
         phonemes.append(phoneme)
         ipa = [phoneme.ipa for phoneme in phonemes]
         word.ipa = ' '.join(ipa)
         word.save()
     return n_created
-        
-    
-def handle_words(words = None, start_index = 0, skip_if_ipa = True):
-    from text.models import Language, Word
-    dutch = Language.objects.get(language='Dutch')
-    if not words: words = Word.objects.all()
-    n_created = 0
-    for word in progressbar(words[start_index:]):
-        if skip_if_ipa and word.ipa: continue
-        n_created += handle_word(word, dutch)
-    print('Created', n_created, 'phonemes.')
 
 def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
-    language, check_bpcs = False):
+    language, maus_to_ipa):
     from text.models import Phoneme
     d = {}
     d['identifier'] = make_phoneme_identifier(word, phoneme_index)
     d['phoneme'] = phoneme_interval.text
-    d['ipa'] = cgn_to_ipa[d['phoneme']]
+    d['ipa'] = maus_to_ipa[d['phoneme']]
     d['word'] = word
     d['word_index'] = phoneme_index
     d['start_time'] = phoneme_interval.xmin
@@ -67,14 +56,25 @@ def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
     bpcs = ipa_to_bpc[d['ipa']]
     d['bpcs_str'] = ','.join([bpc.bpc for bpc in bpcs])
     phoneme, created = Phoneme.objects.get_or_create(**d)
-    if created: phoneme.bpcs.add(*bpcs)
-    else:
-        linked_bpcs = phoneme.bpcs.all()
-        for bpc in bpcs:
-            if speaker not in linked_bpcs:
-                phoneme.bpcs.add(bpc)
+    phoneme.bpcs.add(*bpcs)
     return phoneme, created
 
+
+def make_phoneme_identifier(word, phoneme_index):
+    return word.identifier + '_' + str(phoneme_index)
+
+def word_to_phoneme_intervals(speaker,word,textgrid):
+    speaker_id = speaker.identifier
+    all_phoneme_intervals = textgrid.load()['MAU']
+    output = []
+    exclude = ['',' ','sp','[]'] + maus_phoneme_mapper.maus_exclude_phonemes
+    for phoneme_interval in all_phoneme_intervals:
+        if phoneme_interval.text in exclude: continue
+        if '!' in phoneme_interval.text: continue
+        start, end = phoneme_interval.xmin, phoneme_interval.xmax
+        if start >= word.start_time and end <= word.end_time:
+            output.append(phoneme_interval)
+    return output
 
 
 '''
