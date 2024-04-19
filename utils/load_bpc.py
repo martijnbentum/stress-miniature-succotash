@@ -17,8 +17,8 @@ def make_bpcs():
     bpcs += ',p pʰ t tʰ k kʰ s ʃ tʃ h f x ɣ θ ts pf ç ɥ' # voiceless
     bpcs += ',i ɨ ɪ y ʏ u ʉ ʊ' # high
     bpcs += ',ʏ ø e ẽ ɛ ɛ̃ ɔ ɔ̃ o õ ə ɜ œ ɶ̃' # mid
-    bpcs += ',a ɑ ɒ ä ã ɑ̃ ɐ' # low
-    bpcs += ',y i ɪ e ẽ ɛ ɛ̃ a ɶ̃' # front
+    bpcs += ',a ɑ ɒ ä ã ɑ̃ ɐ æ̃' # low
+    bpcs += ',y i ɪ e ẽ ɛ ɛ̃ a ɶ̃ æ̃' # front
     bpcs += ',œ ø ʉ ɨ ə ɜ ä ã ɐ' # central
     bpcs += ',u ʊ o õ ɔ ɔ̃ ɑ ɑ̃ ɒ' # back
     bpcs += ',ɛi œy ɑu ɔi ɔu oːi ɛɪ eːu aːi yu ui əʊ iu ɔɪ' #diphtong 
@@ -28,7 +28,7 @@ def make_bpcs():
     bpcs += ' f x z v ɣ ð θ ʎ ɱ β' # consonant
     bpcs += ',i ɨ ɪ y ʏ u ʉ ʊ ʏ ø e ẽ ɛ ɛ̃ ɔ ɔ̃ o õ ə ɜ œ a ɑ ɒ ä ã ɑ̃' # vowel
     bpcs += ' ɛi œy ɑu ɔi ɔu oːi ɛɪ eːu aːi yu ui əʊ iu ɔɪ eʊ eɪ aʊ aɪ' # vowel
-    bpcs += ' ɐ ɔʏ ɶ̃' # vowel
+    bpcs += ' ɐ ɔʏ ɶ̃ æ̃' # vowel
     bpcs = [x.split() for x in bpcs.split(',')]
     return dict(zip(names,bpcs))
 
