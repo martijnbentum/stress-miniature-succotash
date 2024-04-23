@@ -12,7 +12,7 @@ def handle_language(language_name):
     print('handling textgrids')
     load_cv_textgrids.handle_language(language_name)
     print('handling words')
-    load_cv_words.handle_language(language_name)
+    load_cv_words.load_all_words_language(language_name)
 
 def handle_languages(languages):
     for language in languages:
