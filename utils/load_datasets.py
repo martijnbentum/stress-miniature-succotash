@@ -18,14 +18,9 @@ language_sets.append(get_cv_languages())
 
 
 def make_datasets():
-    for name,description,language_set in zip(names, descriptions, language_sets):
+    for name,description,language_set in zip(names,descriptions, language_sets):
+        print(name, description, language_set)
         dataset, created = Dataset.objects.get_or_create(name=name, 
-            description=descriptions)
-        if created:
-            dataset.languages.add(*language_set)
-        else:
-            languages = dataset.languages.all()
-            for language in language_set:
-                if language not in languages:
-                    dataset.languages.add(language)
+            description=description)
+        dataset.languages.add(*language_set)
     return dataset
