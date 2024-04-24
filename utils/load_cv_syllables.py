@@ -1,10 +1,6 @@
-from utils import load_bpc
-from utils import load_cv_textgrids
 from utils import maus_phoneme_mapper
 from progressbar import progressbar
 
-
-ipa_to_bpc = load_bpc.ipa_to_bpc_instances(add_longer=True)
 
 def handle_language(language_name):
     from text.models import Language, Dataset
