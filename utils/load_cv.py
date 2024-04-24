@@ -2,6 +2,8 @@ from utils import load_cv_audio
 from utils import load_cv_speakers
 from utils import load_cv_textgrids
 from utils import load_cv_words
+from utils import load_cv_phonemes
+
 
 def handle_language(language_name):
     print("Loading CV for language: " + language_name)
@@ -13,6 +15,9 @@ def handle_language(language_name):
     load_cv_textgrids.handle_language(language_name)
     print('handling words')
     load_cv_words.load_all_words_language(language_name)
+    print('handling phonemes')
+    load_cv_phonemes.handle_language(language_name)
+        
 
 def handle_languages(languages):
     for language in languages:
