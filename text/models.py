@@ -114,6 +114,7 @@ class Syllable(models.Model):
     identifier = models.CharField(max_length=100, unique=True, **required)
     word = models.ForeignKey('Word',**dargs)
     ipa = models.CharField(max_length=100, default='')
+    index = models.IntegerField(default=None)
     stress = models.BooleanField(default=None, **not_required)
     audio = models.ForeignKey('Audio',**dargs)
     speaker = models.ForeignKey('Speaker',**dargs)
