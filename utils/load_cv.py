@@ -3,6 +3,7 @@ from utils import load_cv_speakers
 from utils import load_cv_textgrids
 from utils import load_cv_words
 from utils import load_cv_phonemes
+from utils import load_cv_syllables
 
 
 def handle_language(language_name):
@@ -17,6 +18,8 @@ def handle_language(language_name):
     load_cv_words.load_all_words_language(language_name)
     print('handling phonemes')
     load_cv_phonemes.handle_language(language_name)
+    print('handling syllables')
+    load_cv_syllables.handle_language(language_name)
         
 
 def handle_languages(languages):
