@@ -27,6 +27,9 @@ def handle_textgrid(textgrid,language, dataset):
     return n_created
 
 def handle_speaker(speaker, textgrid, language, dataset):
+    if not Path(textgrid.filename).exists():
+        print(f'File {textgrid.filename} does not exist')
+        return 0
     word_tier = textgrid.load()['ORT-MAU']
     word_index = 0
     n_created = 0
