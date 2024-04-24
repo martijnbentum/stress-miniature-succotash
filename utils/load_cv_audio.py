@@ -20,7 +20,10 @@ def handle_audio_file(file_info, language, dataset):
     filename = file_info['filename']
     path = Path(filename)
     identifier = file_info['identifier']
-    d = audio.soxinfo_to_dict(audio.soxi_info(filename))
+    try: d = audio.soxinfo_to_dict(audio.soxi_info(filename))
+    except: 
+        print('Error with',filename)
+        return False
     d['identifier'] = identifier
     d['language'] = language
     d['dataset'] = dataset
