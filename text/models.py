@@ -113,16 +113,20 @@ class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     identifier = models.CharField(max_length=100, unique=True, **required)
     word = models.ForeignKey('Word',**dargs)
+    phoneme_str= models.CharField(max_length=100,default='') 
     ipa = models.CharField(max_length=100, default='')
     index = models.IntegerField(default=None)
     stress = models.BooleanField(default=None, **not_required)
     audio = models.ForeignKey('Audio',**dargs)
     speaker = models.ForeignKey('Speaker',**dargs)
+    language= models.ForeignKey('Language',**dargs)
     start_time = models.FloatField(default=None)
     end_time = models.FloatField(default=None)
 
     def __str__(self):
-        return self.ipa + ' ' + str(self.stress)
+        m = self.ipa 
+        if self.stress != None: m += ' ' + str(self.stress)
+        return m
 
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
