@@ -6,18 +6,17 @@ def handle_language(language_name):
     from text.models import Language, Dataset
     language = Language.objects.get(language__iexact=language_name)
     dataset = Dataset.objects.get(name = 'COMMON VOICE')
-    maus_to_ipa = maus_phoneme_mapper.Maus(language_name).maus_to_ipa()
-    handle_words(language, dataset, maus_to_ipa, skip_if_ipa)
+    handle_words(language, dataset)
 
-def handle_words(language, dataset, maus_to_ipa):
+def handle_words(language, dataset):
     from text.models import Word
     words = Word.objects.filter(language=language, dataset=dataset)
     n_created = 0
     for word in progressbar(words):
-        n_created += handle_word(word, language, maus_to_ipa)
+        n_created += handle_word(word, language)
     print('Created', n_created, 'phonemes for', language.language)
 
-def handle_word(word, language, maus_to_ipa):
+def handle_word(word, language):
     speaker = word.speaker
     audio = word.audio
     textgrid = audio.textgrid_set.get(phoneme_set_name='maus')
@@ -26,30 +25,52 @@ def handle_word(word, language, maus_to_ipa):
     phonemes = word.phoneme_set.all()
     for syllable_index, syllable_interval in enumerate(syllable_intervals):
         syllable, created = handle_syllable(syllable_interval, syllable_index, 
-            word, audio, speaker, language, maus_to_ipa)
+            word, audio, speaker, language, phonemes)
         if created: n_created += 1
     return n_created
 
 def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
-    language, maus_to_ipa):
+    language, phonemes):
     from text.models import Syllable
+    syllable_phonemes = select_syllable_phonemes(syllable_interval, phonemes)
     d = {}
     d['identifier'] = make_syllable_identifier(word, syllable_index)
-    d['phoneme'] = syllable_interval.text
-    d['ipa'] = ' '.join([maus_to_ipa[x] for x in d['phoneme'].split(' ')])
+    d['phoneme_str'] = syllable_interval.text
+    d['ipa'] = ' '.join([p.ipa for p in syllable_phonemes])
     d['word'] = word
-    d['index'] = phoneme_index
-    d['start_time'] = phoneme_interval.xmin
-    d['end_time'] = phoneme_interval.xmax
+    d['index'] = syllable_index
+    d['start_time'] = syllable_interval.xmin
+    d['end_time'] = syllable_interval.xmax
     d['audio'] = audio
     d['speaker'] = speaker
     d['language'] = language
+    print(d)
     syllable, created = Syllable.objects.get_or_create(**d)
+    handle_phonemes(syllable, syllable_phonemes)
     return syllable, created
+
+'''
+    identifier = models.CharField(max_length=100, unique=True, **required)
+    word = models.ForeignKey('Word',**dargs)
+    ipa = models.CharField(max_length=100, default='')
+    index = models.IntegerField(default=None)
+    stress = models.BooleanField(default=None, **not_required)
+    audio = models.ForeignKey('Audio',**dargs)
+    speaker = models.ForeignKey('Speaker',**dargs)
+    language= models.ForeignKey('Language',**dargs)
+    start_time = models.FloatField(default=None)
+    end_time = models.FloatField(default=None)
+'''
+
+def handle_phonemes(syllable, phonemes):
+    for index,phoneme in enumerate(phonemes):
+        phoneme.syllable = syllable
+        phoneme.syllable_index = index
+        phoneme.save()
 
 
 def make_syllable_identifier(word, syllable_index):
-    return word.identifier + '_' + str(phoneme_index)
+    return word.identifier + '_' + str(syllable_index)
 
 def select_syllable_phonemes(syllable_interval, phonemes):
     syllable_phonemes = []
@@ -59,6 +80,7 @@ def select_syllable_phonemes(syllable_interval, phonemes):
             syllable_phonemes.append(phoneme)
     if len(syllable_phonemes) != len(syllable_interval.text.split(' ')):
         raise ValueError('mismatched phonemes for syllable',syllable_phonemes)
+    return syllable_phonemes
 
 def contains(smaller_start, smaller_end, larger_start, larger_end):
     return (smaller_start >= larger_start) and (smaller_end <= larger_end)
@@ -75,17 +97,3 @@ def word_to_syllable_intervals(word,textgrid):
             output.append(syllable_interval)
     return output
 
-
-'''
-    identifier = models.CharField(max_length=100, unique=True, **required)
-    word = models.ForeignKey('Word',**dargs)
-    index = models.IntegerField(default=None)
-    syllable = models.ForeignKey('Syllable',**dargs)
-    syllable_index = models.IntegerField(default=None)
-    ipa = models.CharField(max_length=10, default='')
-    stress = models.BooleanField(default=None, **not_required)
-    audio = models.ForeignKey('Audio',**dargs)
-    start_time = models.FloatField(default=None, **not_required)
-    end_time = models.FloatField(default=None, **not_required)
-    bpc = models.CharField(max_length=30, default='')
-'''
