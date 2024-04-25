@@ -14,7 +14,7 @@ def handle_words(language, dataset):
     n_created = 0
     for word in progressbar(words):
         n_created += handle_word(word, language)
-    print('Created', n_created, 'phonemes for', language.language)
+    print('Created', n_created, 'syllables for', language.language)
 
 def handle_word(word, language):
     speaker = word.speaker
@@ -24,7 +24,7 @@ def handle_word(word, language):
     n_created = 0
     phonemes = word.phoneme_set.all()
     for syllable_index, syllable_interval in enumerate(syllable_intervals):
-        syllable, created = handle_syllable(syllable_interval, syllable_index, 
+        syllable,created = handle_syllable(syllable_interval, syllable_index, 
             word, audio, speaker, language, phonemes)
         if created: n_created += 1
     return n_created
@@ -44,7 +44,6 @@ def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
     d['audio'] = audio
     d['speaker'] = speaker
     d['language'] = language
-    print(d)
     syllable, created = Syllable.objects.get_or_create(**d)
     handle_phonemes(syllable, syllable_phonemes)
     return syllable, created
