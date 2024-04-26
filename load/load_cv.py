@@ -1,9 +1,9 @@
-from utils import load_cv_audio
-from utils import load_cv_speakers
-from utils import load_cv_textgrids
-from utils import load_cv_words
-from utils import load_cv_phonemes
-from utils import load_cv_syllables
+from load import load_cv_audio
+from load import load_cv_speakers
+from load import load_cv_textgrids
+from load import load_cv_words
+from load import load_cv_phonemes
+from load import load_cv_syllables
 
 
 def handle_language(language_name):

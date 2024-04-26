@@ -1,9 +1,9 @@
-from . import locations as locations
 import json
+from load import load_cv_speakers 
 from pathlib import Path
 from progressbar import progressbar
 from utils import audio
-from utils import load_cv_speakers 
+from utils import locations
 
 def load_dataset(dataset_name):
     from text.models import Dataset

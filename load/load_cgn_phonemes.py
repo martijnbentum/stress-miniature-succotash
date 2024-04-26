@@ -1,5 +1,5 @@
+from load import load_cgn_textgrids
 from utils import load_bpc
-from utils import load_cgn_textgrids
 from utils import phoneme_mapper
 from progressbar import progressbar
 

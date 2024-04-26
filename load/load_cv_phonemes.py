@@ -1,5 +1,5 @@
+from load import load_cv_textgrids
 from utils import load_bpc
-from utils import load_cv_textgrids
 from utils import maus_phoneme_mapper
 from progressbar import progressbar
 

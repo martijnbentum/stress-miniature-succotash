@@ -1,7 +1,7 @@
-from utils import locations as locations
 import textgrids
 from pathlib import Path 
 from progressbar import progressbar
+from utils import locations 
 
 def get_awd_textgrid_filename(filename):
     '''

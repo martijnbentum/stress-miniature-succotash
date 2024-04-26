@@ -1,9 +1,9 @@
-from utils import locations 
-from utils import load_cv_audio 
-from utils import load_cv_speakers 
+from load import load_cv_audio 
+from load import load_cv_speakers 
 import textgrids
 from pathlib import Path 
 from progressbar import progressbar
+from utils import locations 
 
 def get_maus_textgrid_filename(filename, cv_root_folder ):
     '''

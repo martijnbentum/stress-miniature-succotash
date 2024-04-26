@@ -1,5 +1,5 @@
 import json
-from utils import load_cv_audio
+from load import load_cv_audio
 from utils import locations
 from progressbar import progressbar
 

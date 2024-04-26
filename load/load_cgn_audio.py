@@ -1,7 +1,7 @@
-from . import locations as locations
 import json
 from pathlib import Path
 from progressbar import progressbar
+from utils import locations 
 from utils import audio
 
 def cgn_audio_files(comps = 'abefghijklno',languages = ['nl','fl']):
