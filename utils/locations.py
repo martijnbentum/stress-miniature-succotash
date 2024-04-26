@@ -70,4 +70,5 @@ def cgn_audio_files(comps = 'abefghijklno',languages = ['nl','fl']):
 
 coolest_root = ld_root / 'COOLEST'
 coolest_audio = coolest_root / 'Recordings'
-coolest_textgrids = coolest_root / 'TextGrids corrected'
+#coolest_textgrids = coolest_root / 'TextGrids corrected'
+coolest_textgrids = coolest_root / 'mauser_textgrids'
