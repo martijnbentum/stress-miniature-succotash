@@ -15,20 +15,21 @@ def load_in_textgrid(audio):
     from text.models import Textgrid, Speaker
     filename = get_textgrid_filename(audio.filename)
     tg = textgrids.TextGrid(filename)
-    speaker_id = (filename).stem[:4]
+    speaker_id = 'coolest_' + filename.stem[:4]
     speaker = Speaker.objects.get(identifier=speaker_id)
     d ={}
     d['identifier'] = 'coolest_' + Path(filename).stem
     d['audio'] = audio
     d['filename'] = filename
     d['phoneme_set_name'] = 'maus'
+    d['n_speakers'] = 1
     textgrid, created = Textgrid.objects.get_or_create(**d)
     textgrid.speakers.add(speaker)
     return textgrid, created
 
 def load_in_all_textgrids():
     from text.models import Audio
-    audios = Audio.objects.filter(dataset__name='coolest')
+    audios = Audio.objects.filter(dataset__name='COOLEST')
     print('audios',audios.count())
     no_file = []
     ncreated = 0
