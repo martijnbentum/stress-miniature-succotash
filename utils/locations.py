@@ -67,3 +67,6 @@ def cgn_audio_files(comps = 'abefghijklno',languages = ['nl','fl']):
             audio_filenames.extend(af)
     return audio_filenames
 
+
+coolest_root = ld_root / 'COOLEST'
+coolest_audio = coolest_root / 'Recordings'
