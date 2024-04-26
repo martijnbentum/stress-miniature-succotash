@@ -1,11 +1,12 @@
 from text.models import Dataset, Language
 
-names = 'CGN,COMMON VOICE'
+names = 'CGN,COMMON VOICE,COOLEST'
 names = names.split(',')
 
 descriptions = []
 descriptions.append('Corpus Gesproken Nederlands')
 descriptions.append('Mozilla Common Voice dataset')
+descriptions.append('Coolest dataset of Dutch lexical stress')
 
 def get_cv_languages():
     languages = 'Dutch,English,French,German,Italian,Spanish,Polish'
@@ -15,6 +16,7 @@ def get_cv_languages():
 language_sets = []
 language_sets.append([Language.objects.get(language='Dutch')])
 language_sets.append(get_cv_languages())
+language_sets.append([Language.objects.get(language='Dutch')])
 
 
 def make_datasets():
