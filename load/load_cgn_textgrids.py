@@ -35,7 +35,7 @@ def load_in_awd_textgrid(audio):
 
 def load_in_all_awd_textgrids():
     from text.models import Audio
-    audios = Audio.objects.all()
+    audios = Audio.objects.filter(dataset__name='CGN')
     print('audios',audios.count())
     no_file = []
     ncreated = 0
