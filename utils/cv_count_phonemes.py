@@ -1,4 +1,5 @@
-from utils import locations, maus_phoneme_mapper, load_bpc
+from utils import locations, maus_phoneme_mapper
+from load import load_bpc
 import textgrids
 
 def textgrid_filenames(language_name):
