@@ -28,6 +28,7 @@ def validated_dict(language):
             print('could not parse', line)
             continue
         key = line[filename_index]
+        if not key.endswith('.mp3'): key += '.mp3'
         temp = dict(zip(header,line))
         if temp['age']: temp['age'] = age_dict[temp['age']]
         temp['gender'] = gender_dict[temp['gender']]
