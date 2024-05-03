@@ -1,13 +1,14 @@
-import frame
-import load
 import pickle
-import to_vector
+from w2v2_hidden_states import frame
+from w2v2_hidden_states import load
+from w2v2_hidden_states import to_vector
 
 def audio_to_vector(audio, model = None, gpu = False):
     if not model: 
         model = load.load_pretrained_model(gpu = gpu)
     audio_filename = audio.filename
-    outputs = to_vector.filename_to_vector(audio_filename, model, gpu = gpu)
+    outputs = to_vector.filename_to_vector(audio_filename, model = model, 
+        gpu = gpu)
     return outputs
 
 def handle_audio(audio, model = None, gpu = False, save_words = True,
