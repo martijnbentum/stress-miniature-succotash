@@ -3,6 +3,9 @@ from w2v2_hidden_states import frame
 from w2v2_hidden_states import load
 from w2v2_hidden_states import to_vector
 
+def load_model(gpu = False):
+    return load.load_pretrained_model(gpu = gpu)
+
 def audio_to_vector(audio, model = None, gpu = False):
     if not model: 
         model = load.load_pretrained_model(gpu = gpu)
