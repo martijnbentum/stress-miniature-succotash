@@ -1,3 +1,4 @@
+from load import load_cv_phonemes
 from utils import maus_phoneme_mapper
 from progressbar import progressbar
 
@@ -16,7 +17,7 @@ def handle_words(language, dataset):
         n_created += handle_word(word, language)
     print('Created', n_created, 'syllables for', language.language)
 
-def handle_word(word, language):
+def handle_word(word, language, count = 0):
     speaker = word.speaker
     audio = word.audio
     textgrid = audio.textgrid_set.get(phoneme_set_name='maus')
@@ -27,12 +28,17 @@ def handle_word(word, language):
         syllable,created = handle_syllable(syllable_interval, syllable_index, 
             word, audio, speaker, language, phonemes)
         if created: n_created += 1
+        if not syllable and count == 0: 
+            return handle_word(word, language, 1)
+        elif count > 1: raise ValueError(word,language,count, syllable_interval)
     return n_created
 
 def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
     language, phonemes):
     from text.models import Syllable
-    syllable_phonemes = select_syllable_phonemes(syllable_interval, phonemes)
+    syllable_phonemes = select_syllable_phonemes(syllable_interval, phonemes,
+        word, language)
+    if not syllable_phonemes: return False, False
     d = {}
     d['identifier'] = make_syllable_identifier(word, syllable_index)
     d['phoneme_str'] = syllable_interval.text
@@ -71,14 +77,26 @@ def handle_phonemes(syllable, phonemes):
 def make_syllable_identifier(word, syllable_index):
     return word.identifier + '_' + str(syllable_index)
 
-def select_syllable_phonemes(syllable_interval, phonemes):
+def select_syllable_phonemes(syllable_interval, phonemes, word, language,
+    count = 0):
     syllable_phonemes = []
     for phoneme in phonemes:
         if contains(phoneme.start_time, phoneme.end_time, 
             syllable_interval.xmin, syllable_interval.xmax):
             syllable_phonemes.append(phoneme)
     if len(syllable_phonemes) != len(syllable_interval.text.split(' ')):
-        raise ValueError('mismatched phonemes for syllable',syllable_phonemes)
+        if '?' in syllable_interval.text and count == 0:
+            print('correcting phonemes for',syllable_interval.text,word,
+                language)
+            word.phoneme_set.all().delete()
+            word.syllable_set.all().delete()
+            ln = language.language
+            maus_to_ipa = maus_phoneme_mapper.Maus(ln).maus_to_ipa()
+            load_cv_phonemes.handle_word(word, language, maus_to_ipa)
+            return False
+        else:
+            raise ValueError('mismatched phonemes for syllable',
+                syllable_phonemes,'text',syllable_interval.text, count)
     return syllable_phonemes
 
 def contains(smaller_start, smaller_end, larger_start, larger_end):
