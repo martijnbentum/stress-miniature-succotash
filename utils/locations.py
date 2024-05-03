@@ -8,6 +8,9 @@ ld_root = Path('')
 if sys.platform == 'linux':
     ld_root = Path('/vol/tensusers/mbentum/INDEEP/LD')
     cgn_root = Path('/vol/bigdata/corpora2/CGN2')
+    if not ld_root.exists():
+        ld_root = Path('/mnt/storage/LD')
+        cgn_root = Path('/mnt/storage/CGN/CGN_2.0.3')
 elif sys.platform == 'darwin':
     ld_root = Path('/Users/martijn.bentum/Documents/indeep/LD')
     common_voice_root = ld_root
@@ -25,6 +28,7 @@ cv_italian = common_voice_root / 'COMMON_VOICE_ITALIAN'
 cv_polish = common_voice_root / 'COMMON_VOICE_POLISH'
 cv_spanish = common_voice_root / 'COMMON_VOICE_SPANISH'
 cv_turkish = common_voice_root / 'COMMON_VOICE_TURKISH'
+cv_english = common_voice_root / 'COMMON_VOICE_ENGLISH'
 
 cv_root_folders = [cv_dutch, cv_hungarian, cv_italian, cv_polish, cv_spanish,
     cv_german, cv_french] 
