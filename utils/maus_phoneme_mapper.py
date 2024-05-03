@@ -1,6 +1,6 @@
 from utils import locations
 
-maus_exclude_phonemes = '#,?,>,<,<usb>,<nib>,<p:>,<p>'.split(',') 
+maus_exclude_phonemes = '#,>,<,<usb>,<nib>,<p:>,<p>'.split(',') 
 
 def load_file(language):
     language = language.lower()
