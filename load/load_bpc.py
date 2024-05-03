@@ -8,14 +8,14 @@ def make_bpcs():
     names += ',high,mid,low,front,central'
     names += ',back,diphtong,consonant,vowel'
     names = names.split(',')
-    bpcs = 'p pʰ t tʰ tːʲ tʲ k kʰ b d dʲ dːʲ g ɡ c pʲ kʲ ɡʲ' # plosive
+    bpcs = 'p pʰ t tʰ tːʲ tʲ k kʰ b d dʲ dːʲ g ɡ c pʲ kʲ ɡʲ ʔ' # plosive
     bpcs += ',n m ŋ ɲ ɱ nʲ' # nasal
     bpcs += ',l r j J w ʋ ʎ ɥ' # approximant
     bpcs += ',s ʃ ʒ h f x z v ɣ ð θ β ç zʲ xʲ sʲ' # fricative
     bpcs += ',tʃ ʒd ts pf tːʃ tːs dːz dz dːʒ tsʲ dzʲ'  # affricate
     bpcs += ',b d dʲ dːʲ g ɡ m ɱ n ŋ ɲ l r j J w ʋ ʎ ʒ dʒ z v ð β ʀ' # voiced
     bpcs += ' dːz dz dːʒ dzʲ zʲ nʲ ɡʲ' # voiced
-    bpcs += ',p pʰ t tʰ tːʲ k kʰ s ʃ tʃ h f x ɣ θ ts pf ç ɥ' # voiceless
+    bpcs += ',p pʰ t tʰ tːʲ k kʰ s ʃ tʃ h f x ɣ θ ts pf ç ɥ ʔ' # voiceless
     bpcs += ' tːʃ tːs tʲ c tsʲ xʲ sʲ pʲ kʲ' # voiceless
     bpcs += ',i ɨ ɪ y ʏ u ʉ ʊ' # high
     bpcs += ',ʏ ø e ẽ ɛ ɛ̃ ɔ ɔ̃ o õ ə ɜ œ ɶ̃' # mid
@@ -26,7 +26,7 @@ def make_bpcs():
     bpcs += ',ɛi œy ɑu ɔi ɔu oːi ɛɪ eːu aːi yu ui əʊ iu ɔɪ' #diphtong 
     bpcs += ' eʊ eɪ aʊ aɪ ɔʏ ei' # diphtong
     bpcs += ',p pʰ t tʰ tːʲ k kʰ b d dːʲ g ɡ n m ŋ ɲ l r j J w ʋ s ʀ' #consonant
-    bpcs += ' ʃ tʃ ʒ h ts pf ç ɥ tːʃ tːs tʲ dʲ dːz dz dːʒ' # consonant
+    bpcs += ' ʃ tʃ ʒ h ts pf ç ɥ tːʃ tːs tʲ dʲ dːz dz dːʒ ʔ' # consonant
     bpcs += ' f x z v ɣ ð θ ʎ ɱ β c tsʲ dzʲ zʲ xʲ sʲ pʲ nʲ kʲ ɡʲ' # consonant
     bpcs += ',i ɨ ɪ y ʏ u ʉ ʊ ʏ ø e ẽ ɛ ɛ̃ ɔ ɔ̃ o õ ə ɜ œ a ɑ ɒ ä ã ɑ̃' # vowel
     bpcs += ' ɛi œy ɑu ɔi ɔu oːi ɛɪ eːu aːi yu ui əʊ iu ɔɪ eʊ eɪ aʊ aɪ' # vowel
