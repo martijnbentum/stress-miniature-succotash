@@ -44,3 +44,11 @@ class Maus:
                 continue
             d[line['IPA']] = line
         return d
+
+    def ipa_to_maus(self):
+        d = {}
+        for line in self.raw:
+            if line['MAUS'] in maus_exclude_phonemes: 
+                continue
+            d[line['IPA']] = line['MAUS']
+        return d
