@@ -26,7 +26,7 @@ def handle_word(word, language, count = 0):
     phonemes = word.phoneme_set.all()
     for syllable_index, syllable_interval in enumerate(syllable_intervals):
         syllable,created = handle_syllable(syllable_interval, syllable_index, 
-            word, audio, speaker, language, phonemes)
+            word, audio, speaker, language, phonemes, count = count)
         if created: n_created += 1
         if not syllable and count == 0: 
             return handle_word(word, language, 1)
@@ -34,10 +34,10 @@ def handle_word(word, language, count = 0):
     return n_created
 
 def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
-    language, phonemes):
+    language, phonemes, count = 0):
     from text.models import Syllable
     syllable_phonemes = select_syllable_phonemes(syllable_interval, phonemes,
-        word, language)
+        word, language, count = count)
     if not syllable_phonemes: return False, False
     d = {}
     d['identifier'] = make_syllable_identifier(word, syllable_index)
@@ -77,6 +77,19 @@ def handle_phonemes(syllable, phonemes):
 def make_syllable_identifier(word, syllable_index):
     return word.identifier + '_' + str(syllable_index)
 
+def _check_phonemes_merged(phonemes, syllable_interval):
+    '''phonemes can be merged in the syllable tier'''
+    text = syllable_interval.text.replace(' ','')
+    itm = maus_phoneme_mapper.Maus('german').ipa_to_maus()
+    maus = ''.join([itm[p.ipa] for p in phonemes])
+    if maus == text:
+        print('phonemes merged for',text, maus)
+        return True
+    else:
+        print('phonemes not merged for',text, maus)
+        return False
+        
+
 def select_syllable_phonemes(syllable_interval, phonemes, word, language,
     count = 0):
     syllable_phonemes = []
@@ -86,14 +99,17 @@ def select_syllable_phonemes(syllable_interval, phonemes, word, language,
             syllable_phonemes.append(phoneme)
     if len(syllable_phonemes) != len(syllable_interval.text.split(' ')):
         if '?' in syllable_interval.text and count == 0:
-            print('correcting phonemes for',syllable_interval.text,word,
-                language)
+            print('correcting phonemes for',syllable_interval.text,
+                'word:',word, 'language:',language,'syl phon',syllable_phonemes,
+                count)
             word.phoneme_set.all().delete()
             word.syllable_set.all().delete()
             ln = language.language
             maus_to_ipa = maus_phoneme_mapper.Maus(ln).maus_to_ipa()
             load_cv_phonemes.handle_word(word, language, maus_to_ipa)
             return False
+        elif _check_phonemes_merged(syllable_phonemes, syllable_interval):
+            pass
         else:
             raise ValueError('mismatched phonemes for syllable',
                 syllable_phonemes,'text',syllable_interval.text, count)
