@@ -30,7 +30,9 @@ def handle_word(word, language, count = 0):
         if created: n_created += 1
         if not syllable and count == 0: 
             return handle_word(word, language, 1)
-        elif count > 1: raise ValueError(word,language,count, syllable_interval)
+        elif count > 1: 
+            print(word,language,count, syllable_interval, '>>syllable error<<')
+            continue
     return n_created
 
 def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
@@ -111,8 +113,19 @@ def select_syllable_phonemes(syllable_interval, phonemes, word, language,
         elif _check_phonemes_merged(syllable_phonemes, syllable_interval):
             pass
         else:
-            raise ValueError('mismatched phonemes for syllable',
-                syllable_phonemes,'text',syllable_interval.text, count)
+            with open('../syllable_mismatched_phonemes.txt','r') as f:
+                t = f.read().split('\n')
+            ipa = ' '.join([p.ipa for p in syllable_phonemes])
+            text = syllable_interval.text
+            identifier = word.identifier
+            language = language.language
+            output = '\t'.join([identifier, text, ipa, language])
+            print(word,language,count, syllable_interval, '>>SYLLABLE ERROR<<')
+            if output in t: return False
+            with open('../syllable_mismatched_phonemes.txt','a') as f:
+                f.write(output + '\n')
+            word.syllable_set.all().delete()
+            return False
     return syllable_phonemes
 
 def contains(smaller_start, smaller_end, larger_start, larger_end):
