@@ -1,6 +1,7 @@
 from utils import locations
 from utils import maus_phoneme_mapper
 from utils import phoneme_mapper
+import json
 
 class Celex:
     def __init__(self, language = 'english'):
@@ -37,7 +38,6 @@ class Word:
     def __init__(self, line, parent):
         self.line = line
         self.parent = parent
-        self.language = self.parent.language
         self.ok = True
         self._set_info()
             
@@ -84,29 +84,29 @@ class Word:
         if not self.ok: return
         if self.language != 'dutch': return 
         if hasattr(self,'_cgn_syllables'): return self._cgn_syllables
-        return self._make_syllable('cgn')
+        return self._make_syllable_transcription('cgn')
 
     @property
     def baldey_syllables(self):
         if not self.ok: return
         if self.language != 'dutch': return 
         if hasattr(self,'_baldey_syllables'): return self._baldey_syllables
-        return self._make_syllable('baldey')
+        return self._make_syllable_transcription('baldey')
 
     @property
     def arpabet_syllables(self):
         if not self.ok: return
         if self.language != 'english': return 
         if hasattr(self,'_arpabet_syllables'): return self._arpabet_syllables
-        return self._make_syllable('arpabet')
+        return self._make_syllable_transcription('arpabet')
 
     @property
     def ipa_syllables(self):
         if not self.ok: return
         if hasattr(self,'_ipa_syllables'): return self._ipa_syllables
-        return self._make_syllable('ipa')
+        return self._make_syllable_transcription('ipa')
 
-    def _make_syllable(self, phoneme_set):
+    def _make_syllable_transcription(self, phoneme_set):
         attr_name = '_' + phoneme_set + '_syllables' 
         if hasattr(self,attr_name): return getattr(self,attr_name)
         getattr(self,phoneme_set)
@@ -120,6 +120,22 @@ class Word:
             else: syllable.append(phoneme)
         if syllable: getattr(self,attr_name).append(syllable)
         return getattr(self,attr_name)
+
+    @property
+    def syllables(self):
+        if hasattr(self,'_syllables'): return self._syllables
+        phoneme_index = 0
+        self._syllables = []
+        for syllable_index, ipa_syllable in enumerate(self.ipa_syllables):
+            phonemes = []
+            for phoneme in ipa_syllable:
+                phonemes.append(self.phonemes[phoneme_index])
+                phoneme_index += 1
+            syllable = Syllable(phonemes, syllable_index, self)
+            for phoneme in phonemes:
+                phoneme.syllable = syllable
+            self._syllables.append(syllable)
+        return self._syllables
 
     @property
     def ipa(self):
@@ -181,6 +197,24 @@ class Word:
                 phoneme_index +=1
         return self._phonemes
 
+class Syllable:
+    def __init__(self, phonemes, syllable_index, word):
+        self.phonemes= phonemes 
+        self.syllable_index = syllable_index
+        self.word = word
+        self.stress = word.stress_list[syllable_index]
+        if self.stress == 'primary': self.stressed = True
+        else: self.stressed = False
+
+    def __repr__(self):
+        m = self.ipa
+        m += ' | ' + str(self.syllable_index) + ' | ' + self.stress
+        return m
+
+    @property
+    def ipa(self):
+        return ' '.join([p.ipa for p in self.phonemes])
+
 class Phoneme:
     def __init__(self, phoneme, phoneme_set, phoneme_index, syllable_index,
         word, stressed):
@@ -241,3 +275,17 @@ def open_header(language):
     with open(f) as fin:
         header = fin.read().split('\n')
     return header
+
+class Dummy:
+    def __init__(self, language ):
+        self.language = 'english'
+        self.header = open_header(language)
+        self.phoneme_mapper = phoneme_mapper.Mapper(language)
+
+def word_to_celex_word(word):
+    info = json.loads(word.info)
+    if 'celex_word' not in info.keys(): return None
+    line = info['celex_word']
+    language = word.language.language.lower()
+    celex_word = Word(line, Dummy(language))
+    return celex_word
