@@ -151,6 +151,10 @@ class Phoneme(models.Model):
         if self.stress:
             m += ' ' + str(self.stress)
         return m
+
+    @property
+    def index_of_syllable(self):
+        return self.syllable_index
     
 class BPC(models.Model):
     bpc = models.CharField(max_length=10, default='', unique=True, **required)

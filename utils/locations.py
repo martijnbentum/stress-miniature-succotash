@@ -76,3 +76,8 @@ coolest_root = ld_root / 'COOLEST'
 coolest_audio = coolest_root / 'Recordings'
 #coolest_textgrids = coolest_root / 'TextGrids corrected'
 coolest_textgrids = coolest_root / 'mauser_textgrids'
+
+celex_directory = '../CELEX/'
+celex_english_phonology_file = celex_directory+ 'EPW.CD'
+celex_dutch_phonology_file = celex_directory + 'DPW.CD'
+celex_german_phonology_file = celex_directory + 'GPW.CD'
