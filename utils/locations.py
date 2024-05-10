@@ -31,7 +31,7 @@ cv_turkish = common_voice_root / 'COMMON_VOICE_TURKISH'
 cv_english = common_voice_root / 'COMMON_VOICE_ENGLISH'
 
 cv_root_folders = [cv_dutch, cv_hungarian, cv_italian, cv_polish, cv_spanish,
-    cv_german, cv_french] 
+    cv_german, cv_french, cv_english] 
 
 def get_language_cv_root_folder(language):
     for cv_root_folder in cv_root_folders:
