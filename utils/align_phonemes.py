@@ -35,38 +35,31 @@ consonants.append('w')
 consonants.append('m̩')
 
 
-def align_celex_maus_ipa(celex_word, maus_word):
-    celex_ipa = [x[0] for x in celex_word.ipa.split(' ')]
-    word_ipa = [x[0] for x in maus_word.ipa.split(' ')]
-    celex_ipa, word_ipa = nw.nw(celex_ipa,word_ipa).split('\n')
-    return celex_ipa, word_ipa
+def compute_similarity_score_word_celex(phonemes):
+    score = 0
+    for word_phoneme in phonemes:
+        celex_phoneme = word_phoneme.celex_phoneme
+        score += compute_similarity_score_phoneme_pair(word_phoneme, 
+            celex_phoneme)
+        print(score)
+    return score
 
-def _has_next(index, sequence):
-    return index < len(sequence) -1
-
-def _has_previous(index, sequence = None):
-    return index > 0
-
-def get_celex_phonemes(celex_index,celex_phonemes):
-    if _has_next(celex_index,celex_phonemes):
-        next_pc = celex_phonemes[celex_index + 1]
-    else: next_pc = None
-    if _has_previous(celex_index,celex_phonemes):
-        previous_pc = celex_phonemes[celex_index -1]
-    else: previous_pc = None
-    if celex_index < len(celex_phonemes):
-        pc = celex_phonemes[celex_index]
-    else: pc = None
-    return previous_pc, pc, next_pc
+def compute_similarity_score_phoneme_pair(word_phoneme,celex_phoneme):
+    if not word_phoneme: return 0
+    if not celex_phoneme: return 0
+    wpv = word_phoneme.is_vowel
+    cpv = celex_phoneme.is_vowel
+    print(wpv,cpv,word_phoneme.ipa,celex_phoneme.ipa)
+    if wpv and cpv: return compute_vowel_similarity_score(
+        word_phoneme.ipa, celex_phoneme.ipa)/3
+    if not wpv and not cpv: return compute_consonant_similarity_score(
+        word_phoneme.ipa, celex_phoneme.ipa)/3
+    else: return -1
+    
 
 def check_phoneme(phoneme, name):
     if phoneme in vowels or phoneme in consonants:pass
     else: raise ValueError(phoneme,name, 'not in vowels or consonants')
-
-def _check_phonemes(textgrid_phoneme,previous_pc,next_pc):
-    check_phoneme(textgrid_phoneme.ipa,'textgrid_phoneme')
-    check_phoneme(previous_pc.ipa,'previous_pc')
-    check_phoneme(next_pc.ipa,'next_pc')
 
 def compute_consonant_similarity_score(c1,c2):
     if c1 == 'tʃ': c1 ='ʃ'
@@ -77,6 +70,7 @@ def compute_consonant_similarity_score(c1,c2):
     if c1.type == c2.type: score += 1
     if c1.place == c2.place: score += 1
     if c1.voiced == c2.voiced: score += 1
+    print(c1,c2,score)
     return score
 
 def _simplify_vowel(v):
@@ -95,6 +89,7 @@ def compute_vowel_similarity_score(v1,v2):
     if v1.height == v2.height: score += 1
     if v1.placement == v2.placement: score += 1
     if v1.rounded== v2.rounded: score += 1
+    print(v1,v2,score)
     return score
 
 def _handle_only_vowels(word_phoneme,previous_pc,next_pc):
