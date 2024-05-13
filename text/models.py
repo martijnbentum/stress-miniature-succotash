@@ -155,6 +155,19 @@ class Phoneme(models.Model):
     @property
     def index_of_syllable(self):
         return self.syllable_index
+
+    @property
+    def is_vowel(self):
+        return 'vowel' in self.bpcs_str
+
+    @property
+    def is_consonant(self):
+        return 'consonant' in self.bpcs_str
+
+    @property
+    def simple_ipa(self):
+        if not self.ipa: return ''
+        return self.ipa[0]
     
 class BPC(models.Model):
     bpc = models.CharField(max_length=10, default='', unique=True, **required)
