@@ -47,6 +47,10 @@ class Word:
             setattr(self,column_name, column)
         self._extract_stress_pattern()
         self._compute_n_phonemes()
+        if hasattr(self,'cv'):
+            self.consonant_vowel = self.cv.replace('[','').replace(']','')
+        else:
+            self.consonant_vowel = ''
 
     def __repr__(self):
         m = self.id_number + ' ' + self.word + ' ' + self.disc
@@ -254,6 +258,20 @@ class Phoneme:
     @property
     def disc(self):
         return self.phoneme
+
+    @property 
+    def is_vowel(self):
+        return self.word.consonant_vowel[self.phoneme_index] == 'V' 
+
+    @property
+    def is_consonant(self):
+        return self.word.consonant_vowel[self.phoneme_index] == 'C' 
+
+    @property
+    def simple_ipa(self):
+        if not self.ipa: return ''
+        return self.ipa[0]
+        
 
 def get_celex_word(word, celex = None):
     language = word.language.language
