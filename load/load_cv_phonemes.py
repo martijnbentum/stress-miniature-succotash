@@ -10,7 +10,8 @@ def handle_language(language_name, skip_if_ipa = True):
     from text.models import Language, Dataset
     language = Language.objects.get(language__iexact=language_name)
     dataset = Dataset.objects.get(name = 'COMMON VOICE')
-    maus_to_ipa = maus_phoneme_mapper.Maus(language_name).maus_to_ipa()
+    if language_name == 'english': maus_to_ipa = None
+    else: maus_to_ipa = maus_phoneme_mapper.Maus(language_name).maus_to_ipa()
     handle_words(language, dataset, maus_to_ipa, skip_if_ipa)
 
 def handle_words(language, dataset, maus_to_ipa, skip_if_ipa = True):
@@ -22,7 +23,13 @@ def handle_words(language, dataset, maus_to_ipa, skip_if_ipa = True):
         n_created += handle_word(word, language, maus_to_ipa)
     print('Created', n_created, 'phonemes for', language.language)
 
-def handle_word(word, language, maus_to_ipa):
+def handle_word(word, language, maus_to_ipa = None):
+    if maus_to_ipa == None:
+        if language.language != 'English':
+            m = 'maus_to_ipa must be provided for non-English languages'
+            raise ValueError(m)
+        maus = maus_phoneme_mapper.Maus('english', accent = word.accent)
+        maus_to_ipa = maus.maus_to_ipa()
     speaker = word.speaker
     audio = word.audio
     textgrid = audio.textgrid_set.get(phoneme_set_name='maus')
