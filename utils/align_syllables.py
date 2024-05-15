@@ -1,3 +1,4 @@
+from utils import align_phonemes
 from utils import needleman_wunch as nw
 from utils import celex
 import json
@@ -10,6 +11,7 @@ class Aligner:
         self._get_stressed_syllable_based_on_index()
         self._align()
         self._set_info()
+        self.compute_similarity_score()
 
     def __str__(self):
         n = 20
@@ -71,6 +73,14 @@ class Aligner:
         self.n_word_phonemes = len(self.word_phonemes)
         self.n_celex_phonemes = len(self.celex_phonemes)
 
+    def compute_similarity_score(self):
+        phonemes = self.word_celex_phonemes
+        if len(phonemes) == 0:
+            self.phoneme_similarity_score = 0
+            return
+        s = align_phonemes.compute_similarity_score_word_celex(phonemes)
+        self.phoneme_similarity_score = s
+
   
 
 
@@ -86,7 +96,6 @@ def get_stressed_syllable(word, celex_word = None, celex_database = None):
         celex_database = celex.Celex(word.language.language)
     syllables = word.syllable_set.all()
     if len(syllables) == 1: 
-        print('only one syllable, it has primary stress', word.word)
         return syllables[0], 0, syllables
     if not celex_word:
         celex_word = word_to_celex_word(word, celex_database)
@@ -98,9 +107,11 @@ def get_stressed_syllable(word, celex_word = None, celex_database = None):
         return None, None, syllables
     stressed_syllable_index = celex_word.stress_list.index('primary')
     stressed_syllable = syllables[stressed_syllable_index]
+    '''
     print(celex_word,'\n',word,'\n',
         celex_word.syllables[stressed_syllable_index], '\n',
         stressed_syllable, stressed_syllable_index)
+    '''
     return stressed_syllable, stressed_syllable_index, syllables
 
 def align_celex_maus_phonemes(celex_word, word, word_phonemes= None):
