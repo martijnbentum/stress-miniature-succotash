@@ -23,6 +23,15 @@ vowels.append('aʊ')
 vowels.append('ɑ̃ː')
 vowels.append('iː')
 vowels.append('ɑu')
+vowels.append('œy')
+vowels.append('ɛi')
+vowels.append('aː')
+vowels.append('øː')
+vowels.append('eː')
+vowels.append('oː')
+vowels.append('eː')
+vowels.append('yː')
+
 
 
 consonants = ipasymbols.phonlist(query={'type': ["pulmonic", "non-pulmonic"]})
@@ -41,15 +50,16 @@ def compute_similarity_score_word_celex(phonemes):
         celex_phoneme = word_phoneme.celex_phoneme
         score += compute_similarity_score_phoneme_pair(word_phoneme, 
             celex_phoneme)
-        print(score)
-    return score
+    return score / len(phonemes)
 
 def compute_similarity_score_phoneme_pair(word_phoneme,celex_phoneme):
     if not word_phoneme: return 0
     if not celex_phoneme: return 0
     wpv = word_phoneme.is_vowel
-    cpv = celex_phoneme.is_vowel
-    print(wpv,cpv,word_phoneme.ipa,celex_phoneme.ipa)
+    cpv = celex_phoneme.ipa in vowels
+    if wpv and not cpv: 
+        print(word_phoneme.ipa,'celex not vowel:',celex_phoneme.ipa, )
+    # print(wpv,cpv,word_phoneme.ipa,celex_phoneme.ipa)
     if wpv and cpv: return compute_vowel_similarity_score(
         word_phoneme.ipa, celex_phoneme.ipa)/3
     if not wpv and not cpv: return compute_consonant_similarity_score(
@@ -70,7 +80,6 @@ def compute_consonant_similarity_score(c1,c2):
     if c1.type == c2.type: score += 1
     if c1.place == c2.place: score += 1
     if c1.voiced == c2.voiced: score += 1
-    print(c1,c2,score)
     return score
 
 def _simplify_vowel(v):
@@ -89,7 +98,6 @@ def compute_vowel_similarity_score(v1,v2):
     if v1.height == v2.height: score += 1
     if v1.placement == v2.placement: score += 1
     if v1.rounded== v2.rounded: score += 1
-    print(v1,v2,score)
     return score
 
 def _handle_only_vowels(word_phoneme,previous_pc,next_pc):
