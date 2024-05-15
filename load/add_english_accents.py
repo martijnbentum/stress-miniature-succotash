@@ -3,9 +3,11 @@ from load import load_cv_speakers
 from progressbar import progressbar
 from text.models import Speaker
 
+def load_speaker_ids():
+    spk_ids = json.load(open('english_cv_speaker_ids.json'))
+    return spk_ids
 
 def make_speaker_dict():
-    spk_ids = json.load(open('english_cv_speaker_ids.json'))
     speaker_dict = {}
     d = load_cv_speakers.validated_dict('english')
     for spk_id in spk_ids:
@@ -52,32 +54,38 @@ def _add_accent_to_word(speaker, word):
         word.save()
 
 def make_accent_dict():
-    t = load_validated()
     d = {}
-    for line in t[1:]:
-        if line == '': continue
-        line = line.split('\t')
+    d[''] = 'eng-US'
+    d['newzealand'] = 'eng-NZ'
+    d['wales'] = 'eng-GB'
+    d['malaysia'] = 'eng-US'
+    d['indian'] = 'eng-GB'
+    d['australia'] = 'eng-AU'
+    d['bermuda'] = 'eng-US'
+    d['philippines'] = 'eng-US'
+    d['us'] = 'eng-US'
+    d['southatlandtic'] = 'eng-US'
+    d['hongkong'] = 'eng-GB'
+    d['african'] = 'eng-GB'
+    d['singapore'] = 'eng-US'
+    d['canada'] = 'eng-US'
+    d['other'] = 'eng-US'
+    d['ireland'] = 'eng-GB'
+    d['scotland'] = 'eng-SC'
+    d['england'] = 'eng-GB'
+    return d
+    
+
+def make_sentence_id_accent_dict():
+    _, t = load_cv_speakers.load_validated('english')
+    ad = make_accent_dict()
+    d = {}
+    for line in t:
+        if not line: continue
+        if len(line) == 1: continue
         sentence_id = line[1]
         accent = line[-1]
-        if accent == '': accent = 'eng-US'
-        if accent == 'newzealand': accent = 'eng-NZ'
-        if accent == 'wales': accent = 'eng-GB'
-        if accent == 'malaysia': accent = 'eng-US'
-        if accent == 'indian': accent = 'eng-GB'
-        if accent == 'australia': accent = 'eng-AU'
-        if accent == 'bermuda': accent = 'eng-US'
-        if accent == 'philippines': accent = 'eng-US'
-        if accent == 'us': accent = 'eng-US'
-        if accent == 'southatlandtic': accent = 'eng-US'
-        if accent == 'hongkong': accent = 'eng-GB'
-        if accent == 'african': accent = 'eng-GB'
-        if accent == 'singapore': accent = 'eng-US'
-        if accent == 'canada': accent = 'eng-US'
-        if accent == 'other': accent = 'eng-US'
-        if accent == 'ireland': accent = 'eng-GB'
-        if accent == 'scotland': accent = 'eng-SC'
-        if accent == 'england': accent = 'eng-GB'
-        d[sentence_id] =accent
+        d[sentence_id] = ad[accent]
     return d    
         
 

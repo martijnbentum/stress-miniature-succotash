@@ -95,6 +95,7 @@ def _check_phonemes_merged(phonemes, syllable_interval):
 def select_syllable_phonemes(syllable_interval, phonemes, word, language,
     count = 0):
     syllable_phonemes = []
+    lname = language.language.lower()
     for phoneme in phonemes:
         if contains(phoneme.start_time, phoneme.end_time, 
             syllable_interval.xmin, syllable_interval.xmax):
@@ -110,7 +111,8 @@ def select_syllable_phonemes(syllable_interval, phonemes, word, language,
             maus_to_ipa = maus_phoneme_mapper.Maus(ln).maus_to_ipa()
             load_cv_phonemes.handle_word(word, language, maus_to_ipa)
             return False
-        elif _check_phonemes_merged(syllable_phonemes, syllable_interval):
+        elif lname == 'german' and _check_phonemes_merged(syllable_phonemes, 
+            syllable_interval):
             pass
         else:
             with open('../syllable_mismatched_phonemes.txt','r') as f:

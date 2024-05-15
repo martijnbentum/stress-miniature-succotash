@@ -1,4 +1,5 @@
 from django.db import models
+import json
 
 # Create your models here.
 required = {'blank':False,'null':False}
@@ -87,6 +88,15 @@ class Speaker(models.Model):
         if len(identifier) > 9: identifier = identifier[:9] + '...'
         return identifier+ ' ' + self.gender + ' ' + str(self.age)
 
+    @property
+    def info_dict(self):
+        return json.loads(self.info)
+
+    @property
+    def accent(self):
+        if 'accent' in self.info_dict:
+            return self.info_dict['accent']
+
 class Word(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     dataset = models.ForeignKey('Dataset',**dargs)
@@ -108,6 +118,15 @@ class Word(models.Model):
 
     def __str__(self):
         return self.word + ' ' + self.ipa 
+
+    @property
+    def info_dict(self):
+        return json.loads(self.info)
+
+    @property
+    def accent(self):
+        if 'accent' in self.info_dict:
+            return self.info_dict['accent']
 
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
