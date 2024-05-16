@@ -31,6 +31,8 @@ vowels.append('eː')
 vowels.append('oː')
 vowels.append('eː')
 vowels.append('yː')
+vowels.append('œː')
+vowels.append('ui')
 
 
 
@@ -43,6 +45,13 @@ consonants.append('g')
 consonants.append('w')
 consonants.append('m̩')
 
+def is_vowel(ipa):
+    if hasattr(ipa, 'ipa'): ipa = ipa.ipa
+    return ipa in vowels
+
+def is_consonant(ipa):
+    if hasattr(ipa, 'ipa'): ipa = ipa.ipa
+    return ipa in consonants
 
 def compute_similarity_score_word_celex(phonemes):
     score = 0
@@ -52,19 +61,21 @@ def compute_similarity_score_word_celex(phonemes):
             celex_phoneme)
     return score / len(phonemes)
 
-def compute_similarity_score_phoneme_pair(word_phoneme,celex_phoneme):
-    if not word_phoneme: return 0
-    if not celex_phoneme: return 0
-    wpv = word_phoneme.is_vowel
-    cpv = celex_phoneme.ipa in vowels
-    if wpv and not cpv: 
-        print(word_phoneme.ipa,'celex not vowel:',celex_phoneme.ipa, )
-    # print(wpv,cpv,word_phoneme.ipa,celex_phoneme.ipa)
-    if wpv and cpv: return compute_vowel_similarity_score(
-        word_phoneme.ipa, celex_phoneme.ipa)/3
-    if not wpv and not cpv: return compute_consonant_similarity_score(
-        word_phoneme.ipa, celex_phoneme.ipa)/3
-    else: return -1
+def compute_similarity_score_phoneme_pair(p1 , p2):
+    if not p1: return 0
+    if not p2: return 0
+    if hasattr(p1,'ipa'): p1 = p1.ipa
+    if hasattr(p2,'ipa'): p2 = p2.ipa
+    p1_is_vowel = p1 in vowels
+    p2_is_vowel = p2 in vowels
+    if p1_is_vowel != p2_is_vowel: 
+        print(p1,p1_is_vowel,'not equal cv status:',p2,p2_is_vowel )
+        return -1
+    if p1_is_vowel and p2_is_vowel: 
+        return compute_vowel_similarity_score(p1, p2)/3
+    if not p1_is_vowel and not p2_is_vowel: 
+        return compute_consonant_similarity_score(p1,p2)/3
+    raise ValueError('case should not occur', p1, p2, p1_is_vowel, p2_is_vowel)
     
 
 def check_phoneme(phoneme, name):
