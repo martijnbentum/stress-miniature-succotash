@@ -10,8 +10,15 @@ class Aligner:
         self._handle_celex(celex_database)
         self._get_stressed_syllable_based_on_index()
         self._align()
+        self._get_stressed_syllable_based_on_stressed_vowel()
         self._set_info()
-        self.compute_similarity_score()
+        self._compute_similarity_score()
+        self.match = (self.stressed_syllable_based_on_index == 
+            self.stressed_syllable_based_on_vowel)
+        self.select_best_match()
+    
+    def __repr__(self):
+        return self.word.__repr__()
 
     def __str__(self):
         n = 20
@@ -33,11 +40,7 @@ class Aligner:
         m += 'Stressed syllable index:'.ljust(n) + f'{self.index}\n'
         stressed_syllable = self.stressed_syllable_based_on_index
         m += 'word syllable'.ljust(n)+f'{stressed_syllable}\n'
-        if self.celex_syllables:
-            stressed_syllable = self.celex_syllables[self.index].ipa
-        else:
-            stressed_syllable = 'None'
-        m += 'celex syllable:'.ljust(n) + f'{stressed_syllable}\n'
+        m += 'celex syllable:'.ljust(n) + f'{self.stressed_celex_syllable}\n'
         return m
     
 
@@ -67,19 +70,68 @@ class Aligner:
         self.celex_phonemes = cp
         self.word_celex_phonemes= o
 
+    def _get_stressed_syllable_based_on_stressed_vowel(self):
+        self.stressed_syllable_based_on_vowel = None
+        for phoneme in self.word_celex_phonemes:
+            celex_phoneme = phoneme.celex_phoneme
+            if align_phonemes.is_vowel(celex_phoneme):
+                if celex_phoneme.stressed:
+                    self.stressed_syllable_based_on_vowel = phoneme.syllable
+                    break
+        if not self.stressed_syllable_based_on_vowel and self.celex_word:
+            print('no stressed vowel found',self.word.word,self.celex_word)
+
     def _set_info(self):
         self.n_word_syllables = len(self.syllables)
         self.n_celex_syllables = len(self.celex_syllables)
         self.n_word_phonemes = len(self.word_phonemes)
         self.n_celex_phonemes = len(self.celex_phonemes)
+        if self.celex_syllables:
+            self.stressed_celex_syllable = self.celex_syllables[self.index].ipa
+        else:
+            self.stressed_celex_syllable= None
 
-    def compute_similarity_score(self):
+    def _compute_similarity_score(self):
         phonemes = self.word_celex_phonemes
         if len(phonemes) == 0:
             self.phoneme_similarity_score = 0
             return
         s = align_phonemes.compute_similarity_score_word_celex(phonemes)
         self.phoneme_similarity_score = s
+
+    def select_best_match(self):
+        self.based_on = ''
+        if self.match:
+            self.stressed_syllable = self.stressed_syllable_based_on_index
+            self.based_on = 'index and vowel'
+            return
+        if not self.stressed_syllable_based_on_vowel:
+            self.stressed_syllable = self.stressed_syllable_based_on_index
+            return
+        self.match_vowel = compute_similarity_score_syllable(
+            self.stressed_syllable_based_on_vowel.ipa,
+            self.stressed_celex_syllable)
+        self.match_index = compute_similarity_score_syllable(
+            self.stressed_syllable_based_on_index.ipa,
+            self.stressed_celex_syllable)
+        if self.match_vowel > self.match_index:
+            self.stressed_syllable = self.stressed_syllable_based_on_vowel
+            self.based_on = 'vowel'
+        else:
+            self.stressed_syllable = self.stressed_syllable_based_on_index
+            self.based_on = 'index'
+
+def compute_similarity_score_syllable(syllable1, syllable2):
+    score = 0
+    s1, s2 = syllable1.split(' '), syllable2.split(' ')
+    s1, s2 = nw.nw(s1,s2).split('\n')
+    for p1, p2 in zip(s1,s2):
+        if p1 == '-' or p2 == '-': continue
+        score += align_phonemes.compute_similarity_score_phoneme_pair(p1,p2) 
+    print(s1,s2,score)
+    return score 
+        
+    
 
   
 
@@ -94,7 +146,7 @@ def word_to_celex_word(word, celex_database = None):
 def get_stressed_syllable(word, celex_word = None, celex_database = None):
     if not celex_database:
         celex_database = celex.Celex(word.language.language)
-    syllables = word.syllable_set.all()
+    syllables = list(word.syllable_set.all())
     if len(syllables) == 1: 
         return syllables[0], 0, syllables
     if not celex_word:
