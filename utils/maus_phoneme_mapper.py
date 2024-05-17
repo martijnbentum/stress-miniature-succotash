@@ -5,9 +5,10 @@ maus_exclude_phonemes = '#,>,<,<usb>,<nib>,<p:>,<p>'.split(',')
 
 def load_file(language, accent_code=None):
     language = language.lower()
-    if accent_code: ac = accent_code.split('-')[-1].lower()
+    if accent_code: ac = accent_code.split('-')[-1].lower() + '_'
+    else: ac = ''
     root_folder = locations.get_language_cv_root_folder(language)
-    filename = root_folder / f'maus_{language}_{ac}_phoneme_map.txt'  
+    filename = root_folder / f'maus_{language}_{ac}phoneme_map.txt'  
     with open(filename, 'r') as f:
         t = f.read().split('\n')
     t = [x for x in t if not x.startswith('%') and x]

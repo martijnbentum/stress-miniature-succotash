@@ -58,7 +58,7 @@ class Word:
         return m
 
     def _extract_stress_pattern(self):
-        if not hasattr(self,'disc'):
+        if not hasattr(self,'disc') or getattr(self,'disc') == '':
             self.ok = False
             return
         self.disc_syllables = self.disc.split('-')
@@ -259,6 +259,10 @@ class Phoneme:
     def disc(self):
         return self.phoneme
 
+    '''
+    the cv list contains vv for long vowels and v for short vowels
+    it does not work
+        
     @property 
     def is_vowel(self):
         return self.word.consonant_vowel[self.phoneme_index] == 'V' 
@@ -266,6 +270,7 @@ class Phoneme:
     @property
     def is_consonant(self):
         return self.word.consonant_vowel[self.phoneme_index] == 'C' 
+    '''
 
     @property
     def simple_ipa(self):

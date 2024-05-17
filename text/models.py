@@ -147,6 +147,10 @@ class Syllable(models.Model):
         if self.stress != None: m += ' ' + str(self.stress)
         return m
 
+    @property
+    def vowel(self):
+        return self.phoneme_set.filter(bpcs_str__contains='vowel')
+
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     identifier = models.CharField(max_length=100, unique=True, **required)
