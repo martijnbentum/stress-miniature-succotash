@@ -119,6 +119,10 @@ class Aligner:
         if not index_syllable and not vowel_syllable:
             self.stressed_syllable = None
             return
+        if not self.stressed_celex_syllable:
+            self.based_on = 'no stressed syllable in celex'
+            self.stressed_syllable = None
+            return
         self.match_vowel = compute_similarity_score_syllable(
             vowel_syllable.ipa, self.stressed_celex_syllable)
         self.match_index = compute_similarity_score_syllable(
