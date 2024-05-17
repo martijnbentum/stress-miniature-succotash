@@ -2,10 +2,10 @@ import json
 from load import load_cv_speakers
 from progressbar import progressbar
 from text.models import Speaker
+from utils import info
 
 def load_speaker_ids():
-    spk_ids = json.load(open('english_cv_speaker_ids.json'))
-    return spk_ids
+    return info.load_cv_spk_ids('english')
 
 def make_speaker_dict():
     speaker_dict = {}
@@ -32,13 +32,13 @@ def add_accent_to_speaker(speaker, d = None):
 def add_accent_to_speakers(d = None):
     if d is None:
         d = load_cv_speakers.validated_dict('english')
-    spk_ids = json.load(open('english_cv_speaker_ids.json'))
+    spk_ids = load_speaker_ids()
     speakers = Speaker.objects.filter(pk__in=spk_ids)
     for speaker in progressbar(speakers):
         add_accent_to_speaker(speaker,d)
 
 def add_accent_to_words():
-    spk_ids = json.load(open('english_cv_speaker_ids.json'))
+    spk_ids = load_speaker_ids()
     speakers = Speaker.objects.filter(pk__in= spk_ids)
     for speaker in progressbar(speakers):
         _add_accent_to_words_speaker(speaker)
