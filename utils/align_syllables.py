@@ -79,14 +79,15 @@ class Aligner:
                     self.stressed_syllable_based_on_vowel = phoneme.syllable
                     break
         if not self.stressed_syllable_based_on_vowel and self.celex_word:
-            print('no stressed vowel found',self.word.word,self.celex_word)
+            pass
+            # print('no stressed vowel found',self.word.word,self.celex_word)
 
     def _set_info(self):
         self.n_word_syllables = len(self.syllables)
         self.n_celex_syllables = len(self.celex_syllables)
         self.n_word_phonemes = len(self.word_phonemes)
         self.n_celex_phonemes = len(self.celex_phonemes)
-        if self.celex_syllables:
+        if self.celex_syllables and self.index:
             self.stressed_celex_syllable = self.celex_syllables[self.index].ipa
         else:
             self.stressed_celex_syllable= None
@@ -101,24 +102,32 @@ class Aligner:
 
     def select_best_match(self):
         self.based_on = ''
+        index_syllable = self.stressed_syllable_based_on_index
+        vowel_syllable = self.stressed_syllable_based_on_vowel
         if self.match:
-            self.stressed_syllable = self.stressed_syllable_based_on_index
+            self.stressed_syllable = index_syllable
             self.based_on = 'index and vowel'
             return
-        if not self.stressed_syllable_based_on_vowel:
-            self.stressed_syllable = self.stressed_syllable_based_on_index
+        if not vowel_syllable and index_syllable:
+            self.stressed_syllable = index_syllable
+            self.based_on = 'index (no vowel syllable)'
+            return
+        if not index_syllable and vowel_syllable:
+            self.stressed_syllable = vowel_syllable
+            self.based_on = 'vowel (no index syllable)'
+            return
+        if not index_syllable and not vowel_syllable:
+            self.stressed_syllable = None
             return
         self.match_vowel = compute_similarity_score_syllable(
-            self.stressed_syllable_based_on_vowel.ipa,
-            self.stressed_celex_syllable)
+            vowel_syllable.ipa, self.stressed_celex_syllable)
         self.match_index = compute_similarity_score_syllable(
-            self.stressed_syllable_based_on_index.ipa,
-            self.stressed_celex_syllable)
+            index_syllable.ipa,self.stressed_celex_syllable)
         if self.match_vowel > self.match_index:
-            self.stressed_syllable = self.stressed_syllable_based_on_vowel
+            self.stressed_syllable = vowel_syllable 
             self.based_on = 'vowel'
         else:
-            self.stressed_syllable = self.stressed_syllable_based_on_index
+            self.stressed_syllable = index_syllable
             self.based_on = 'index'
 
 def compute_similarity_score_syllable(syllable1, syllable2):
@@ -147,17 +156,21 @@ def get_stressed_syllable(word, celex_word = None, celex_database = None):
     if not celex_database:
         celex_database = celex.Celex(word.language.language)
     syllables = list(word.syllable_set.all())
+    if len(syllables) == 0:
+        return None, None, syllables
     if len(syllables) == 1: 
         return syllables[0], 0, syllables
     if not celex_word:
         celex_word = word_to_celex_word(word, celex_database)
     if not celex_word: 
-        print('celex word not found', word.word)
+        # print('celex word not found', word.word)
         return None, None, syllables
     if not celex_word.syllables:
-        print('no syllables in celex word', word.word)
+        # print('no syllables in celex word', word.word)
         return None, None, syllables
     stressed_syllable_index = celex_word.stress_list.index('primary')
+    if stressed_syllable_index >= len(syllables):
+        return None, None, syllables
     stressed_syllable = syllables[stressed_syllable_index]
     '''
     print(celex_word,'\n',word,'\n',
