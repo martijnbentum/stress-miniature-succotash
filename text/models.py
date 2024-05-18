@@ -171,7 +171,7 @@ class Phoneme(models.Model):
 
     def __str__(self):
         m = self.ipa + ' ' + self.bpcs_str 
-        if self.stress:
+        if self.stress != None:
             m += ' ' + str(self.stress)
         return m
 
