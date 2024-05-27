@@ -77,7 +77,6 @@ class Phrase(models.Model):
 
 class Speaker(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
-    dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
     name = models.CharField(max_length=100)
     birth_year = models.IntegerField(default=None, **not_required)
