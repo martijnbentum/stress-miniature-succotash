@@ -48,6 +48,7 @@ class Audio(models.Model):
 
 class Textgrid(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+    dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
     audio = models.ForeignKey('Audio',**dargs)
     filename = models.CharField(max_length=300, **required)
@@ -65,6 +66,7 @@ class Textgrid(models.Model):
 
 class Phrase(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+    dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
     speaker = models.ForeignKey('Speaker',**dargs)
     phrase = models.CharField(max_length=1000)
@@ -75,6 +77,7 @@ class Phrase(models.Model):
 
 class Speaker(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+    dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
     name = models.CharField(max_length=100)
     birth_year = models.IntegerField(default=None, **not_required)
@@ -130,6 +133,7 @@ class Word(models.Model):
 
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+    dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
     word = models.ForeignKey('Word',**dargs)
     phoneme_str= models.CharField(max_length=100,default='') 
@@ -153,6 +157,7 @@ class Syllable(models.Model):
 
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+    dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
     phoneme = models.CharField(max_length=5, default='')
     word = models.ForeignKey('Word',**dargs)
