@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from progressbar import progressbar
-from utils import audio
+from audio import audio
 from utils import locations
 
 def load_dataset(dataset_name = 'COOLEST'):

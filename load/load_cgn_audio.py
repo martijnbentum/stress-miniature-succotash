@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from progressbar import progressbar
 from utils import locations 
-from utils import audio
+from audio import audio
 
 def cgn_audio_files(comps = 'abefghijklno',languages = ['nl','fl']):
     return locations.cgn_audio_files(comps,languages)
