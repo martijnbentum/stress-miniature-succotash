@@ -22,14 +22,16 @@ def load_speaker(audio, validated_dict):
     return speaker
     
 def load_in_maus_textgrid(audio,cv_root_folder,validated_dict):
-    from text.models import Textgrid
+    from text.models import Textgrid, Dataset
     filename = get_maus_textgrid_filename(audio.filename, cv_root_folder)
     speaker = load_speaker(audio, validated_dict)
+    dataset = Dataset.objects.get(name = 'COMMON VOICE')
     d ={}
     d['identifier'] = Path(filename).stem
     d['audio'] = audio
     d['filename'] = filename
     d['phoneme_set_name'] = 'maus'
+    d['dataset'] = dataset
     textgrid, created = Textgrid.objects.get_or_create(**d)
     if created:
         textgrid.speakers.add(speaker)

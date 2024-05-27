@@ -37,7 +37,7 @@ def handle_word(word, language, count = 0):
 
 def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
     language, phonemes, count = 0):
-    from text.models import Syllable
+    from text.models import Syllable, Dataset
     syllable_phonemes = select_syllable_phonemes(syllable_interval, phonemes,
         word, language, count = count)
     if not syllable_phonemes: return False, False
@@ -52,6 +52,7 @@ def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
     d['audio'] = audio
     d['speaker'] = speaker
     d['language'] = language
+    d['dataset'] = Dataset.objects.get(name='COMMON VOICE')
     syllable, created = Syllable.objects.get_or_create(**d)
     handle_phonemes(syllable, syllable_phonemes)
     return syllable, created
