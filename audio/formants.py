@@ -1,5 +1,30 @@
-from pathlib import Path
 from utils import locations
+import os
+from pathlib import Path
+import random
+import string
+import sys
+
+def praat_script_filename():
+    name = ''.join(random.sample(string.ascii_lowercase*10,30))
+    filename = '../praat/' + name + '.praat'
+    return filename
+
+def handle_audio(audio):
+    cmd = audio_praat_cmd(audio)
+    filename_praat_script = praat_script_filename()
+    with open(filename_praat_script, 'w') as fout:
+        fout.write(cmd)
+    if sys.platform == 'darwin':
+        m = '/Applications/Praat.app/Contents/MacOS/Praat'
+    else:
+        m = 'praat'
+    m += ' --run ' + filename_praat_script
+    print(m)
+    os.system(m)
+    os.remove(filename_praat_script)
+
+    
 
 def audio_filename_to_formant_filename(audio):
     formant_directory = locations.formants_dir.resolve()
