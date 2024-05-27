@@ -1,16 +1,52 @@
 import json
 from pathlib import Path
 
-def get_words_per_language():
-    from text.models import Language
+
+def _get_item_counts_per_language(item_type = 'word', 
+    dataset_name = 'COMMON VOICE'):
+    '''print the number of items of a given type in a given dataset'''
+    from text.models import Language, Dataset
+    if dataset_name in  ['','all',None, 'all datasets']:    
+        dataset_name = 'all datasets'
+        dataset = None
+    else: dataset = Dataset.objects.get(name = dataset_name)
+    print(f'Getting counts for {item_type} in {dataset_name}')
+    d = {'dataset':dataset}
     for language in Language.objects.all():
-        print(f'{language}: {language.word_set.all().count()}')
-        
-def get_cv_words_of_language(language_name):
-    from text.models import Language, Dataset, Word
+        items = getattr(language,item_type + '_set').filter(**d)
+        print(f'{language}: {items.count()}')
+
+def get_words_per_language(dataset_name = 'COMMON VOICE'):
+    _get_item_counts_per_language('word', dataset_name)
+
+def get_syllables_per_language(dataset_name = 'COMMON VOICE'):
+    _get_item_counts_per_language('syllable', dataset_name)
+
+def get_phonemes_per_language(dataset_name = 'COMMON VOICE'):
+    _get_item_counts_per_language('phoneme', dataset_name)
+
+def get_all_items_per_language(dataset_name = 'COMMON VOICE'):
+    get_words_per_language(dataset_name)
+    get_syllables_per_language(dataset_name)
+    get_phonemes_per_language(dataset_name)
+
+def _get_cv_items_of_language(language_name, item_type = 'word'):
+    from text.models import Language, Dataset, Word, Syllable, Phoneme
     language = Language.objects.get(language__iexact = language_name)
     dataset = Dataset.objects.get(name = 'COMMON VOICE')
-    return Word.objects.filter(language = language, dataset = dataset)
+    if item_type == 'word': item = Word
+    if item_type == 'syllable': item = Syllable
+    if item_type == 'phoneme': item = Phoneme
+    return Item.objects.filter(language = language, dataset = dataset)
+        
+def get_cv_words_of_language(language_name):
+    return _get_cv_items_of_language(language_name, 'word')
+        
+def get_cv_syllable_of_language(language_name):
+    return _get_cv_items_of_language(language_name, 'syllable')
+
+def get_cv_phoneme_of_language(language_name):
+    return _get_cv_items_of_language(language_name, 'phoneme')
 
 def load_cv_spk_ids(language_name):
     with open(f'../{language_name}_cv_speaker_ids.json') as fin:
