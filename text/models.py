@@ -172,6 +172,11 @@ class Phoneme(models.Model):
     end_time = models.FloatField(default=None, **not_required)
     bpcs = models.ManyToManyField('BPC',blank=True, default=None)
     bpcs_str = models.CharField(max_length=100, default='')
+    _f0 = models.CharField(max_length=300, default='')
+    _f1 = models.CharField(max_length=300, default='')
+    _f2 = models.CharField(max_length=300, default='')
+    _spectral_tilt = models.CharField(max_length=100, default='')
+    intensity = models.FloatField(default=None, **not_required)
 
     def __str__(self):
         m = self.ipa + ' ' + self.bpcs_str 
