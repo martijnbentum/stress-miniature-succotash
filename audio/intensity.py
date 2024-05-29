@@ -1,4 +1,6 @@
 from audio import audio
+import numpy as np
+from progressbar import progressbar
 
 def compute_praat_intensity(signal):
     '''
@@ -8,11 +10,11 @@ def compute_praat_intensity(signal):
     power = np.mean(signal ** 2)
     return 10 * np.log10(power / baseline)
 
-def handle_phoneme(phoneme, signal, save = False):
+def handle_phoneme(phoneme, signal, sr, save = False):
     '''compute the intensity of a phoneme object'''
     signal = audio.item_to_samples(phoneme, signal, sr)
     intensity = compute_praat_intensity(signal)
-    phoneme.intensity = json.dumps(intensity)
+    phoneme.intensity = round(intensity,3)
     if save: phoneme.save()
     return intensity
 

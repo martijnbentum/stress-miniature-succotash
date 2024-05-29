@@ -19,9 +19,9 @@ def handle_word(word, formants, save = True):
         handle_phoneme(phoneme, formants, save)
 
 def handle_phoneme(phoneme, formants, save = True):
-    f1, f2 = self.f1_f2(phoneme)
-    phoneme.f1 = json.dumps(f1)
-    phoneme.f2 = json.dumps(f2)
+    f1, f2 = formants.f1_f2(phoneme)
+    phoneme._f1 = json.dumps(f1)
+    phoneme._f2 = json.dumps(f2)
     if save: phoneme.save()
 
 class Formants:
@@ -61,8 +61,8 @@ class Formants:
         '''
         start, end = item.start_time, item.end_time
         lines = self.interval(start, end)
-        f1 = [x.f1 for x in lines]
-        f2 = [x.f2 for x in lines]
+        f1 = [round(x.f1) for x in lines]
+        f2 = [round(x.f2) for x in lines]
         return f1, f2
 
             

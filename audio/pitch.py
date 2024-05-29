@@ -2,6 +2,7 @@ from audio import audio
 import json
 import librosa
 import numpy as np
+from progressbar import progressbar
 
 def signal_to_pitch(signal, sr):
     f0 = librosa.yin(signal, fmin = 65, fmax=600, sr=sr)
@@ -29,7 +30,7 @@ def handle_audio(audio):
     signal, sr = audio.load_audio()
     words = audio.word_set.all()
     pitches = []
-    for word in words:
+    for word in progressbar(words):
         o = handle_word(word, signal, sr)
         pitches.append(o)
     return pitches

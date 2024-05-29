@@ -3,6 +3,7 @@ import json
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
+from progressbar import progressbar
 
 praat_baseline_power = 4*10**-10
 
@@ -12,21 +13,31 @@ def handle_phoneme(phoneme, signal, sr, baseline_power = None, save = True):
     phoneme     phoneme class object 
     '''
     signal = audio.item_to_samples(phoneme, signal, sr)
-    spectral_tilt = get_four_fb_to_db(signal, sr = sr)
+    spectral_tilt = [round(x) for x in get_four_fb_to_db(signal, sr = sr)]
     if sum([x < 0 for x in spectral_tilt]) > 0: return ''
+    phoneme._spectral_tilt = json.dumps(spectral_tilt)
     if save: phoneme.save()
     return spectral_tilt
 
-def handle_word(word):
+def handle_word(word, signal, sr):
     '''compute the power in four frequency bands and convert to decibels
     '''
     phonemes = word.phoneme_set.all()
+    spectral_tilts = []
     for phoneme in phonemes:
         spectral_tilt= handle_phoneme(phoneme, signal, sr)
-        phoneme._spectral_tilt= json.dumps(spectral_tilt)
+        spectral_tilts.append(st)
+    return spectral_tilts
 
 def handle_audio(audio):
-
+    '''compute the spectral tilt of all phonemes in an audio object'''
+    signal, sr = audio.load_audio()
+    words = audio.word_set.all()
+    spectral_tilts = []
+    for word in progressbar(words):
+        o = handle_word(word, signal, sr)
+        spectral_tilts.append(o)
+    return spectral_tilts
 
 def compute_fft(signal, sr = 44100):
     '''compute the fast fourier transform of a signal
@@ -35,9 +46,8 @@ def compute_fft(signal, sr = 44100):
     fft_result          a list of complex numbers -> fourier decomposition
                         of the signal
     '''
-        
     fft_result= np.fft.fft(signal)
-    frequencies = np.fft.fftfreq(len(signal), 1.0/sample_rate)
+    frequencies = np.fft.fftfreq(len(signal), 1.0/sr)
     frequencies = frequencies[:int(len(frequencies)/2)] 
     fft_result = fft_result[:int(len(fft_result)/2)]
     return frequencies, fft_result
