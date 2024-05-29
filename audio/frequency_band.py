@@ -13,7 +13,8 @@ def handle_phoneme(phoneme, signal, sr, baseline_power = None, save = True):
     phoneme     phoneme class object 
     '''
     signal = audio.item_to_samples(phoneme, signal, sr)
-    spectral_tilt = [round(x) for x in get_four_fb_to_db(signal, sr = sr)]
+    try:spectral_tilt = [round(x) for x in get_four_fb_to_db(signal, sr = sr)]
+    except OverflowError: return ''
     if sum([x < 0 for x in spectral_tilt]) > 0: return ''
     phoneme._spectral_tilt = json.dumps(spectral_tilt)
     if save: phoneme.save()
