@@ -200,6 +200,33 @@ class Phoneme(models.Model):
     def simple_ipa(self):
         if not self.ipa: return ''
         return self.ipa[0]
+
+    @property
+    def f0(self):
+        if not self._f0: return []
+        return json.loads(self._f0)
+
+    @property
+    def f1(self):
+        if not self._f1: return []
+        return json.loads(self._f1)
+    
+    @property
+    def f2(self):
+        if not self._f2: return []
+        return json.loads(self._f2)
+    
+    @property
+    def spectral_tilt(self):
+        if not self._spectral_tilt: return []
+        return json.loads(self._spectral_tilt)
+
+    @property
+    def accoustic_features(self):
+        d = {'f0':self.f0,'f1':self.f1,'f2':self.f2,
+                'spectral_tilt':self.spectral_tilt,'intensity':self.intensity}
+        return d
+
     
 class BPC(models.Model):
     bpc = models.CharField(max_length=10, default='', unique=True, **required)
