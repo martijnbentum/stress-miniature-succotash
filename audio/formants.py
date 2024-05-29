@@ -44,8 +44,8 @@ class Formants:
 
     def interval_mean_f1_f2(self, start, end):
         lines = self.interval(start, end)
-        f1 = round(sum([x.f1 for x in lines]) / len(lines))
-        f2 = round(sum([x.f2 for x in lines]) / len(lines))
+        f1 = round(sum([x.f1 for x in lines if x.f1]) / len(lines))
+        f2 = round(sum([x.f2 for x in lines if x.f2]) / len(lines))
         return f1, f2
 
     def mean_f1_f2(self, item):
@@ -61,8 +61,8 @@ class Formants:
         '''
         start, end = item.start_time, item.end_time
         lines = self.interval(start, end)
-        f1 = [round(x.f1) for x in lines]
-        f2 = [round(x.f2) for x in lines]
+        f1 = [round(x.f1) for x in lines if x.f1]
+        f2 = [round(x.f2) for x in lines if x.f2]
         return f1, f2
 
             
@@ -74,8 +74,10 @@ class Formant_line:
         self.line = line
         self.time = float(line[0])
         self.nformants = int(line[1])
-        self.f1 = float(line[2])
-        self.f2 = float(line[4])
+        try: self.f1 = float(line[2])
+        except ValueError: self.f1 = None
+        try: self.f2 = float(line[4])
+        except ValueError: self.f2 = None
 
     def __repr__(self):
         return 'Time: {}, F1: {}, F2: {})'.format(self.time, self.f1, self.f2)
