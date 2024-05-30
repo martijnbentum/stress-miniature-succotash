@@ -1,6 +1,11 @@
 import json
 from pathlib import Path
 
+def get_all_items_per_language(dataset_name = 'COMMON VOICE'):
+    get_words_per_language(dataset_name)
+    get_syllables_per_language(dataset_name)
+    get_phonemes_per_language(dataset_name)
+
 
 def _get_item_counts_per_language(item_type = 'word', 
     dataset_name = 'COMMON VOICE'):
@@ -24,11 +29,6 @@ def get_syllables_per_language(dataset_name = 'COMMON VOICE'):
 
 def get_phonemes_per_language(dataset_name = 'COMMON VOICE'):
     _get_item_counts_per_language('phoneme', dataset_name)
-
-def get_all_items_per_language(dataset_name = 'COMMON VOICE'):
-    get_words_per_language(dataset_name)
-    get_syllables_per_language(dataset_name)
-    get_phonemes_per_language(dataset_name)
 
 def _get_cv_items_of_language(language_name, item_type = 'word'):
     from text.models import Language, Dataset, Word, Syllable, Phoneme
