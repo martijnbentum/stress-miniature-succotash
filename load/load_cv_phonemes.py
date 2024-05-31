@@ -23,13 +23,14 @@ def handle_words(language, dataset, maus_to_ipa, skip_if_ipa = True):
         n_created += handle_word(word, language, maus_to_ipa, dataset)
     print('Created', n_created, 'phonemes for', language.language)
 
-def handle_word(word, language, maus_to_ipa = None, dataset):
+def handle_word(word, language, maus_to_ipa = None, dataset = None):
     if maus_to_ipa == None:
         if language.language != 'English':
             m = 'maus_to_ipa must be provided for non-English languages'
             raise ValueError(m)
         maus = maus_phoneme_mapper.Maus('english', accent = word.accent)
         maus_to_ipa = maus.maus_to_ipa()
+    if not dataset: dataset = word.dataset
     speaker = word.speaker
     audio = word.audio
     textgrid = audio.textgrid_set.get(phoneme_set_name='maus')
