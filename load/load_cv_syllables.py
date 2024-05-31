@@ -14,10 +14,10 @@ def handle_words(language, dataset):
     words = Word.objects.filter(language=language, dataset=dataset)
     n_created = 0
     for word in progressbar(words):
-        n_created += handle_word(word, language)
+        n_created += handle_word(word, language, dataset)
     print('Created', n_created, 'syllables for', language.language)
 
-def handle_word(word, language, count = 0):
+def handle_word(word, language, dataset, count = 0):
     speaker = word.speaker
     audio = word.audio
     textgrid = audio.textgrid_set.get(phoneme_set_name='maus')
@@ -26,20 +26,20 @@ def handle_word(word, language, count = 0):
     phonemes = word.phoneme_set.all()
     for syllable_index, syllable_interval in enumerate(syllable_intervals):
         syllable,created = handle_syllable(syllable_interval, syllable_index, 
-            word, audio, speaker, language, phonemes, count = count)
+            word, audio, speaker, language, phonemes, dataset, count = count)
         if created: n_created += 1
         if not syllable and count == 0: 
-            return handle_word(word, language, 1)
+            return handle_word(word, language, dataset, 1)
         elif count > 1: 
             print(word,language,count, syllable_interval, '>>syllable error<<')
             continue
     return n_created
 
 def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
-    language, phonemes, count = 0):
+    language, phonemes, dataset, count = 0):
     from text.models import Syllable, Dataset
     syllable_phonemes = select_syllable_phonemes(syllable_interval, phonemes,
-        word, language, count = count)
+        word, language, dataset, count = count)
     if not syllable_phonemes: return False, False
     d = {}
     d['identifier'] = make_syllable_identifier(word, syllable_index)
@@ -52,7 +52,7 @@ def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
     d['audio'] = audio
     d['speaker'] = speaker
     d['language'] = language
-    d['dataset'] = Dataset.objects.get(name='COMMON VOICE')
+    d['dataset'] = dataset
     syllable, created = Syllable.objects.get_or_create(**d)
     handle_phonemes(syllable, syllable_phonemes)
     return syllable, created
@@ -94,7 +94,7 @@ def _check_phonemes_merged(phonemes, syllable_interval):
         
 
 def select_syllable_phonemes(syllable_interval, phonemes, word, language,
-    count = 0):
+    dataset, count = 0):
     syllable_phonemes = []
     lname = language.language.lower()
     for phoneme in phonemes:
@@ -110,7 +110,7 @@ def select_syllable_phonemes(syllable_interval, phonemes, word, language,
             word.syllable_set.all().delete()
             ln = language.language
             maus_to_ipa = maus_phoneme_mapper.Maus(ln).maus_to_ipa()
-            load_cv_phonemes.handle_word(word, language, maus_to_ipa)
+            load_cv_phonemes.handle_word(word, language, maus_to_ipa, dataset)
             return False
         elif lname == 'german' and _check_phonemes_merged(syllable_phonemes, 
             syllable_interval):

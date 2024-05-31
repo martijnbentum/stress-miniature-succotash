@@ -20,10 +20,10 @@ def handle_words(language, dataset, maus_to_ipa, skip_if_ipa = True):
     n_created = 0
     for word in progressbar(words):
         if skip_if_ipa and word.ipa: continue
-        n_created += handle_word(word, language, maus_to_ipa)
+        n_created += handle_word(word, language, maus_to_ipa, dataset)
     print('Created', n_created, 'phonemes for', language.language)
 
-def handle_word(word, language, maus_to_ipa = None):
+def handle_word(word, language, maus_to_ipa = None, dataset):
     if maus_to_ipa == None:
         if language.language != 'English':
             m = 'maus_to_ipa must be provided for non-English languages'
@@ -38,7 +38,7 @@ def handle_word(word, language, maus_to_ipa = None):
     phonemes = []
     for phoneme_index, phoneme_interval in enumerate(phoneme_intervals):
         phoneme, created = handle_phoneme(phoneme_interval, phoneme_index, 
-            word, audio, speaker, language, maus_to_ipa)
+            word, audio, speaker, language, maus_to_ipa, dataset)
         if created: n_created += 1
         phonemes.append(phoneme)
         ipa = [phoneme.ipa for phoneme in phonemes]
@@ -47,7 +47,7 @@ def handle_word(word, language, maus_to_ipa = None):
     return n_created
 
 def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
-    language, maus_to_ipa):
+    language, maus_to_ipa, dataset):
     from text.models import Phoneme
     d = {}
     d['identifier'] = make_phoneme_identifier(word, phoneme_index)
@@ -60,7 +60,7 @@ def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
     d['audio'] = audio
     d['speaker'] = speaker
     d['language'] = language
-    d['dataset'] = Dataset.objects.get(name='COMMON VOICE')
+    d['dataset'] = dataset
     bpcs = ipa_to_bpc[d['ipa']]
     d['bpcs_str'] = ','.join([bpc.bpc for bpc in bpcs])
     phoneme, created = Phoneme.objects.get_or_create(**d)
