@@ -7,7 +7,7 @@ from progressbar import progressbar
 
 def handle_language(language_name):
     from text.models import Word
-    if not language_name not in  ['dutch', 'english', 'german']:
+    if language_name not in  ['dutch', 'english', 'german']:
         raise ValueError('Language not supported',
             language_name)
     c = celex.Celex('dutch')
