@@ -48,7 +48,7 @@ def handle_word(word, language, maus_to_ipa = None):
 
 def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
     language, maus_to_ipa):
-    from text.models import Phoneme
+    from text.models import Phoneme, Dataset
     d = {}
     d['identifier'] = make_phoneme_identifier(word, phoneme_index)
     d['phoneme'] = phoneme_interval.text
