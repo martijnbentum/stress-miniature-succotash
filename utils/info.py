@@ -34,9 +34,9 @@ def _get_cv_items_of_language(language_name, item_type = 'word'):
     from text.models import Language, Dataset, Word, Syllable, Phoneme
     language = Language.objects.get(language__iexact = language_name)
     dataset = Dataset.objects.get(name = 'COMMON VOICE')
-    if item_type == 'word': item = Word
-    if item_type == 'syllable': item = Syllable
-    if item_type == 'phoneme': item = Phoneme
+    if item_type == 'word': Item = Word
+    if item_type == 'syllable': Item = Syllable
+    if item_type == 'phoneme': Item = Phoneme
     return Item.objects.filter(language = language, dataset = dataset)
         
 def get_cv_words_of_language(language_name):
@@ -66,7 +66,7 @@ def load_or_make_cv_spk_id_json(language_name, force_make = False):
         json.dump(spk_id,fout)
     return spk_id
     
-def load_or_make_all_spk_ids_cv_datset():
+def load_or_make_all_spk_ids_cv_dataset():
     from text.models import Dataset 
     dataset = Dataset.objects.get(name = 'COMMON VOICE')
     languages = dataset.language_str.split(', ')
