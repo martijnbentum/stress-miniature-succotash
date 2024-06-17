@@ -5,6 +5,7 @@ from load import load_cv_words
 from load import load_cv_phonemes
 from load import load_cv_syllables
 from load import add_english_accents
+from utils import locations
 
 
 def handle_language(language_name):
