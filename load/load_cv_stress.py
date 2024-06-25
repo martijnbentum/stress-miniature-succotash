@@ -10,7 +10,7 @@ def handle_language(language_name):
     if language_name not in  ['dutch', 'english', 'german']:
         raise ValueError('Language not supported',
             language_name)
-    c = celex.Celex('dutch')
+    c = celex.Celex(language_name.lower())
     dataset = lca.load_dataset('COMMON VOICE')
     language = lca.load_language(language_name)
     words = Word.objects.filter(language=language,
