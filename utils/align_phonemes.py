@@ -3,6 +3,7 @@ import gruut_ipa
 from itertools import product
 import json
 from load import load_bpc
+import unicodedata
 
 def is_vowel(ipa, d = None):
     if not d: d = load_bpc.ipa_to_bpc_dict()
@@ -41,21 +42,25 @@ def compute_similarity_score_phoneme_pair(p1 , p2):
     raise ValueError('case should not occur', p1, p2, p1_is_vowel, p2_is_vowel)
     
 
-def check_phoneme(phoneme, name):
-    if phoneme in vowels or phoneme in consonants:pass
-    else: raise ValueError(phoneme,name, 'not in vowels or consonants')
-
 def _handle_long_phoneme(p1,p2, f):
     score = 0
     phoneme_pairs = list(set(product(p1,p2)))
-    n = 0
+    phoneme_pairs = _remove_diacritics(phoneme_pairs)
     for p1,p2 in phoneme_pairs:
         score += f(p1,p2)
     return score / len(phoneme_pairs)
 
+
+def remove_diacritics(text):
+    normalized_text = unicodedata.normalize('NFD', text)
+    cleaned_text = ''.join(c for c in normalized_text 
+        if unicodedata.category(c) != 'Mn')
+    return cleaned_text
+
 def simplify_phoneme(phoneme):
     for char in 'ʰʲː':
         phoneme = phoneme.replace(char,'')
+    phoneme = remove_diacritics(phoneme)
     return phoneme
 
 def compute_consonant_similarity_score(c1,c2):
@@ -96,3 +101,4 @@ def compute_vowel_similarity_score(v1,v2):
     if v1.rounded== v2.rounded: score += 1
     return score
 
+diacritics = ['͂','̩','̃']
