@@ -45,7 +45,6 @@ def compute_similarity_score_phoneme_pair(p1 , p2):
 def _handle_long_phoneme(p1,p2, f):
     score = 0
     phoneme_pairs = list(set(product(p1,p2)))
-    phoneme_pairs = _remove_diacritics(phoneme_pairs)
     for p1,p2 in phoneme_pairs:
         score += f(p1,p2)
     return score / len(phoneme_pairs)
