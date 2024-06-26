@@ -172,7 +172,7 @@ def show(mapper= None):
 ipa_set = 'p,b,t,d,k,g,ŋ,m,n,l,r,f,v,θ,ð,s,z,ʃ,ʒ,j,x,ɣ'
 ipa_set += ',h,w,ʋ,pf,ts,tʃ,dʒ,ŋ̩,m̩,n̩,l̩,*,iː,iːː,ɑː,aː,ɔː'
 ipa_set += ',uː,ɜː,yː,yːː,ɛː,œː,ɒː,eː,øː,oː,eɪ,ɑɪ,ɔɪ,əʊ'
-ipa_set += ',aʊ,ɪə,ɛə,ʊə,ɛi,œy,ɑu,ai,au,ɔy,ɪ,Y,ɛ,œ,æ,a,ɑ'
+ipa_set += ',aʊ,ɪə,ɛə,ʊə,ɛi,œy,ɑu,ai,au,ɔy,ɪ,ʏ,ɛ,œ,æ,a,ɑ'
 ipa_set += ',ɒ,ʌ,ɔ,ʊ,ʉ,ə,œ̃,æ̃,ɑ̃ː,æ̃ː,ɒ̃ː'
 ipa_set = ipa_set.split(',')
 
