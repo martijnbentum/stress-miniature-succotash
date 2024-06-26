@@ -386,6 +386,13 @@ ipa_to_dutch_examples = {}
 for ipa, example in zip(ipa_set,examples_dutch):
     ipa_to_dutch_examples[ipa] = example
 
+ipa_to_english_examples = {}
+for ipa, example in zip(ipa_set,examples_english):
+    ipa_to_english_examples[ipa] = example
+
+ipa_to_german_examples = {}
+for ipa, example in zip(ipa_set,examples_german):
+    ipa_to_german_examples[ipa] = example
 
 baldey_textgrid_phoneme_set = 'n,Y,m,@,r,s,b,E,k,f,A,t,y,p,i,x,O'
 baldey_textgrid_phoneme_set +=',Y+,j,v,u,l,I,z,E+,G,w,d,h,o,e,g,a,N'
