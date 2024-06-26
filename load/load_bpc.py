@@ -84,7 +84,7 @@ def get_consonants(d=None):
 def get_vowels(d=None):
     if not d: d = ipa_to_bpc_dict()
     vowels = [vowel for vowel,bpc in d.items() if 'vowel' in bpc]
-    celex_vowels = 'Y œ̃ au ɔy ai ɑɪ yːː iːː'.split(' ')# celex vowels
+    celex_vowels = 'œ̃ au ɔy ai ɑɪ yːː iːː'.split(' ')# celex vowels
     vowels.extend(celex_vowels)
     return vowels
     
