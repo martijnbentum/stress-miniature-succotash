@@ -60,6 +60,11 @@ def simplify_phoneme(phoneme):
     for char in 'ʰʲː':
         phoneme = phoneme.replace(char,'')
     phoneme = remove_diacritics(phoneme)
+    if phoneme == 'ɝ': phoneme = 'ə'
+    if phoneme == 'J': phoneme = 'j'
+    if phoneme == 'ɥ': phoneme = 'j'
+    if phoneme == 'ʍ': phoneme = 'w'
+    if phoneme == '*': phoneme = 'ɾ'
     return phoneme
 
 def compute_consonant_similarity_score(c1,c2):
