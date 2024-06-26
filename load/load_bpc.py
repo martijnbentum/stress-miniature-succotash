@@ -74,16 +74,29 @@ def handle_bpcs():
     bpcs = make_bpcs()
     for bpc in progressbar(bpcs.keys()):
         handle_bpc(bpc, bpcs)
+
+def get_consonants(d=None):
+    if not d: d = ipa_to_bpc_dict()
+    consonants = [c for c,bpc in d.items() if 'consonant' in bpc]
+    consonants.append('*') # add celex consonant (specific r in english)
+    return consonants
+
+def get_vowels(d=None):
+    if not d: d = ipa_to_bpc_dict()
+    vowels = [vowel for vowel,bpc in d.items() if 'vowel' in bpc]
+    celex_vowels = 'Y œ̃ au ɔy ai ɑɪ yːː iːː'.split(' ')# celex vowels
+    vowels.extend(celex_vowels)
+    return vowels
     
 def is_vowel(ipa, d=None):
     '''return True if the given IPA symbol is a vowel.'''
-    if not d: d = ipa_to_bpc_dict()
-    vowels = [vowel for vowel,bpc in d.items() if 'vowel' in bpc]
+    vowels = get_vowels(d)
     return ipa in vowels
 
 def is_consonant(ipa, d=None):
     '''return True if the given IPA symbol is a consonant.'''
-    return not is_vowel(ipa, d)
+    consonants = get_consonants(d)
+    return ipa in consonants
     
 def handle_phoneme(phoneme):
     '''if phoneme does not have bpc this function will add it'''
