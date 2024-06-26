@@ -85,4 +85,9 @@ def is_consonant(ipa, d=None):
     '''return True if the given IPA symbol is a consonant.'''
     return not is_vowel(ipa, d)
     
-    
+def handle_phoneme(phoneme):
+    '''if phoneme does not have bpc this function will add it'''
+    ipa_to_bpc = ipa_to_bpc_instances(add_longer=True)
+    bpcs = ipa_to_bpc[phoneme.ipa]
+    phoneme.bpcs_str = ','.join([bpc.bpc for bpc in bpcs])
+    phoneme.bpcs.add(*bpcs)
