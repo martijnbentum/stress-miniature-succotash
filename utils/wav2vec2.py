@@ -1,7 +1,10 @@
 import pickle
+from pathlib import Path
 from w2v2_hidden_states import frame
 from w2v2_hidden_states import load
 from w2v2_hidden_states import to_vector
+from utils import locations
+from utils import save_hidden_states as shs
 
 def load_model(gpu = False):
     return load.load_pretrained_model(gpu = gpu)
@@ -13,25 +16,31 @@ def audio_to_vector(audio, model = None, gpu = False):
     outputs = to_vector.filename_to_vector(audio_filename, model = model, 
         gpu = gpu)
     return outputs
-
+    
 def handle_audio(audio, model = None, gpu = False, save_words = True,
-    output_directory = None):
-    if not output_directory:
-        output_directory = load.hidden_state_directory
+    check_exists = True):
     outputs = audio_to_vector(audio, model, gpu)
     words = audio.word_set.all()
+    language_name = audio.language.language
     output = []
+    loaded, computed = 0,0
     for word in words:
-        start_time, end_time, identifier, name = word_to_info(word)
-        word_output= frame.extract_outputs_times(outputs, start_time, 
-            end_time)
-        word_output.identifier = identifier
-        word_output.name = name
-        if save_words:
-            filename = output_directory + identifier + ".pickle"
-            pickle.dump(word_output,open(filename, "wb"))
+        word_output = None
+        check_hidden_states = shs.check_word_hidden_states_exists
+        if check_exists and check_hidden_states(word, language_name):
+            word_output =shs.load_word_hidden_states(word, language_name)
+            loaded += 1
+        if not word_output:
+            start_time, end_time, identifier, name = word_to_info(word)
+            word_output= frame.extract_outputs_times(outputs, start_time, 
+                end_time)
+            word_output.identifier = identifier
+            word_output.name = name
+            if save_words:
+                shs.save_word_hidden_states(word, word_output)
+            computed += 1
         output.append(word_output)
-    return output
+    return output, loaded, computed
 
 def word_to_info(word):
     start_time = word.start_time
@@ -39,3 +48,15 @@ def word_to_info(word):
     identifier = word.identifier
     name = word.word
     return start_time, end_time, identifier, name
+
+'''
+no speed up
+def audio_to_hidden_states(audio, model = False, gpu = False):
+    outputs = audio_to_vector(audio, model, gpu)
+    language_name = audio.language.language
+    hdf5_filename = shs.language_name_to_hdf5_filename(language_name)
+    name = audio.identifier
+    if shs.check_hidden_states_exists(hdf5_filename,name): return False
+    shs.save_hidden_states(hdf5_filename,name,outputs)
+    return True
+'''
