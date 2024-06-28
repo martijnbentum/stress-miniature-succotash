@@ -90,6 +90,7 @@ def remove_word_hidden_states(word, language_name = None):
     
 
 def language_name_to_hdf5_filename(language_name):
+    language_name = language_name.lower()
     filename = 'hidden_states_' + language_name + '.h5'
     filename = locations.hidden_states_dir / filename
     return filename
@@ -114,6 +115,12 @@ def language_to_hdf5_filename(language):
     language_name = language.language.lower()
     filename = language_name_to_hdf5_filename(language_name)
     return filename
+
+def hdf5_keys(filename):
+    with h5py.File(filename, 'r') as fin:
+        keys = list(fin.keys())
+    return keys
+
 
 
 # batch loading is a little bit faster than per word loading
