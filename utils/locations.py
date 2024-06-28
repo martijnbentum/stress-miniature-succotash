@@ -83,3 +83,5 @@ celex_dutch_phonology_file = celex_directory + 'DPW.CD'
 celex_german_phonology_file = celex_directory + 'GPW.CD'
 
 formants_dir = Path('../formants/')
+
+hidden_states_dir = Path('../hidden_states/')
