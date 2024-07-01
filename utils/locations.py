@@ -85,3 +85,5 @@ celex_german_phonology_file = celex_directory + 'GPW.CD'
 formants_dir = Path('../formants/')
 
 hidden_states_dir = Path('../hidden_states/')
+if sys.platform == 'linux':
+    hidden_states_dir = Path('/vol/bigdata3/datasets3/hidden_states')
