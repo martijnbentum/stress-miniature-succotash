@@ -4,6 +4,14 @@ import numpy as np
 import pickle
 from pathlib import Path
 
+def remove_last_hidden_state(hidden_states):
+    hidden_states.last_hidden_state = None
+    hidden_states['last_hidden_state'] = None
+
+def remove_layers(hidden_states, layers = [0,2,4,6,8,10,12,14,16,18,20,22]):
+    for layer_index in layers:
+        hidden_states.hidden_states[layer_index] = None
+        hidden_states['hidden_states'][layer_index] = None
 
 def load_hidden_states(hdf5_filename, name):
     '''
@@ -69,6 +77,8 @@ def save_word_hidden_states(word, hidden_states, language_name = None):
         hdf5_filename = language_name_to_hdf5_filename(language_name)
     else: hdf5_filename = word_to_hdf5_filename(word)
     name = word.identifier
+    remove_last_hidden_state(hidden_states)
+    remove_layers(hidden_states)
     save_hidden_states(hdf5_filename, name, hidden_states)
 
 def check_word_hidden_states_exists(word, language_name = None):
