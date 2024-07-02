@@ -31,7 +31,7 @@ def save_hidden_states(hdf5_filename, name, hidden_states):
     '''
     pickled_array = data_to_pickled_array(hidden_states)
     with h5py.File(hdf5_filename, 'a') as fout:
-        fout.create_dataset(name, data = pickled_array)
+        fout.create_dataset(name, data = pickled_array, chunks = (100_000,))
 
 def check_hidden_states_exists(hdf5_filename, name):
     if not Path(hdf5_filename).exists(): return False
