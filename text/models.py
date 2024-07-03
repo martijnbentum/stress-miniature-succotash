@@ -38,6 +38,7 @@ class Audio(models.Model):
     info = models.CharField(max_length=1000, default='')
     language = models.ForeignKey('Language',**dargs)
     dataset = models.ForeignKey('Dataset',**dargs)
+    hidden_state = models.IntegerField(default=None, null = True)
 
     def __str__(self):
         m = self.identifier + ' ' + str(self.duration) 
