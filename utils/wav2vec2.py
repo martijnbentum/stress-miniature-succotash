@@ -16,31 +16,23 @@ def audio_to_vector(audio, model = None, gpu = False):
     outputs = to_vector.filename_to_vector(audio_filename, model = model, 
         gpu = gpu)
     return outputs
+
     
-def handle_audio(audio, model = None, gpu = False, save_words = True,
-    check_exists = True):
+def handle_audio(audio, model = None, gpu = False, save_words = True):
     outputs = audio_to_vector(audio, model, gpu)
     words = audio.word_set.all()
     language_name = audio.language.language
     output = []
-    loaded, computed = 0,0
     for word in words:
-        word_output = None
-        check_hidden_states = shs.check_word_hidden_states_exists
-        if check_exists and check_hidden_states(word, language_name):
-            word_output =shs.load_word_hidden_states(word, language_name)
-            loaded += 1
-        if not word_output:
-            start_time, end_time, identifier, name = word_to_info(word)
-            word_output= frame.extract_outputs_times(outputs, start_time, 
-                end_time)
-            word_output.identifier = identifier
-            word_output.name = name
-            if save_words:
-                shs.save_word_hidden_states(word, word_output)
-            computed += 1
+        start_time, end_time, identifier, name = word_to_info(word)
+        word_output= frame.extract_outputs_times(outputs, start_time, 
+            end_time)
+        word_output.identifier = identifier
+        word_output.name = name
+        if save_words:
+            shs.save_word_hidden_states(word, word_output)
         output.append(word_output)
-    return output, loaded, computed
+    return output
 
 def word_to_info(word):
     start_time = word.start_time
