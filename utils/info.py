@@ -1,4 +1,5 @@
 import json
+from utils import locations
 from pathlib import Path
 
 def get_all_items_per_language(dataset_name = 'COMMON VOICE'):
@@ -74,4 +75,17 @@ def load_or_make_all_spk_ids_cv_dataset():
     for language in languages:
         print('handling',language)
         d[language] = load_or_make_cv_spk_id_json(language)
+    return d
+
+def language_n_audio_dict():
+    if locations.language_naudios_dict.exists():
+        with open(locations.language_naudios_dict) as fin:
+            d = json.load(fin)
+    else:
+        from text.models import Language
+        d = {}
+        for language in Language.objects.all():
+            d[language.language.lower()] = language.audio_set.all().count()
+        with open(locations.language_naudios_dict, 'w') as fout:
+            json.dump(d,fout)
     return d
