@@ -1,8 +1,12 @@
 import h5py
+import json
 from utils import locations
 import numpy as np
 import pickle
 from pathlib import Path
+import random
+
+n_hdf5_files = 500
 
 def remove_last_hidden_state(hidden_states):
     hidden_states.last_hidden_state = None
@@ -31,7 +35,7 @@ def save_hidden_states(hdf5_filename, name, hidden_states):
     '''
     pickled_array = data_to_pickled_array(hidden_states)
     with h5py.File(hdf5_filename, 'a') as fout:
-        fout.create_dataset(name, data = pickled_array, chunks = (100_000,))
+        fout.create_dataset(name, data = pickled_array)
 
 def check_hidden_states_exists(hdf5_filename, name):
     if not Path(hdf5_filename).exists(): return False
@@ -64,53 +68,54 @@ def pickled_array_to_data(pickled_array):
 
 def load_word_hidden_states(word, language_name = None):
     '''load hidden states for a specific word.'''
-    if language_name: 
-        hdf5_filename = language_name_to_hdf5_filename(language_name)
-    else: hdf5_filename = word_to_hdf5_filename(word)
+    hdf5_filename = word_to_hdf5_filename(word)
     name = word.identifier
     hidden_states = load_hidden_states(hdf5_filename, name)
     return hidden_states
 
+def _save_hidden_state_number(audio,number):
+    audio.hidden_state = number
+    audio.save()
+
 def save_word_hidden_states(word, hidden_states, language_name = None):
     '''save hidden states for a specific word.'''
-    if language_name: 
-        hdf5_filename = language_name_to_hdf5_filename(language_name)
-    else: hdf5_filename = word_to_hdf5_filename(word)
+    filename = word_to_hdf5_filename(word, language_name)
     name = word.identifier
+    if check_word_hidden_states_exists(word, filename):
+        print('word hidden states already saved, skipping')
+        return
     remove_last_hidden_state(hidden_states)
     remove_layers(hidden_states)
-    save_hidden_states(hdf5_filename, name, hidden_states)
+    save_hidden_states(filename, name, hidden_states)
 
-def check_word_hidden_states_exists(word, language_name = None):
-    if language_name: 
-        hdf5_filename = language_name_to_hdf5_filename(language_name)
-    else: hdf5_filename = word_to_hdf5_filename(word)
+def check_word_hidden_states_exists(word, filename = None):
+    if not filename:
+        filename = word_to_hdf5_filename(word)
     name = word.identifier
-    exists = check_hidden_states_exists(hdf5_filename, name)
+    exists = check_hidden_states_exists(filename, name)
     return exists
 
-def remove_word_hidden_states(word, language_name = None):
-    if language_name: 
-        hdf5_filename = language_name_to_hdf5_filename(language_name)
-    else: hdf5_filename = word_to_hdf5_filename(word)
-    name = word.identifier
-    removed = remove_hidden_states(hdf5_filename, name)
-    return removed
-    
-    
-
-def language_name_to_hdf5_filename(language_name):
+def hdf5_filename(language_name, number):
     language_name = language_name.lower()
-    filename = 'hidden_states_' + language_name + '.h5'
+    filename = 'hidden_states_' + language_name + '_' + str(number) + '.h5'
     filename = locations.hidden_states_dir / filename
     return filename
 
-def audio_to_hdf5_filename(audio):
-    filename = language_to_hdf5_filename(audio.language)
+def language_to_language_name(language):
+    return language.language.lower()
+
+def audio_to_hdf5_filename(audio, language_name = None):
+    if not language_name:
+        language_name = language_to_language_name(audio.language)
+    number = audio.hidden_state
+    if not number: 
+        filename, number = get_hdf5_filename(language_name)
+        _save_hidden_state_number(audio, number)
+    filename = hdf5_filename(language_name, number)
     return filename
 
-def word_to_hdf5_filename(word):        
-    filename = language_to_hdf5_filename(word.language)
+def word_to_hdf5_filename(word, language_name = None):
+    filename = audio_to_hdf5_filename(word.audio, language_name)
     return filename
 
 def syllable_to_hdf5_filename(syllable):
@@ -121,10 +126,6 @@ def phoneme_to_hdf5_filename(phoneme):
     filename = word_to_hdf5_filename(phoneme.word)
     return filename
 
-def language_to_hdf5_filename(language):
-    language_name = language.language.lower()
-    filename = language_name_to_hdf5_filename(language_name)
-    return filename
 
 def hdf5_keys(filename):
     with h5py.File(filename, 'r') as fin:
@@ -151,3 +152,56 @@ def batch_load_hidden_states(hdf5_filename, names):
             hidden_states = pickled_array_to_data(pickled_array)
             output[name] = hidden_states
     return hidden_states
+
+
+#split hdf5 files
+def filenames_to_numbers(filenames):
+    numbers = []
+    for filename in filenames:
+        number = filename_to_number(filename)
+        if number: numbers.append(number)
+    return numbers
+
+def filename_to_number(filename):
+    number = str(filename).split('_')[-1].split('.h5')[0]
+    try: number = int(number)
+    except ValueError:
+        print(number, filename,'could not convert')
+        return None
+    return number
+
+def find_filename_with_number(number, filenames = [], language_name = ''):
+    if not filenames and not language_name: return None
+    if language_name and not filenames:
+        filenames = find_filenames_with_language_name(language_name)
+    for filename in filenames:
+        n = filename_to_number(filename)
+        if n == number: return filename
+    return None
+
+def find_filenames_with_language_name(language_name):
+    pattern = 'hidden_states_'+language_name+'*.h5'
+    fn = list(locations.hidden_states_dir.glob(pattern))
+    return fn
+
+def find_filename_with_space(filenames):
+    for filename in filenames:
+        if has_space(filename): return filename
+
+def has_space(filename, max_n_items = 1000):
+    if not filename: return False
+    k = hdf5_keys(filename)
+    return len(k) <= max_n_items
+
+def get_hdf5_filename(language_name, current_number = None, max_n_items = 1000):
+    filenames = find_filenames_with_language_name(language_name)
+    if current_number:
+        filename = find_filename_with_number(current_number, 
+            filenames = filenames, language_name = language_name)
+        if has_space(filename): return filename, number
+    numbers = filenames_to_numbers(filenames)
+    number = max(numbers) + 1 if numbers else 1
+    return hdf5_filename(language_name, number), number
+        
+    
+
