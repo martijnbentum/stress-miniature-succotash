@@ -195,11 +195,13 @@ def has_space(filename, max_n_items = 1000):
 
 def get_hdf5_filename(language_name, current_number = None, max_n_items = 1000):
     filenames = find_filenames_with_language_name(language_name)
-    if current_number:
-        filename = find_filename_with_number(current_number, 
-            filenames = filenames, language_name = language_name)
-        if has_space(filename): return filename, number
     numbers = filenames_to_numbers(filenames)
+    if not current_number:
+        if numbers: current_number = max(numbers)
+        else: current_number = 0
+    filename = find_filename_with_number(current_number, 
+        filenames = filenames, language_name = language_name)
+    if has_space(filename): return filename, current_number
     number = max(numbers) + 1 if numbers else 1
     return hdf5_filename(language_name, number), number
         
