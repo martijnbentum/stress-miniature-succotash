@@ -5,6 +5,22 @@ from audio import intensity
 from audio import pitch
 from progressbar import progressbar
 
+def handle_all_languages():
+    '''compute all accoustic measures of all phonemes in all languages'''
+    from text.models import Language
+    languages = Language.objects.all()
+    for language in languages:
+        handle_language(language.language)
+
+def handle_language(language_name):
+    '''compute all accoustic measures of all phonemes in a language'''
+    from text.models import Language
+    language = Language.objects.get(language__iexact = 
+        language_name)
+    audios = language.audio_set.all()
+    print(language_name,'handling audios',audios.count())
+    handle_audios(audios)
+
 def handle_audios(audios):
     for audio_instance in progressbar(audios):
         handle_audio(audio_instance)
