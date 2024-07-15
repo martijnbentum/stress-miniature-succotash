@@ -17,6 +17,10 @@ def handle_words(language, dataset):
         n_created += handle_word(word, language, dataset)
     print('Created', n_created, 'syllables for', language.language)
 
+def save_n_syllables(word):
+    word.n_syllables = word.syllable_set.all().count()
+    word.save()
+
 def handle_word(word, language, dataset, count = 0):
     speaker = word.speaker
     audio = word.audio
@@ -33,6 +37,7 @@ def handle_word(word, language, dataset, count = 0):
         elif count > 1: 
             print(word,language,count, syllable_interval, '>>syllable error<<')
             continue
+    save_n_syllables(word)
     return n_created
 
 def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
@@ -57,25 +62,11 @@ def handle_syllable(syllable_interval, syllable_index, word, audio, speaker,
     handle_phonemes(syllable, syllable_phonemes)
     return syllable, created
 
-'''
-    identifier = models.CharField(max_length=100, unique=True, **required)
-    word = models.ForeignKey('Word',**dargs)
-    ipa = models.CharField(max_length=100, default='')
-    index = models.IntegerField(default=None)
-    stress = models.BooleanField(default=None, **not_required)
-    audio = models.ForeignKey('Audio',**dargs)
-    speaker = models.ForeignKey('Speaker',**dargs)
-    language= models.ForeignKey('Language',**dargs)
-    start_time = models.FloatField(default=None)
-    end_time = models.FloatField(default=None)
-'''
-
 def handle_phonemes(syllable, phonemes):
     for index,phoneme in enumerate(phonemes):
         phoneme.syllable = syllable
         phoneme.syllable_index = index
         phoneme.save()
-
 
 def make_syllable_identifier(word, syllable_index):
     return word.identifier + '_' + str(syllable_index)
@@ -92,9 +83,9 @@ def _check_phonemes_merged(phonemes, syllable_interval):
         print('phonemes not merged for',text, maus)
         return False
         
-
 def select_syllable_phonemes(syllable_interval, phonemes, word, language,
     dataset, count = 0):
+    '''select the phonemes that belong to the syllable'''
     syllable_phonemes = []
     lname = language.language.lower()
     for phoneme in phonemes:
