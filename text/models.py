@@ -131,6 +131,10 @@ class Word(models.Model):
         if 'accent' in self.info_dict:
             return self.info_dict['accent']
 
+    @property
+    def duration(self):
+        return self.end_time - self.start_time
+
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     dataset = models.ForeignKey('Dataset',**dargs)
@@ -154,6 +158,10 @@ class Syllable(models.Model):
     @property
     def vowel(self):
         return self.phoneme_set.filter(bpcs_str__contains='vowel')
+
+    @property
+    def duration(self):
+        return self.end_time - self.start_time
 
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
@@ -227,6 +235,10 @@ class Phoneme(models.Model):
         d = {'f0':self.f0,'f1':self.f1,'f2':self.f2,
                 'spectral_tilt':self.spectral_tilt,'intensity':self.intensity}
         return d
+
+    @property
+    def duration(self):
+        return self.end_time - self.start_time
 
     
 class BPC(models.Model):
