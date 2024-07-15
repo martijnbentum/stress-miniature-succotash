@@ -1,15 +1,19 @@
+from load import load_bpcs
 from load import load_cv_audio
 from load import load_cv_speakers
 from load import load_cv_textgrids
 from load import load_cv_words
 from load import load_cv_phonemes
 from load import load_cv_syllables
+from load import load_cv_stress
 from load import add_english_accents
 from utils import locations
 
 
 def handle_language(language_name):
     print("Loading CV for language: " + language_name)
+    print('handling bpcs')
+    load_bpc.load_bpcs()
     print('handling audio')
     load_cv_audio.handle_language(language_name)
     print('handling speakers')
@@ -26,6 +30,8 @@ def handle_language(language_name):
     load_cv_phonemes.handle_language(language_name)
     print('handling syllables')
     load_cv_syllables.handle_language(language_name)
+    print('handling stress')
+    load_cv_stress.handle_language(language_name)
         
 
 def handle_languages(languages):
