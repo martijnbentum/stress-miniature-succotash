@@ -98,9 +98,19 @@ def is_consonant(ipa, d=None):
     consonants = get_consonants(d)
     return ipa in consonants
     
-def handle_phoneme(phoneme):
+def handle_phoneme(phoneme, skip_based_bpcs_str = True):
     '''if phoneme does not have bpc this function will add it'''
+    if phoneme.bpcs_str and skip_based_bpcs_str: return
     ipa_to_bpc = ipa_to_bpc_instances(add_longer=True)
     bpcs = ipa_to_bpc[phoneme.ipa]
     phoneme.bpcs_str = ','.join([bpc.bpc for bpc in bpcs])
+    phoneme.save()
     phoneme.bpcs.add(*bpcs)
+
+def handle_language(language_name, skip_based_bpcs_str = True):
+    '''add bpcs to all phonemes of a given language.'''
+    from text.models import Language, Phoneme
+    language = Language.objects.get(language__iexact=language_name)
+    phonemes = Phoneme.objects.filter(language=language)
+    for phoneme in progressbar(phonemes):
+        handle_phoneme(phoneme, skip_based_bpcs_str)
