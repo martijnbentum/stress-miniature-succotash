@@ -9,23 +9,26 @@ features:
 - duration
 '''
 
-import formants
-from general import dict_to_json
+from audio import duration
+from audio import formants
+import json
+'''
 import stress_intensity_diff as sid
 import stress_pitch_diff as spd
 import stress_duration_diff as sdd
 import stress_spectral_diff as ssd
 import frequency_band as fb
+'''
 import numpy as np
 from progressbar import progressbar
 from scipy import stats
 from sklearn.metrics import classification_report, matthews_corrcoef
 from sklearn.model_selection import train_test_split
-import word
+# import word
 
 
 def compute_mccs_with_ci(n = 100, formant_data = None, intensities = None,
-    pitch = None, durations = None, w = None):
+    pitch = None, durations = None):
     mccs = {'formant':[], 'intensity':[], 'pitch':[], 'duration':[]}
     for key in mccs.keys():
         if key == 'formant':
@@ -42,44 +45,44 @@ def compute_mccs_with_ci(n = 100, formant_data = None, intensities = None,
             function = make_duration_classifier
         print('computing', key)
         for i in progressbar(range(n)):
-            clf = function(data, w = w, random_state=i)
+            clf = function(data, random_state=i)
             _ = clf.classification_report()
             mccs[key].append(clf.mcc)
         print(key, 'done',np.mean(mccs[key]), np.std(mccs[key]), mccs[key])
     dict_to_json(mccs, 'mccs_density_clf_acoustic_correlates.json')
     return mccs
 
-            
-            
-
-def make_formant_classifier(stress_distance = None, w = None, random_state=42):
+def make_formant_classifier(stress_distance = None, random_state=42):
     if not stress_distance:
-        stress_distance = formants.compute_distance_to_global_mean(w = w)
+        stress_distance = formants.compute_distance_to_global_mean()
     stress = stress_distance['stressed']['distance']
     no_stress = stress_distance['unstressed']['distance']
     clf = Classifier(stress, no_stress, name = 'formant', 
         random_state=random_state)
     return clf
     
-def make_intensity_classifier(intensities = None, w = None, random_state=42):
-    if not intensities: intensities = sid.get_intensity_from_vowels(w = w)
+def make_intensity_classifier(intensities = None, random_state=42):
+    if not intensities: intensities = sid.get_intensity_from_vowels()
     stress = intensities['stress']
-    no_stress = intensities['no stress']
+    no_stress = intensities['no_stress']
     clf = Classifier(stress, no_stress, name = 'intensity', 
         random_state=random_state)
     return clf
 
-def make_pitch_classifier(pitch = None, w = None, random_state=42):
+def make_pitch_classifier(pitch = None, random_state=42):
     if not pitch: pitch = spd.load_pitch_json()
     stress, no_stress = spd._find_stressed_unstressed(pitch[1:])
     clf = Classifier(stress, no_stress, name = 'pitch', 
         random_state=random_state)
     return clf
 
-def make_duration_classifier(durations = None, w = None, random_state=42):
-    if not durations: durations = sdd.get_durations_from_vowels(w = w)
+def make_duration_classifier(durations = None, random_state=42):
+    if not durations: 
+        print('computing dutch vowel durations')
+        durations = duration.make_vowel_duration_stress_dict('dutch')
     stress = durations['stress']
-    no_stress = durations['no stress']
+    no_stress = durations['no_stress']
+    print('making classifier')
     clf = Classifier(stress, no_stress, name = 'duration', 
         random_state=random_state)
     return clf
@@ -129,4 +132,9 @@ def make_dataset(stress, no_stress):
     X = np.concatenate([stress, no_stress])
     y = np.concatenate([np.ones(len(stress)), np.zeros(len(no_stress))])
     return X, y
+
+
+def dict_to_json(d, filename):
+    with open(filename) as f:
+        json.dump(d, f)
 
