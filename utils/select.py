@@ -18,6 +18,32 @@ def balance_speakers(items, max_n_items_per_speaker = 100):
         output.append(item)
     return output
 
+def make_stress_dict(items):
+    d = {'stress':[],'no_stress':[]}
+    for item in items:
+        if item.stress:d['stress'].append(item)
+        else:d['no_stress'].append(item)
+    return d
+
+def select_vowels(language_name, dataset_name = 'COMMON VOICE',
+    minimum_n_syllables = 2, max_n_items_per_speaker = None,
+    exclude_diphtong = True, return_stress_dict = False):
+    '''
+    Collects the stress and no stress vowels for a given language.
+    '''
+    print('creating query set, for language:',language_name)
+    print('dataset:',dataset_name,'minimum_n_syllables:',minimum_n_syllables)
+    vowels = select_phonemes(language_name = language_name,
+        dataset_name = dataset_name, minimum_n_syllables = minimum_n_syllables,
+        bpc_name = 'vowel')
+    if exclude_diphtong:
+        print('excluding diphtongs')
+        vowels = vowels.exclude(bpcs_str__icontains= 'diphtong')
+    if return_stress_dict:
+        print('returning stress dict')
+        return make_stress_dict(vowels)
+    return vowels
+
 def select_phonemes(language_name = None, stress = None, dataset_name = None,
     minimum_n_syllables = None, bpc_name = None, ipa = None,
     max_n_items_per_speaker = None):
@@ -77,9 +103,8 @@ def select_language(language_name):
     return language
 
 def select_bpc(bpc_name):
-    return None
     from text.models import BPC
-    bpc = BPC.objects.get(name__iexact=bpc_name)
+    bpc = BPC.objects.get(bpc=bpc_name)
     return bpc
 
 def select_dataset(dataset_name):
