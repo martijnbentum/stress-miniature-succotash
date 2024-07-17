@@ -3,6 +3,8 @@ import json
 import librosa
 import numpy as np
 from progressbar import progressbar
+from utils import select
+from utils import plot_distributions
 
 def signal_to_pitch(signal, sr):
     f0 = librosa.yin(signal, fmin = 65, fmax=600, sr=sr)
@@ -35,3 +37,51 @@ def handle_audio(audio):
         pitches.append(o)
     return pitches
 
+def _to_pitch(frequency_list):
+    n = len(frequency_list)
+    if n == 0: return None
+    if n < 4: return np.median(frequency_list)
+    if n <= 7: return np.median(frequency_list[1:-1])
+    if n <= 14: return np.median(frequency_list[2:-2])
+    return np.median(frequency_list[3:-3])
+
+
+def _vowels_to_pitch(vowel_stress_dict):
+    d = vowel_stress_dict
+    output = {}
+    for k,v in d.items():
+        output[k] = []
+        for x in v:
+            pitch = _to_pitch(x.f0)
+            if not pitch: continue
+            output[k].append(pitch)
+    return output
+
+def make_vowel_pitch_stress_dict(language_name = 'dutch', 
+    dataset_name = 'COMMON VOICE',minimum_n_syllables = 2,
+    max_n_items_per_speaker = None, vowel_stress_dict = None):
+    '''make dict mapping stress / no_stress to vowel durations'''
+    if not vowel_stress_dict:
+        d = select.select_vowels(language_name, dataset_name,
+            minimum_n_syllables, max_n_items_per_speaker, 
+            return_stress_dict = True)
+    else: d = vowel_stress_dict
+    d = _vowels_to_pitch(d)
+    return d
+
+def plot_stress_no_stress_distributions(pitch = None, new_figure = True,
+    minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
+    bins = 90):
+    if not pitch: pitch = make_vowel_pitch_stress_dict()
+    kwargs = {
+        'value_dict':pitch,
+        'new_figure':new_figure,
+        'minimal_frame':minimal_frame,
+        'ylim':ylim,
+        'add_left':add_left,
+        'add_legend':add_legend,
+        'bins':bins,
+        'xlabel':'Pitch (Hz)',
+        'xlim':(50, 500),
+        }
+    plot_distributions.plot_stress_no_stress_distributions(**kwargs)
