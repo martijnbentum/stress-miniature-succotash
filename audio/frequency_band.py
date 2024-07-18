@@ -1,4 +1,6 @@
 from audio import audio
+from utils import select
+from utils import lda
 import json
 import librosa
 import matplotlib.pyplot as plt
@@ -106,4 +108,53 @@ def get_four_fb_to_db(signal, baseline_power = None, sr = 44100):
     fb3 = frequency_band_to_db(signal,1000, 2000, baseline_power, sr = sr)
     fb4 = frequency_band_to_db(signal,2000, 4000, baseline_power, sr = sr)
     return fb1, fb2, fb3, fb4
+
+
+def make_dataset(language_name = 'dutch',
+    dataset_name = 'COMMON VOICE',minimum_n_syllables = 2,
+    max_n_items_per_speaker = None, vowel_stress_dict = None):
+    ''' create a dataset for the LDA training based on the vowel 
+    spectral balance to predict stress in vowels.
+    '''
+    if not vowel_stress_dict:
+        d = select.select_vowels(language_name, dataset_name,
+            minimum_n_syllables, max_n_items_per_speaker, 
+            return_stress_dict = True)
+    spectral_tilts, stress = [], []
+    for stress_status in vowel_stress_dict.keys():
+        stress_value = 1 if stress_status == 'stress' else 0
+        print(f'Processing {stress_status} {stress_value} vowels')
+        for vowel in progressbar(vowel_stress_dict[stress_status]):
+            spectral_tilt = vowel.spectral_tilt
+            if not spectral_tilt or len(spectral_tilt) != 4: continue
+            spectral_tilts.append(vowel.spectral_tilt)
+            stress.append(stress_value)
+    # return spectral_tilts, stress
+    X, y = np.array(spectral_tilts), np.array(stress)
+    return X, y
+
+def train_lda(X, y, test_size = .33, report = True,random_state = 42):
+    '''train an LDA based on the vowel spectral balance data
+    X, y can be computed with the make_dataset function
+    '''
+    clf, data, report = lda.train_lda(X, y, test_size = test_size, 
+        report = report, random_state = random_state)
+    return clf, data, report
+
+def plot_lda_hist(X, y, clf = None, new_figure = True, 
+    minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
+    bins = 380, xlabel = 'spectral tilt', xlim = None):
+    '''plot distribution of LDA scores for stress and no stress vowels'''
+    if not clf:
+        clf, _, _ = train_lda(vowel_stress_dict, report = False)
+    lda.plot_lda_hist(X, y, clf, new_figure = new_figure, 
+        minimal_frame = minimal_frame, ylim = ylim, add_left = add_left,
+        add_legend = add_legend, bins = bins, xlabel = xlabel, xlim = xlim)
+    return clf
+        
+
+
+
+
+
 
