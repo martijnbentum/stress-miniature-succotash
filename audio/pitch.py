@@ -40,9 +40,9 @@ def handle_audio(audio):
 def _to_pitch(frequency_list):
     n = len(frequency_list)
     if n == 0: return None
-    if n < 4: return np.median(frequency_list)
-    if n <= 7: return np.median(frequency_list[1:-1])
-    if n <= 14: return np.median(frequency_list[2:-2])
+    if n < 4: return np.mean(frequency_list)
+    if n <= 7: return np.mean(frequency_list[1:-1])
+    if n <= 14: return np.mean(frequency_list[2:-2])
     return np.median(frequency_list[3:-3])
 
 
