@@ -6,14 +6,14 @@ from audio import pitch
 from progressbar import progressbar
 
 def handle_all_languages():
-    '''compute all accoustic measures of all phonemes in all languages'''
+    '''compute all acoustic measures of all phonemes in all languages'''
     from text.models import Language
     languages = Language.objects.all()
     for language in languages:
         handle_language(language.language)
 
 def handle_language(language_name):
-    '''compute all accoustic measures of all phonemes in a language'''
+    '''compute all acoustic measures of all phonemes in a language'''
     from text.models import Language
     language = Language.objects.get(language__iexact = 
         language_name)
@@ -26,7 +26,7 @@ def handle_audios(audios):
         handle_audio(audio_instance)
 
 def handle_audio(audio_instance):
-    '''compute all accoustic measures of all phonemes in an audio object'''
+    '''compute all acoustic measures of all phonemes in an audio object'''
     formants = f.Formants(audio_instance)
     signal, sr = audio.load_audio(audio_instance)
     words = audio_instance.word_set.all()
