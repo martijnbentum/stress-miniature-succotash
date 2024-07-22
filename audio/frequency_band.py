@@ -146,7 +146,7 @@ def plot_lda_hist(X, y, clf = None, new_figure = True,
     bins = 380, xlabel = 'spectral tilt', xlim = None):
     '''plot distribution of LDA scores for stress and no stress vowels'''
     if not clf:
-        clf, _, _ = train_lda(vowel_stress_dict, report = False)
+        clf, _, _ = train_lda(X, y, report = False)
     lda.plot_lda_hist(X, y, clf, new_figure = new_figure, 
         minimal_frame = minimal_frame, ylim = ylim, add_left = add_left,
         add_legend = add_legend, bins = bins, xlabel = xlabel, xlim = xlim)
