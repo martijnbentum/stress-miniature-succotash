@@ -231,7 +231,7 @@ class Phoneme(models.Model):
         return json.loads(self._spectral_tilt)
 
     @property
-    def accoustic_features(self):
+    def acoustic_features(self):
         d = {'f0':self.f0,'f1':self.f1,'f2':self.f2,
                 'spectral_tilt':self.spectral_tilt,'intensity':self.intensity}
         return d
