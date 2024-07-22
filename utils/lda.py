@@ -29,6 +29,7 @@ def train_lda(X, y, test_size = 0.33, report = True, random_state = 42):
 def plot_lda_hist(X, y, clf = None, new_figure = True, 
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
     bins = 380, xlabel = '', xlim = None):
+    X, y = np.array(X), np.array(y)
 
     if not clf:
         clf, _, _ = train_lda(X, y, report = False)
@@ -41,7 +42,6 @@ def plot_lda_hist(X, y, clf = None, new_figure = True,
         ax.spines['right'].set_visible(False)
     if ylim: plt.ylim(ylim)
     if xlim: plt.xlim(xlim)
-
     tf = clf.transform(X)
     plt.hist(tf[y==1], bins = 50, alpha=1, color = 'black',
         label = 'stress')
