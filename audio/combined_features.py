@@ -43,19 +43,24 @@ def make_dataset(language_name = 'dutch',
             X.append(line) 
             y.append(y_value)
     return X, y
-    
-def compute_mccs_with_ci(X,y, n = 100):
-    '''
-    compute MCCs for the combined features dataset
-    '''
-    mccs = {'combined':[]}
-    for i in progressbar(range(n)):
-        clf, data, report = lda.train_lda(X, y, report = True, random_state = i)
-        mccs['combined'].append(report['mcc'])
-    print('done',np.mean(mccs['combined']), np.std(mccs['combined']))
-    density_classifier.dict_to_json(mccs, 
-        '../mccs_combined_features_lda_clf.json')
-    return mccs
 
+def train_lda(X, y, test_size = .33, report = True,random_state = 42):
+    '''
+    train LDA classifier on the combined features dataset
+    '''
+    clf, data, report = lda.train_lda(X, y, test_size = test_size, 
+        report = report, random_state = random_state)
+    return clf, data, report
+
+def plot_lda_hist(X, y, clf = None, new_figure = True, 
+    minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
+    bins = 380, xlabel = 'combined features', xlim = None):
+    '''plot distribution of LDA scores for stress and no stress vowels'''
+    if not clf:
+        clf, _, _ = train_lda(X, y, report = False)
+    lda.plot_lda_hist(X, y, clf, new_figure = new_figure, 
+        minimal_frame = minimal_frame, ylim = ylim, add_left = add_left,
+        add_legend = add_legend, bins = bins, xlabel = xlabel, xlim = xlim)
+    return clf
 
     
