@@ -60,7 +60,7 @@ def make_vowel_intensity_stress_dict(language_name = 'dutch',
 
 def plot_stress_no_stress_distributions(intensities = None, new_figure = True,
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
-    bins = 240):
+    bins = 240, plot_density = False, xlabel = 'Intensity (dB)'):
     if not intensities: intensities = make_vowel_intensity_stress_dict()
     kwargs = {
         'value_dict':intensities,
@@ -70,8 +70,9 @@ def plot_stress_no_stress_distributions(intensities = None, new_figure = True,
         'add_left':add_left,
         'add_legend':add_legend,
         'bins':bins,
-        'xlabel':'Intensity (dB)',
+        'xlabel':xlabel,
         'xlim':(40,90),
+        'plot_density':plot_density,
         }
     plot_distributions.plot_stress_no_stress_distributions(**kwargs)
 

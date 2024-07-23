@@ -54,13 +54,15 @@ def train_lda(X, y, test_size = .33, report = True,random_state = 42):
 
 def plot_lda_hist(X, y, clf = None, new_figure = True, 
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
-    bins = 380, xlabel = 'combined features', xlim = None):
+    bins = 380, xlabel = 'combined', xlim = None, 
+    plot_density = False):
     '''plot distribution of LDA scores for stress and no stress vowels'''
     if not clf:
         clf, _, _ = train_lda(X, y, report = False)
     lda.plot_lda_hist(X, y, clf, new_figure = new_figure, 
         minimal_frame = minimal_frame, ylim = ylim, add_left = add_left,
-        add_legend = add_legend, bins = bins, xlabel = xlabel, xlim = xlim)
+        add_legend = add_legend, bins = bins, xlabel = xlabel, xlim = xlim,
+        plot_density = plot_density)
     return clf
 
     

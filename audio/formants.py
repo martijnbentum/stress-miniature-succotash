@@ -112,7 +112,7 @@ def make_vowel_f1f2_distance_stress_dict(language_name = 'dutch',
 
 def plot_stress_no_stress_distributions(f1f2_distance = None, new_figure = True,
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
-    bins = 90):
+    bins = 90, plot_density = False, xlabel = 'Formants (Hz)'):
     '''plot the distribution of f1 f2 distances for stress and no stress vowels.
     '''
     if not f1f2_distance: f1f2_distance= make_vowel_f1f2_distance_stress_dict()
@@ -124,8 +124,9 @@ def plot_stress_no_stress_distributions(f1f2_distance = None, new_figure = True,
         'add_left':add_left,
         'add_legend':add_legend,
         'bins':bins,
-        'xlabel':'Formants (Hz)',
+        'xlabel':xlabel,
         'xlim':(0, 1500),
+        'plot_density':plot_density,
         }
     plot_distributions.plot_stress_no_stress_distributions(**kwargs)
 

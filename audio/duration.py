@@ -22,7 +22,7 @@ def make_vowel_duration_stress_dict(language_name = 'dutch',
 
 def plot_stress_no_stress_distributions(durations = None, new_figure = True,
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
-    bins = 240):
+    bins = 240, plot_density = False, xlabel = 'Duration (s)'):
     if not durations: durations = make_vowel_duration_stress_dict()
     kwargs = {
         'value_dict':durations,
@@ -32,7 +32,8 @@ def plot_stress_no_stress_distributions(durations = None, new_figure = True,
         'add_left':add_left,
         'add_legend':add_legend,
         'bins':bins,
-        'xlabel':'Duration (s)',
+        'xlabel':xlabel,
         'xlim':(0.02, 0.26),
+        'plot_density':plot_density
         }
     plot_distributions.plot_stress_no_stress_distributions(**kwargs)
