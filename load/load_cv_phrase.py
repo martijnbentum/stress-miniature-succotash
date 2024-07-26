@@ -2,9 +2,11 @@ from progressbar import progressbar
 
 def handle_language(language_name):
     from text.models import Language, Dataset, Audio
+    print('loading language:', language_name)
     language = Language.objects.get(language__iexact=language_name)
     dataset = Dataset.objects.get(name = 'COMMON VOICE')
     audios = Audio.objects.filter(language=language, dataset=dataset)
+    print('loaded audios')
     n_created = 0
     for audio in progressbar(audios):
         n_created += handle_audio(audio)
