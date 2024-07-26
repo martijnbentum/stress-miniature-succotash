@@ -142,6 +142,22 @@ class Word(models.Model):
     def duration(self):
         return self.end_time - self.start_time
 
+    @property
+    def phrase_words(self):
+        if not hasattr(self,'_phrase_words'):
+            self._phrase_words = list(self.phrase.word_set.all())
+        return self._phrase_words
+
+    @property
+    def next_word(self):
+        if self.index == self.n_words - 1: return None
+        return self.phrase_words[self.index + 1]
+
+    @property
+    def previous_word(self):
+        if self.index == 0: return None
+        return self.phrase_words[self.index - 1]
+
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     dataset = models.ForeignKey('Dataset',**dargs)
@@ -169,6 +185,22 @@ class Syllable(models.Model):
     @property
     def duration(self):
         return self.end_time - self.start_time
+
+    @property
+    def word_syllables(self):
+        if not hasattr(self,'_word_syllables'):
+            self._word_syllables = list(self.word.syllable_set.all())
+        return self._word_syllables
+
+    @property
+    def next_syllable(self):
+        if self.index == self.n_syllables - 1: return None
+        return self.word_syllables[self.index + 1]
+
+    @property
+    def previous_syllable(self):
+        if self.index == 0: return None
+        return self.word_syllables[self.index - 1]
 
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
