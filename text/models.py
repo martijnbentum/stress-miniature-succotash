@@ -70,11 +70,18 @@ class Phrase(models.Model):
     dataset = models.ForeignKey('Dataset',**dargs)
     identifier = models.CharField(max_length=100, unique=True, **required)
     speaker = models.ForeignKey('Speaker',**dargs)
-    phrase = models.CharField(max_length=1000)
+    phrase = models.TextField(blank=True, null=True)
+    ipa = models.TextField(blank=True, null=True)
+    index = models.IntegerField(default=None, **not_required)
     language = models.ForeignKey('Language',**dargs)
     audio = models.ForeignKey('Audio',**dargs)
     start_time = models.FloatField(default=None, **not_required)
     end_time = models.FloatField(default=None, **not_required)
+
+    def __str__(self):
+        phrase = self.phrase 
+        if len(phrase) > 64: phrase = phrase[:60] + ' ...'
+        return phrase
 
 class Speaker(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
