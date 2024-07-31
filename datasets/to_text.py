@@ -325,7 +325,7 @@ def make_kld_plots(language_name = 'dutch'):
     '''
     print('preparing',language_name)
     phoneme_types = load_or_make_all_phoneme_types(language_name)
-    ipa_ordered = list(phoneme_types.keys())[::1]
+    ipa_ordered = list(phoneme_types.keys())[::-1]
     ipa_grouped, _, _ = load_bpc.group_phonemes(ipa_ordered)
     dicts, names, klds = [], [], []
     print('loading word and syllable dicts')
@@ -346,9 +346,9 @@ def make_kld_plots(language_name = 'dutch'):
         kld = kullback_leibler_divergence(d, language_name, name)
         klds.append(kld)
         kld.plot(ipa_grouped, name = name)
-        plt.savefig(f'../figures/{language_name}_{name}_kld_grouped.png')
+        plt.savefig(f'../figures/{language_name}_{name}_kld_grouped.pdf')
         kld.plot(ipa_ordered, name = name)
-        plt.savefig(f'../figures/{language_name}_{name}_kld_ordered.png')
+        plt.savefig(f'../figures/{language_name}_{name}_kld_ordered.pdf')
     return dicts, names, klds
     
 
