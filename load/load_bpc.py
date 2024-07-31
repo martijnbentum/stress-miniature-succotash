@@ -114,3 +114,28 @@ def handle_language(language_name, skip_based_bpcs_str = True):
     phonemes = Phoneme.objects.filter(language=language)
     for phoneme in progressbar(phonemes):
         handle_phoneme(phoneme, skip_based_bpcs_str)
+
+def group_phonemes(ipa_list, groups = ''):
+    if not groups:
+        groups = 'plosive,nasal,approximant,fricative'
+        groups += ',high,mid,low,diphtong'
+        groups = groups.split(',')
+    bpc = ipa_to_bpc_dict()
+    group_dict = {group:[] for group in groups}
+    used, double = [], []
+    for group in group_dict.keys():
+        for ipa in ipa_list:
+            names = bpc[ipa]
+            if group in names:
+                if ipa not in used: 
+                    used.append(ipa)
+                    group_dict[group].append(ipa)
+                else:
+                    double.append([ipa,group])
+    grouped_list = []
+    for group in groups:
+        grouped_list.extend(group_dict[group])
+    print('double:', double)
+    return grouped_list, group_dict, double
+    
+    
