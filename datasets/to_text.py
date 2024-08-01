@@ -584,3 +584,22 @@ def plot_kl_matrix(ipa):
     return matrix
     
     
+def list_phoneme_to_word_counts(language_name = 'dutch'):
+    phoneme_types = load_or_make_all_phoneme_types(language_name)
+    ipa_ordered = list(phoneme_types.keys())[::-1]
+    wd = load_or_make_phoneme_to_word_dict(language_name)
+    h = 'ipa'.ljust(5) + 'count'.ljust(8) + 'total'.ljust(9) + 'max'.ljust(7)
+    h += 'perc'.ljust(6) + 'word'
+    print(h)
+    for ipa in ipa_ordered:
+        values = list(wd[ipa].values())
+        keys = list(wd[ipa].keys())
+        m = ipa.ljust(4) + ' ' + str(len(values)).ljust(7) + ' '
+        m += str(sum(values)).ljust(8) + ' '+str(max(values)).ljust(6) + ' '
+        perc =  str(int(round(max(values)/sum(values)*100 , 0))).rjust(3) 
+        m += perc.ljust(5) + ' '
+        m += keys[values.index(max(values))]
+        print(m)
+        
+    
+    
