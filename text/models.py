@@ -1,5 +1,7 @@
 from django.db import models
 import json
+import numpy as np
+from utils import load_hidden_states as lhs
 
 # Create your models here.
 required = {'blank':False,'null':False}
@@ -158,6 +160,34 @@ class Word(models.Model):
         if self.index == 0: return None
         return self.phrase_words[self.index - 1]
 
+    @property
+    def phonemes(self):
+        if not hasattr(self,'_phonemes'):
+            self._phonemes = list(self.phoneme_set.all())
+        return self._phonemes
+
+    @property
+    def syllables(self):
+        if not hasattr(self,'_syllables'):
+            self._syllables = list(self.syllable_set.all())
+        return self._syllables
+
+    @property
+    def hidden_states(self):
+        if not hasattr(self,'_hidden_states'):
+            lhs.add_to_word(self)
+        return self._hidden_states
+
+    def cnn(self, mean = False):
+        cnn_features = self.hidden_states.extract_features[0]
+        if mean: return np.mean(cnn_features, axis = 0)
+        return cnn_features
+
+    def transformer(self, layer = 1, mean = False):
+        transformer_features = self.hidden_states.hidden_states[layer][0]
+        if mean: return np.mean(transformer_features, axis = 0)
+        return transformer_features
+
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     dataset = models.ForeignKey('Dataset',**dargs)
@@ -180,7 +210,10 @@ class Syllable(models.Model):
 
     @property
     def vowel(self):
-        return self.phoneme_set.filter(bpcs_str__contains='vowel')
+        if not hasattr(self,'_vowel'):
+            self._vowel = list(self.phoneme_set.filter(
+                bpcs_str__contains='vowel'))
+        return self._vowel
 
     @property
     def duration(self):
@@ -188,9 +221,13 @@ class Syllable(models.Model):
 
     @property
     def word_syllables(self):
-        if not hasattr(self,'_word_syllables'):
-            self._word_syllables = list(self.word.syllable_set.all())
-        return self._word_syllables
+        return word.syllables
+
+    @property
+    def phonemes(self):
+        if not hasattr(self,'_phonemes'):
+            self._phonemes = list(self.phoneme_set.all())
+        return self.phonemes
 
     @property
     def next_syllable(self):
@@ -201,6 +238,23 @@ class Syllable(models.Model):
     def previous_syllable(self):
         if self.index == 0: return None
         return self.word_syllables[self.index - 1]
+
+    @property
+    def hidden_states(self):
+        if not hasattr(self,'_hidden_states'):
+            self._hidden_states = lhs.load_syllable_hidden_states(self, 
+                self.word.hidden_states)
+        return self._hidden_states
+
+    def cnn(self, mean = False):
+        cnn_features = self.hidden_states.extract_features[0]
+        if mean: return np.mean(cnn_features, axis = 0)
+        return cnn_features
+
+    def transformer(self, layer = 1, mean = False):
+        transformer_features = self.hidden_states.hidden_states[layer][0]
+        if mean: return np.mean(transformer_features, axis = 0)
+        return transformer_features
 
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
@@ -250,6 +304,10 @@ class Phoneme(models.Model):
         return self.ipa[0]
 
     @property
+    def word_phone(self):
+        return self.word.phonemes
+
+    @property
     def f0(self):
         if not self._f0: return []
         return json.loads(self._f0)
@@ -278,6 +336,23 @@ class Phoneme(models.Model):
     @property
     def duration(self):
         return self.end_time - self.start_time
+
+    @property
+    def hidden_states(self):
+        if not hasattr(self,'_hidden_states'):
+            self._hidden_states = lhs.load_phoneme_hidden_states(self, 
+                self.word.hidden_states)
+        return self._hidden_states
+
+    def cnn(self, mean = False):
+        cnn_features = self.hidden_states.extract_features[0]
+        if mean: return np.mean(cnn_features, axis = 0)
+        return cnn_features
+
+    def transformer(self, layer = 1, mean = False):
+        transformer_features = self.hidden_states.hidden_states[layer][0]
+        if mean: return np.mean(transformer_features, axis = 0)
+        return transformer_features
 
     
 class BPC(models.Model):
