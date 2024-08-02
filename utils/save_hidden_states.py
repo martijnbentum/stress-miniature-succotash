@@ -66,7 +66,7 @@ def pickled_array_to_data(pickled_array):
     return data
 
 
-def load_word_hidden_states(word, language_name = None):
+def load_word_hidden_states(word):
     '''load hidden states for a specific word.'''
     hdf5_filename = word_to_hdf5_filename(word)
     name = word.identifier
