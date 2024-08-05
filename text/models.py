@@ -209,11 +209,48 @@ class Syllable(models.Model):
         return m
 
     @property
+    def onset(self):
+        if hasattr(self,'_onset'): return self._onset
+        if not self.vowel: 
+            if self.phonemes[0].is_consonant:
+                self._onset = [self.phonemes[0]]
+            else: self._onset = []
+            return self._onset
+        vowel_index = self.vowel[0].syllable_index
+        if vowel_index == 0: self._onset = []
+        else: self._onset = self.phonemes[:vowel_index]
+        return self._onset
+
+    @property
     def vowel(self):
         if not hasattr(self,'_vowel'):
             self._vowel = list(self.phoneme_set.filter(
                 bpcs_str__contains='vowel'))
         return self._vowel
+
+    @property
+    def rime(self):
+        if hasattr(self,'_rime'): return self._rime
+        if not self.vowel: 
+            self._rhyme = []
+            return self._rhyme
+        vowel_index = self.vowel[0].syllable_index
+        if vowel_index == 0: self._rime = self.phonemes
+        else: self._rime = self.phonemes[vowel_index:]
+        return self._rime
+
+    @property
+    def coda(self):
+        if hasattr(self,'_coda'): return self._coda
+        if not self.vowel: 
+            if self.phonemes[-1].is_consonant:
+                self._coda = [self.phonemes[-1]]
+            else: self._coda = []
+            return self._coda
+        vowel_index = self.vowel[-1].syllable_index
+        if vowel_index == len(self.phonemes) - 1: self._coda = []
+        else: self._coda = self.phonemes[vowel_index+1:]
+        return self._coda
 
     @property
     def duration(self):
@@ -227,7 +264,7 @@ class Syllable(models.Model):
     def phonemes(self):
         if not hasattr(self,'_phonemes'):
             self._phonemes = list(self.phoneme_set.all())
-        return self.phonemes
+        return self._phonemes
 
     @property
     def next_syllable(self):
@@ -304,7 +341,7 @@ class Phoneme(models.Model):
         return self.ipa[0]
 
     @property
-    def word_phone(self):
+    def word_phonemes(self):
         return self.word.phonemes
 
     @property
