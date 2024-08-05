@@ -32,14 +32,17 @@ def tsne(hidden_states, perplexity = 30, n_iter = 1000, random_state = 0,
     return tsne_results
 
 def plot_tsne(tsne_hidden_states, labels = None, label_dict = None,
-    marker_dict = None, title = '', add_legend = True):
+    marker_dict = None, title = '', add_legend = True, legend_outside = False,
+    ax = None):
     '''plot t-distributed stochastic neighbor embedding
     '''
     title = 't-SNE ' + title
-    plt.figure()
+    if not ax: fig, ax = plt.subplots()
     x = tsne_hidden_states[:,0]
     y = tsne_hidden_states[:,1]
     colors = plt.cm.tab20.colors
+    if len(label_dict) > len(colors):
+        colors = np.vstack((colors, plt.cm.tab20b.colors, plt.cm.tab20c.colors))
     n = np.array(labels)
     for label in label_dict.keys():
         if label_dict:
@@ -53,13 +56,18 @@ def plot_tsne(tsne_hidden_states, labels = None, label_dict = None,
         color = colors[label]
         print(label, label_name, color, marker)
         index = np.where(n == label)
-        scatter = plt.scatter(x[index], y[index], label = label_name, 
+        scatter = ax.scatter(x[index], y[index], label = label_name, 
             color = color, marker = marker)
     if add_legend:
-        plt.legend(title = 'Classes')
+        if legend_outside:
+            ax.legend(title = 'Classes', bbox_to_anchor=(1.05, 1), 
+               borderaxespad=0) 
+        else:
+            ax.legend(title = 'Classes')
     #plt.colorbar(scatter)
-    plt.title(title)
-    plt.show()
+    ax.set_title(title)
+    if not ax: 
+        plt.show()
     return scatter
 
 def old_plot_tsne(tsne_hidden_states, labels = None, label_dict = None,
