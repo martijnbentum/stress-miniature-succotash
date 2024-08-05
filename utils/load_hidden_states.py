@@ -2,14 +2,31 @@ import numpy as np
 from utils import save_hidden_states as shs
 from w2v2_hidden_states import frame
 
+hidden_state_indices = 1,3,5,7,9,11,13,15,17,19,21,23,24
+
 def load_word_hidden_states(word):
     return shs.load_word_hidden_states(word)
 
-'''
-start_time, end_time, identifier, name = word_to_info(word)
-word_output= frame.extract_outputs_times(outputs, start_time, 
-    end_time)
-'''
+def phoneme_list_to_combined_hidden_states(phoneme_list, hs = 'cnn',
+    mean = False):
+    '''load hidden states from list of phonemes'''
+    hidden_states_list = []
+    for phoneme in phoneme_list:
+        if hs == 'cnn':
+            hidden_states = phoneme.cnn(mean = False)
+        else:
+            hidden_states = phoneme.transformer(layer = hs, mean = False)
+        hidden_states_list.append(hidden_states)
+    return combine_hidden_states(hidden_states_list, mean = mean)
+    
+
+def combine_hidden_states(hidden_states_list, mean = False):
+    '''combine hidden states from list of hidden states'''
+    combined_hidden_states = np.vstack(hidden_states_list)
+    if mean:
+        return np.mean(combined_hidden_states, axis = 0)
+    return combined_hidden_states
+
 
 def _replace_none_hidden_states(hidden_states):
     '''some hidden states are None, replace them with correct shaped matrix.
