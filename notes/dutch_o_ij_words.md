@@ -33,7 +33,7 @@ Word list (max set to 100, there many more 'zijn' tokens)
 <img width="1823" alt="Screenshot 2024-08-06 at 11 27 59" src="https://github.com/user-attachments/assets/2afa76ec-8235-4192-bd46-0b685af2f7c9">
 
 ### Syllable
-<img width="1822" alt="Screenshot 2024-08-05 at 16 36 17" src="https://github.com/user-attachments/assets/bb5bd085-299d-4276-808a-f27549142dca">
+<img width="1823" alt="Screenshot 2024-08-06 at 12 00 09" src="https://github.com/user-attachments/assets/d016be1e-71f4-4ac8-acef-5fbad26c2da7">
 
 ### Word
 <img width="1817" alt="Screenshot 2024-08-05 at 16 37 33" src="https://github.com/user-attachments/assets/1847b852-e480-4367-9a3b-5350a0a17545">
