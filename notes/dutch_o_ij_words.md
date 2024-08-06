@@ -21,10 +21,10 @@ Word list (max set to 100, there many more 'zijn' tokens)
 | rok  | 7     |
 
 ### Onset
-<img width="1829" alt="Screenshot 2024-08-05 at 16 29 12" src="https://github.com/user-attachments/assets/a8a80d16-f887-4410-9ead-5f0b375916a6">
+<img width="1825" alt="Screenshot 2024-08-06 at 09 31 34" src="https://github.com/user-attachments/assets/42c04ea2-8e06-4218-aa0e-51abf9e034a4">
 
 ### Vowel
-<img width="1740" alt="Screenshot 2024-08-05 at 16 33 47" src="https://github.com/user-attachments/assets/959342ce-f4e4-4cdf-9ed1-981c38bc8111">
+<img width="1747" alt="Screenshot 2024-08-06 at 09 31 47" src="https://github.com/user-attachments/assets/370bc2b3-ae16-458b-a17f-838524d5244f">
 
 ### Rime
 <img width="1824" alt="Screenshot 2024-08-05 at 16 34 34" src="https://github.com/user-attachments/assets/a6f8b64e-8add-41d4-82ec-a1b95d8cbeef">
