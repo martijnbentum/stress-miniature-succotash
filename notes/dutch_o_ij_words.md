@@ -1,8 +1,9 @@
 ## overview of dutch o and ij words 
 
-Selected a set of words with the vowel o or ij
+Selected a set of words with the vowel ɔ or ɛi in the canonical pronunciation.
+The words are from the Dutch part of common voice and forced aligened with Bass webmaus.
 
-Extracted embeddings from the Wav2vec 2.0 model from the cnn output layer and transformer layer 11 and 21. The embeddings were averaged for all frames within the onset, vowel, rime, coda and syllable (word is also shown but all words are mono syllabic so is the same as syllable).
+Extracted embeddings from the Wav2vec 2.0 model (not finetuned) from the cnn output layer and transformer layer 11 and 21. The embeddings were averaged for all frames within the onset, vowel, rime, coda and syllable (word is also shown but all words are mono syllabic so is the same as syllable).
 
 With t-SNE (t-distributed stochastic neighbor embedding) implemented in scikit-learn vizualized the embeddings. As recommended, first PCA (principle component analysis) also implemented in scikit-learn) was used to down sampled to 50 components. This was down sampled to 2 dimensions with t-SNE. The t-SNE algorithm downsamples in such a way that similar objects are appear close together.
 
