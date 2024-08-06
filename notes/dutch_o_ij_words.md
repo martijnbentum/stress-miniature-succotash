@@ -1,4 +1,4 @@
-## overview of dutch o and ij words 
+## overview of a subset of dutch ɔ and ɛi words 
 
 Selected a set of words with the vowel ɔ or ɛi in the canonical pronunciation.
 The words are from the Dutch part of common voice and forced aligened with Bass webmaus.
