@@ -30,7 +30,7 @@ Word list (max set to 100, there many more 'zijn' tokens)
 <img width="1825" alt="Screenshot 2024-08-06 at 10 41 27" src="https://github.com/user-attachments/assets/59d5a3bc-cf35-4683-b44d-68d631d93376">
 
 ### Coda
-<img width="1827" alt="Screenshot 2024-08-05 at 16 35 16" src="https://github.com/user-attachments/assets/55c41d32-43f0-4a81-99d4-22268e27b638">
+<img width="1823" alt="Screenshot 2024-08-06 at 11 27 59" src="https://github.com/user-attachments/assets/2afa76ec-8235-4192-bd46-0b685af2f7c9">
 
 ### Syllable
 <img width="1822" alt="Screenshot 2024-08-05 at 16 36 17" src="https://github.com/user-attachments/assets/bb5bd085-299d-4276-808a-f27549142dca">
