@@ -27,7 +27,7 @@ Word list (max set to 100, there many more 'zijn' tokens)
 <img width="1747" alt="Screenshot 2024-08-06 at 09 31 47" src="https://github.com/user-attachments/assets/370bc2b3-ae16-458b-a17f-838524d5244f">
 
 ### Rime
-<img width="1824" alt="Screenshot 2024-08-05 at 16 34 34" src="https://github.com/user-attachments/assets/a6f8b64e-8add-41d4-82ec-a1b95d8cbeef">
+<img width="1825" alt="Screenshot 2024-08-06 at 10 41 27" src="https://github.com/user-attachments/assets/59d5a3bc-cf35-4683-b44d-68d631d93376">
 
 ### Coda
 <img width="1827" alt="Screenshot 2024-08-05 at 16 35 16" src="https://github.com/user-attachments/assets/55c41d32-43f0-4a81-99d4-22268e27b638">
