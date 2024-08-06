@@ -3,16 +3,16 @@ Below an overview phoneme word types and word types
 
 | Phonetic | Frequency |
 |----------|-----------|
-| 'n i w'  | 100       |
-| 'n ɛ t'  | 100       |
-| 'n i t s'| 100       |
-| 'n i t'  | 100       |
-| 'n i d'  | 100       |
-| 'n i t ə'| 100       |
-| 'b i t'  | 57        |
-| 'n oː t' | 40        |
-| 's i t'  | 38        |
-| 'z i t'  | 35        |
+| n i w  | 100       |
+| n ɛ t  | 100       |
+| n i t s| 100       |
+| n i t  | 100       |
+| n i d  | 100       |
+| n i t ə| 100       |
+| b i t  | 57        |
+| n oː t | 40        |
+| s i t  | 38        |
+| z i t  | 35        |
 
 | Word    | Frequency |
 |---------|-----------|
