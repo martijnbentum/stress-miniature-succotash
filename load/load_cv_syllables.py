@@ -19,6 +19,7 @@ def handle_words(language, dataset):
 
 def save_n_syllables(word):
     word.n_syllables = word.syllable_set.all().count()
+    word.n_phonemes = word.phoneme_set.all().count()
     word.save()
 
 def handle_word(word, language, dataset, count = 0):
