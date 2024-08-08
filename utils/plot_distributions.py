@@ -99,7 +99,8 @@ def plot_all_acoustic_features(language_name = 'dutch',
     dataset_name = 'COMMON VOICE',minimum_n_syllables = 2,
     max_n_items_per_speaker = None, vowel_stress_dict = None, 
     ylim = (0,50_000), data = None, row_index = 1, nrows = 1, 
-    new_figure = True, plot_density = False, grid = None):
+    new_figure = True, plot_density = False, grid = None,
+    row_name = ''):
     '''plot all acoustic features'''
     if not data:
         data = get_all_data(language_name, dataset_name, minimum_n_syllables,
@@ -118,6 +119,7 @@ def plot_all_acoustic_features(language_name = 'dutch',
     intensity.plot_stress_no_stress_distributions(data['intensities'],
         new_figure = False, minimal_frame = True, **kwargs,
         add_legend = False, ylim = ylim, plot_density = plot_density)
+    if row_name: plt.title(row_name)
     plt.subplot(nrows,6,plot_index +2)
     duration.plot_stress_no_stress_distributions(data['durations'],
         new_figure = False, minimal_frame = True, plot_density = plot_density,
@@ -141,6 +143,31 @@ def plot_all_acoustic_features(language_name = 'dutch',
         add_left = False, add_legend = add_legend, ylim = ylim, **kwargs)
     return data
 
+    
+def plot_languages(language_names = ['dutch','german', 'english'],
+    all_data = None, minimum_n_syllables = 1, max_n_items_per_speaker = None,):
+    if not all_data:
+        all_data = {}
+        for language_name in language_names:
+            all_data[language_name] = None
+    nrows = len(language_names)
+    row_index = 0
+    for language, data in all_data.items():
+        print('Plotting', language)
+        if row_index == 0: new_figure = True
+        else: new_figure = False
+        o = plot_all_acoustic_features(language_name = language,
+            data = data, minimum_n_syllables = minimum_n_syllables,
+            max_n_items_per_speaker = max_n_items_per_speaker, 
+            nrows = nrows, row_index = row_index, 
+            row_name = language.capitalize(),
+            new_figure = new_figure,)
+        row_index += 1
+        if not data:
+            'storing data'
+            all_data[language] = o
+    return all_data
+    
     
     
     
