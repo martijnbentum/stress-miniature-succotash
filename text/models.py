@@ -85,6 +85,34 @@ class Phrase(models.Model):
         if len(phrase) > 64: phrase = phrase[:60] + ' ...'
         return phrase
 
+    @property
+    def words(self):
+        if not hasattr(self,'_words'):
+            self._words = list(self.word_set.all())
+        return self._words
+
+    @property
+    def syllables(self):
+        if not hasattr(self,'_syllables'):
+            self._syllables = []
+            for word in self.words:
+                self._syllables += word.syllables
+        return self._syllables
+
+    @property
+    def phonemes(self):
+        if not hasattr(self,'_phonemes'):
+            self._phonemes = []
+            for word in self.words:
+                self._phonemes += word.phonemes
+        return self._phonemes
+
+    @property
+    def audio_signal(self):
+        signal, sr = audio.load_audio(self.audio)
+        signal = item_to_samples(self, signal, sr)
+        return signal, sr
+
 class Speaker(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     identifier = models.CharField(max_length=100, unique=True, **required)
@@ -171,6 +199,12 @@ class Word(models.Model):
         if not hasattr(self,'_syllables'):
             self._syllables = list(self.syllable_set.all())
         return self._syllables
+
+    @property
+    def audio_signal(self):
+        signal, sr = audio.load_audio(self.audio)
+        signal = item_to_samples(self, signal, sr)
+        return signal, sr
 
     @property
     def hidden_states(self):
@@ -277,6 +311,12 @@ class Syllable(models.Model):
         return self.word_syllables[self.index - 1]
 
     @property
+    def audio_signal(self):
+        signal, sr = audio.load_audio(self.audio)
+        signal = item_to_samples(self, signal, sr)
+        return signal, sr
+
+    @property
     def hidden_states(self):
         if not hasattr(self,'_hidden_states'):
             self._hidden_states = lhs.load_syllable_hidden_states(self, 
@@ -345,6 +385,16 @@ class Phoneme(models.Model):
         return self.word.phonemes
 
     @property
+    def previous_phoneme(self):
+        if self.index == 0: return None
+        return self.word_phonemes[self.index - 1]
+
+    @property
+    def next_phoneme(self):
+        if self.index == self.n_phonemes - 1: return None
+        return self.word_phonemes[self.index + 1]
+
+    @property
     def f0(self):
         if not self._f0: return []
         return json.loads(self._f0)
@@ -373,6 +423,12 @@ class Phoneme(models.Model):
     @property
     def duration(self):
         return self.end_time - self.start_time
+
+    @property
+    def audio_signal(self):
+        signal, sr = audio.load_audio(self.audio)
+        signal = item_to_samples(self, signal, sr)
+        return signal, sr
 
     @property
     def hidden_states(self):
