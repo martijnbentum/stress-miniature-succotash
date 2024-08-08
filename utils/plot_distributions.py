@@ -4,6 +4,7 @@ from audio import frequency_band
 from audio import intensity
 from audio import pitch
 from audio import combined_features
+from utils import select
 
 from matplotlib import pyplot as plt
 import numpy as np
