@@ -1,38 +1,12 @@
 ## Word counts in Common Voice materials
 
-| Language | Code | Word Count  |
-|----------|------|------------:|
-| Dutch    | nl   | 813,363     |
-| English  | en   | 4,286,417   |
-| French   | fr   | 1,211,715   |
-| German   | de   | 2,130,680   |
-| Italian  | it   | 824,111     |
-| Spanish  | es   | 1,043,854   |
-| Polish   | pl   | 965,659     |
-| Hungarian| hu   | 439,494     |
-
-## Syllable counts in Common Voice materials
-
-| Language | Code | Syllable Count |
-|----------|------|---------------:|
-| Dutch    | nl   | 1,386,898      |
-| English  | en   | 5,833,624      |
-| French   | fr   | 1,936,430      |
-| German   | de   | 3,737,030      |
-| Italian  | it   | 1,851,200      |
-| Spanish  | es   | 2,202,663      |
-| Polish   | pl   | 2,014,274      |
-| Hungarian| hu   | 1,117,766      |
-
-## Phoneme counts in Common Voice materials
-
-| Language | Code | Phoneme Count  |
-|----------|------|---------------:|
-| Dutch    | nl   | 3,445,622      |
-| English  | en   | 14,476,275     |
-| French   | fr   | 4,263,707      |
-| German   | de   | 9,837,218      |
-| Italian  | it   | 4,022,048      |
-| Spanish  | es   | 5,059,647      |
-| Polish   | pl   | 4,906,547      |
-| Hungarian| hu   | 2,553,607      |
+| Language  | Word Count | Syllable Count | Phoneme Count  |
+|-----------|------------:|---------------:|---------------:|
+| Dutch     |      813,363 |      1,386,898 |      3,445,622 |
+| English   |    4,286,417 |      5,833,624 |     14,476,275 |
+| French    |    1,211,715 |      1,936,430 |      4,263,707 |
+| German    |    2,130,680 |      3,737,030 |      9,837,218 |
+| Italian   |      824,111 |      1,851,200 |      4,022,048 |
+| Spanish   |    1,043,854 |      2,202,663 |      5,059,647 |
+| Polish    |      965,659 |      2,014,274 |      4,906,547 |
+| Hungarian |      439,494 |      1,117,766 |      2,553,607 |
