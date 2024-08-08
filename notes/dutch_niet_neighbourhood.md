@@ -1,5 +1,12 @@
 Selected words that differ in phoneme from the canonical form of niet n i t with a maximum of a 100 tokens per phoneme word type
-Below an overview phoneme word types and word types
+Below the plots you can find an overview of phoneme and orthographic word types.
+
+
+
+### Onset
+
+### Coda
+![Screenshot 2024-08-08 at 15 03 39](https://github.com/user-attachments/assets/043dbcd3-2052-4273-bc97-5ac25e20a04b)
 
 | Phonetic | Frequency |
 |----------|-----------|
@@ -29,9 +36,3 @@ Below an overview phoneme word types and word types
 | nood-   | 1         |
 | site    | 1         |
 | bied    | 1         |
-
-### Onset
-
-### Coda
-![Screenshot 2024-08-08 at 15 03 39](https://github.com/user-attachments/assets/043dbcd3-2052-4273-bc97-5ac25e20a04b)
-
