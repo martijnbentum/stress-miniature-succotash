@@ -1,4 +1,4 @@
-## Word counts in Common Voice materials
+## counts for Common Voice material items
 
 | Language  | Word Count | Syllable Count | Phoneme Count  |
 |-----------|------------:|---------------:|---------------:|
