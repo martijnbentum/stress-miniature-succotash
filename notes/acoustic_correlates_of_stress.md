@@ -2,7 +2,7 @@
 
 Intensity, duration, formant peripherality, pitch, spectral tilt (used LDA to compute a single value) and all acoustic features combined.
 
-Stressed syllables are typically louder (higher intensity), have a longer duration, the formants F1 & F2 are more peripheral, have a shallower spectral tilt. The distributions of stressed and unstressed vowel shown below for Dutch, German and English show tendencies in the expected directions.
+Stressed syllables are typically louder (higher intensity), have a longer duration, the formants F1 & F2 are more peripheral, have a shallower spectral tilt. The distributions of stressed and unstressed vowel shown below for Dutch, German and English show tendencies in the expected directions. We selected all words (1 syllable or more) and every word is assumed to have one stressed syllable also if it is monosyllabic and has sjwa for a vowel e.g. de or het in Dutch.
 
 | Language | Stress Type  |      Count |
 |----------|--------------|-----------:|
