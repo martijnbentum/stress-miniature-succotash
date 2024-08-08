@@ -30,3 +30,8 @@ Below an overview phoneme word types and word types
 | site    | 1         |
 | bied    | 1         |
 
+### Onset
+
+### Coda
+![Screenshot 2024-08-08 at 15 03 39](https://github.com/user-attachments/assets/043dbcd3-2052-4273-bc97-5ac25e20a04b)
+
