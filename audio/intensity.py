@@ -28,10 +28,10 @@ def handle_word(word, signal, save = False):
         intensities.append(intensity)
     return intensities
 
-def handle_audio(audio):
-    '''compute the pitch of all phonemes in an audio object'''
-    signal, sr = audio.load_audio()
-    words = audio.word_set.all()
+def handle_audio(a):
+    '''compute the intensity of all phonemes in an audio object'''
+    signal, sr = audio.load_audio(a)
+    words = a.word_set.all()
     intensities = []
     for word in words:
         o = handle_word(word, signal)
@@ -39,11 +39,12 @@ def handle_audio(audio):
     return intensities
 
 def _vowels_to_intensity(vowel_intensity_stress_dict):
+    import math
     d = vowel_intensity_stress_dict
     if not d: d = make_vowel_duration_stress_dict('dutch')
     output = {}
     for k,v in d.items():
-        output[k] = [x.intensity for x in v]
+        output[k] = [x.intensity for x in v if not math.isinf(x.intensity)]
     return output
 
 def make_vowel_intensity_stress_dict(language_name = 'dutch', 
