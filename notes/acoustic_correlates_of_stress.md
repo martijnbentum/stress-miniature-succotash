@@ -14,3 +14,4 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 | English  | No Stress    |   1,510,532 |
 
 ![Screenshot 2024-08-08 at 15 03 03](https://github.com/user-attachments/assets/fed3ce5b-ade3-47cd-8428-caf9426fd004)
+![Screenshot 2024-08-08 at 15 58 07](https://github.com/user-attachments/assets/bdb1ad56-e31a-4efc-844c-3e1051229f0f)
