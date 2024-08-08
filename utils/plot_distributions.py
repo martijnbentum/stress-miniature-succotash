@@ -145,15 +145,16 @@ def plot_all_acoustic_features(language_name = 'dutch',
 
     
 def plot_languages(language_names = ['dutch','german', 'english'],
-    all_data = None, minimum_n_syllables = 1, max_n_items_per_speaker = None,):
+    all_data = None, minimum_n_syllables = 1, max_n_items_per_speaker = None,
+    plot_density = True):
     if not all_data:
         all_data = {}
         for language_name in language_names:
             all_data[language_name] = None
-    nrows = len(language_names)
-    row_index = 0
+    nrows = len(all_data.keys())
+    row_index = 1
     for language, data in all_data.items():
-        print('Plotting', language)
+        print('Plotting', language, nrows, row_index)
         if row_index == 0: new_figure = True
         else: new_figure = False
         o = plot_all_acoustic_features(language_name = language,
@@ -161,13 +162,18 @@ def plot_languages(language_names = ['dutch','german', 'english'],
             max_n_items_per_speaker = max_n_items_per_speaker, 
             nrows = nrows, row_index = row_index, 
             row_name = language.capitalize(),
-            new_figure = new_figure,)
+            new_figure = new_figure,plot_density = plot_density)
         row_index += 1
         if not data:
             'storing data'
             all_data[language] = o
     return all_data
     
+def load_all_data_dutch_german_english():
+    import pickle
+    with open('../data/all_data_dutch_german_english.pickle', 'rb') as f:
+        all_data = pickle.load(f)
+    return all_data
     
     
     
