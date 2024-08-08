@@ -4,9 +4,23 @@ Below the plots you can find an overview of phoneme and orthographic word types.
 
 
 ### Onset
+![Screenshot 2024-08-08 at 15 29 41](https://github.com/user-attachments/assets/62c71723-09d8-4d3e-9c95-b54614d4a36d)
+
+### Vowel
+![Screenshot 2024-08-08 at 15 31 05](https://github.com/user-attachments/assets/a334f4ba-a001-4a6c-b79b-fd77dbd4d050)
+
+### Rime
+![Screenshot 2024-08-08 at 15 31 36](https://github.com/user-attachments/assets/c90174a4-7b7f-4e41-be5e-b23484e1ad6d)
+
 
 ### Coda
 ![Screenshot 2024-08-08 at 15 03 39](https://github.com/user-attachments/assets/043dbcd3-2052-4273-bc97-5ac25e20a04b)
+
+
+### Word
+![Screenshot 2024-08-08 at 15 43 43](https://github.com/user-attachments/assets/aaeb867e-17cb-47e7-99bb-543cb6cc4ce7)
+
+
 
 | Phonetic | Frequency |
 |----------|-----------|
