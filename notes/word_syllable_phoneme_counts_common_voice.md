@@ -1,7 +1,7 @@
 ## Word counts in Common Voice materials
 
 | Language | Code | Word Count  |
-|----------|------|-------------|
+|----------|------|------------:|
 | Dutch    | nl   | 813,363     |
 | English  | en   | 4,286,417   |
 | French   | fr   | 1,211,715   |
@@ -14,7 +14,7 @@
 ## Syllable counts in Common Voice materials
 
 | Language | Code | Syllable Count |
-|----------|------|----------------|
+|----------|------|---------------:|
 | Dutch    | nl   | 1,386,898      |
 | English  | en   | 5,833,624      |
 | French   | fr   | 1,936,430      |
@@ -27,7 +27,7 @@
 ## Phoneme counts in Common Voice materials
 
 | Language | Code | Phoneme Count  |
-|----------|------|----------------|
+|----------|------|---------------:|
 | Dutch    | nl   | 3,445,622      |
 | English  | en   | 14,476,275     |
 | French   | fr   | 4,263,707      |
