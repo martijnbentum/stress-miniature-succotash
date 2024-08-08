@@ -41,6 +41,7 @@ def plot_tsne(tsne_hidden_states, labels = None, label_dict = None,
     x = tsne_hidden_states[:,0]
     y = tsne_hidden_states[:,1]
     colors = plt.cm.tab20.colors
+    print('n tokens', len(y), 'n labels', len(set(labels)))
     if len(label_dict) > len(colors):
         colors = np.vstack((colors, plt.cm.tab20b.colors, plt.cm.tab20c.colors))
     n = np.array(labels)
