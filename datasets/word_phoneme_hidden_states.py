@@ -32,11 +32,15 @@ def word_to_lables(words):
 def phoneme_to_labels(phonemes):
     return [phoneme.ipa for phoneme in phonemes]
 
-def word_and_phoneme_to_labels(words, phonemes):
+def word_and_phoneme_to_labels(words, phonemes, use_word_orthography = False):
     output = []
     for word, segments in zip(words, phonemes):
         ipa = '-'.join([x.ipa for x in segments])
-        output.append(f'{ipa} {word.word}')
+        if use_word_orthography:
+            output.append(f'{ipa} {word.word.lower()}')
+        else:
+            word_ipa = word.ipa.replace(' ','')
+            output.append(f'{ipa} {word_ipa}')
     return output
 
 def labels_to_numbers(labels):
@@ -50,7 +54,7 @@ def reverse_dict(dictionary):
     return {v: k for k, v in dictionary.items()}
 
 def sample_words_by_type(words, max_tokens = 100):
-    word_types = list(set([word.word for word in words]))
+    word_types = list(set([word.word.lower() for word in words]))
     count_dict = {}
     output = []
     for word in words:
@@ -83,12 +87,13 @@ def select_o_ij_dutch_words():
     return output
 
 def plot_words(words = None, segment_types = ['vowel'], hs_types = [],
-    save = False, name = 'o_ij_dutch_words.pdf'):
+    save = False, name = 'o_ij_dutch_words.pdf', use_word_orthography = False):
     from matplotlib import pyplot as plt
     if not words: words = select_o_ij_dutch_words()
     if not hs_types: hs_types = ['cnn', 11, 21]
     n_columns = len(hs_types)
     n_rows = len(segment_types)
+    plt.ion()
     fig, axes = plt.subplots(n_rows, n_columns, figsize = [18.6 ,  6*n_rows])
     for column_index, hs in enumerate(hs_types):
         for row_index, segment_type in enumerate(segment_types):
@@ -99,7 +104,7 @@ def plot_words(words = None, segment_types = ['vowel'], hs_types = [],
             title = f'{segment_type} {hs}'
             hidden_states, w, segments= load_segment_hidden_states(words,
                 hs = hs, segment_type = segment_type)
-            labels = word_and_phoneme_to_labels(w,segments)
+            labels=word_and_phoneme_to_labels(w,segments,use_word_orthography) 
             numbers, label_dict = labels_to_numbers(labels)
             marker_dict = make_phoneme_word_marker_dict(label_dict)
             X = tsne.tsne(np.array(hidden_states))
