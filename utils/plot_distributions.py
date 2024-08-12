@@ -195,7 +195,7 @@ def make_all_data_dutch_german_english(save = False):
         print('Processing', language_name)
         all_data[language_name] = get_all_data(language_name, 
             number_of_syllables = 2)
-    if save: save_all_data_dutch_german_english()
+    if save: save_all_data_dutch_german_english(all_data)
     return all_data
     
     
