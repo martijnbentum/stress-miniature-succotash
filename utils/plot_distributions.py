@@ -170,7 +170,7 @@ def plot_languages(language_names = ['dutch','german', 'english'],
             all_data[language] = o
     return all_data
 
-def save_all_data_dutch_german_english(filename = ''):
+def save_all_data_dutch_german_english(all_data, filename = ''):
     if not filename:
         filename = '../data/acoustic_correlates'
         filename += '_dutch-german-english_n-sylalbles-2.pickle'
@@ -189,8 +189,9 @@ def make_all_data_dutch_german_english(save = False):
     all_data = {}
     for language_name in ['dutch','german','english']:
         print('Processing', language_name)
-        all_data[language_name] = get_all_data(language, 
+        all_data[language_name] = get_all_data(language_name, 
             number_of_syllables = 2)
+    if save: save_all_data_dutch_german_english()
     return all_data
     
     
