@@ -8,6 +8,7 @@ from utils import select
 
 from matplotlib import pyplot as plt
 import numpy as np
+import pickle
 from scipy.stats import gaussian_kde
 
 
@@ -62,8 +63,8 @@ def plot_stress_no_stress_distributions(value_dict, new_figure = True,
     plt.grid(alpha=0.3, axis = 'x')
 
 def get_all_data(language_name = 'dutch', dataset_name = 'COMMON VOICE',
-    minimum_n_syllables = 2, max_n_items_per_speaker = None,
-    vowel_stress_dict = None):
+    minimum_n_syllables = None, number_of_syllables = None, 
+    max_n_items_per_speaker = None, vowel_stress_dict = None):
     if not vowel_stress_dict:
         d = select.select_vowels(language_name, dataset_name,
             minimum_n_syllables, max_n_items_per_speaker, 
@@ -168,14 +169,29 @@ def plot_languages(language_names = ['dutch','german', 'english'],
             'storing data'
             all_data[language] = o
     return all_data
+
+def save_all_data_dutch_german_english(filename = ''):
+    if not filename:
+        filename = '../data/acoustic_correlates'
+        filename += '_dutch-german-english_n-sylalbles-2.pickle'
+    with open(filename, 'wb') as f:
+        pickle.dump(all_data, f)
     
-def load_all_data_dutch_german_english():
-    import pickle
-    with open('../data/all_data_dutch_german_english.pickle', 'rb') as f:
+def load_all_data_dutch_german_english(filename = ''):
+    if not filename:
+        filename = '../data/acoustic_correlates'
+        filename += '_dutch-german-english_n-sylalbles-2.pickle'
+    with open(filename, 'rb') as f:
         all_data = pickle.load(f)
     return all_data
     
-    
+def make_all_data_dutch_german_english(save = False):
+    all_data = {}
+    for language_name in ['dutch','german','english']:
+        print('Processing', language_name)
+        all_data[language_name] = get_all_data(language, 
+            number_of_syllables = 2)
+    return all_data
     
     
     
