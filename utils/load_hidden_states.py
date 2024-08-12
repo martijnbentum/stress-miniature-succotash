@@ -16,7 +16,12 @@ def phoneme_list_to_combined_hidden_states(phoneme_list, hs = 'cnn',
             hidden_states = phoneme.cnn(mean = False)
         else:
             hidden_states = phoneme.transformer(layer = hs, mean = False)
+        if hidden_states is None: continue
         hidden_states_list.append(hidden_states)
+    if len(hidden_states_list) == 0: return None
+    if len(hidden_states_list) == 1: 
+        if mean: return np.mean(hidden_states_list[0], axis = 0)
+        return hidden_states_list[0]
     return combine_hidden_states(hidden_states_list, mean = mean)
     
 
