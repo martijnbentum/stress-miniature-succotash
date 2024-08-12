@@ -81,9 +81,35 @@ def select_phonemes(language_name = None, stress = None, dataset_name = None,
         phonemes = balance_speakers(phonemes, max_n_items_per_speaker)
     return phonemes
 
+def select_syllables(language_name = None, dataset_name = 'COMMON VOICE',
+    minimum_n_syllables = None, number_of_syllables = None,
+    max_n_items_per_speaker = None):
+    '''
+    Select syllables based on language, dataset and number of syllables.
+    '''
+    from text.models import Syllable
+    syllables = Syllable.objects.all()
+    if language_name is not None:
+        language = select_language(language_name)
+        syllables = syllables.filter(language=language)
+    if dataset_name is not None:
+        dataset = select_dataset(dataset_name)
+        syllables = syllables.filter(dataset=dataset)
+    if minimum_n_syllables is not None:
+        n = minimum_n_syllables -1
+        syllables = syllables.filter(word__n_syllables__gt = n)
+    if number_of_syllables is not None:
+        syllables = syllables.filter(word__n_syllables = number_of_syllables)
+    if max_n_items_per_speaker is not None:
+        print('trimming syllables to maximally',max_n_items_per_speaker,
+            'per speaker')
+        syllables = balance_speakers(syllables, max_n_items_per_speaker)
+    return syllables
+    
+    
 
 def select_words(language_name = None, dataset_name = None, 
-    minimum_n_syllables = None, word = None):
+    minimum_n_syllables = None, number_of_syllables = None, word = None):
     '''
     Select words based on language, dataset and number of syllables.
     '''
@@ -98,6 +124,8 @@ def select_words(language_name = None, dataset_name = None,
         words = words.filter(dataset=dataset)
     if minimum_n_syllables is not None:
         words = words.filter(n_syllables__gt = minimum_n_syllables - 1)
+    if number_of_syllables is not None:
+        word = word.filter(word__n_syllables = number_of_syllables)
     if word is not None:
         words = words.filter(word=word)
     return words
