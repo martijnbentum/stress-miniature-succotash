@@ -1,19 +1,23 @@
 from utils import locations
 from utils import load_hidden_states as lhs
+from utils import select
 import numpy as np
 import pickle
 from progressbar import progressbar
 import random
 
+tf_layers = lhs.hidden_state_indices
+
 class HiddenStates:
     def __init__(self, items, items_attribute_name = 'items',
-        item_to_hidden_states = get_hidden_states,
+        item_to_hidden_states = None,
         item_to_ground_truth = None, 
         ground_truth_dict = None,
         name = 'default',
         model = 'wav2vec2-xls-r-300m'): 
         setattr(self, items_attribute_name, items)
         self.set_items_attribute_name(items_attribute_name)
+        if not item_to_hidden_states: item_to_hidden_states = get_hidden_states
         self.item_to_hidden_states = item_to_hidden_states
         self.item_to_ground_truth = item_to_ground_truth
         self.ground_truth_dict = ground_truth_dict
@@ -47,8 +51,9 @@ class HiddenStates:
         items_attribute_name = None):
         self.set_items_attribute_name(items_attribute_name)
         items = self.get_items()
+        if n: items = random.sample(items, n)
         x_values, y_values = [], []
-        for item in items:
+        for item in progressbar(items):
             x, y = self._xy(item, layer)
             if x is None: continue
             x_values.append(x)
@@ -91,7 +96,7 @@ class StressInfo(HiddenStates):
         if not hasattr(self, name): 
             setattr(self, name, [])
             items = getattr(self, name)
-            for syllable in self.syllables:
+            for syllable in progressbar(self.syllables):
                 item = getattr(syllable, section)
                 if not item: continue
                 items.append(item)
@@ -118,16 +123,15 @@ class StressInfo(HiddenStates):
         return super().xy(layer, n, random_ground_truth, 
             self.items_attribute_name)
             
-        
 def get_attribute_name(name):
     if name == 'cnn': return 'cnn'
-    if type(name) == int and name not in removed_layers and name < 13:
+    if type(name) == int and name in tf_layers:
         return 'transformer'
 
 def get_parameters(name):
     kwargs = {'mean': True}
     if name == 'cnn': return kwargs
-    if type(name) == int and name not in removed_layers and name < 13:
+    if type(name) == int and name in tf_layers:
         kwargs['layer'] = name
         return kwargs
 
@@ -159,3 +163,26 @@ def syllable_to_vowel(syllable, skip_multiple_vowels = False):
         return None
     if not syllable.vowel: return None
     return syllable.vowel[0]
+
+def handle_language_stress_info(language_name, si = None,
+    sections = ['vowel', 'rime','syllable'],
+    layers = ['cnn', 5,11,17,23], name = ''):
+    if not si: 
+        print('selecting syllables')
+        syllables = select.select_syllables(language_name, 
+            number_of_syllables = 2)
+        print('creating StressInfo object')
+        si = StressInfo(syllables)
+    for section in sections:
+        for layer in layers:
+            print(f'handling {section} {layer}')
+            X, y = si.xy(layer = layer, section = section)
+            save_xy(X, y, language_name, name = name)
+    return si
+
+
+def save_xy(X, y, language_name, section = '', layer = '', n = '', name = ''):
+    d = {'X': X, 'y': y, 'section': section, layer: layer, n: n}
+    filename = f'../data/xy_language-{language_name}_section-{section}'
+    filename += f'_layer-{layer}_n-{n}_name-{name}.npy'
+    np.save(filename, d)
