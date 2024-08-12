@@ -26,7 +26,8 @@ def make_stress_dict(items):
     return d
 
 def select_vowels(language_name, dataset_name = 'COMMON VOICE',
-    minimum_n_syllables = 2, max_n_items_per_speaker = None,
+    minimum_n_syllables = 2, number_of_syllables = None, 
+    max_n_items_per_speaker = None,
     exclude_diphtong = True, return_stress_dict = False):
     '''
     Collects the stress and no stress vowels for a given language.
@@ -35,7 +36,7 @@ def select_vowels(language_name, dataset_name = 'COMMON VOICE',
     print('dataset:',dataset_name,'minimum_n_syllables:',minimum_n_syllables)
     vowels = select_phonemes(language_name = language_name,
         dataset_name = dataset_name, minimum_n_syllables = minimum_n_syllables,
-        bpc_name = 'vowel')
+        number_of_syllables = number_of_syllables, bpc_name = 'vowel')
     if exclude_diphtong:
         print('excluding diphtongs')
         vowels = vowels.exclude(bpcs_str__icontains= 'diphtong')
@@ -45,7 +46,8 @@ def select_vowels(language_name, dataset_name = 'COMMON VOICE',
     return vowels
 
 def select_phonemes(language_name = None, stress = None, dataset_name = None,
-    minimum_n_syllables = None, bpc_name = None, ipa = None,
+    minimum_n_syllables = None, number_of_syllables = None,
+    bpc_name = None, ipa = None,
     max_n_items_per_speaker = None):
     '''
     Select phonemes based on language, stress, dataset and number of syllables.
@@ -70,6 +72,8 @@ def select_phonemes(language_name = None, stress = None, dataset_name = None,
     if minimum_n_syllables is not None:
         n = minimum_n_syllables -1 
         phonemes = phonemes.filter(word__n_syllables__gt = n)
+    if number_of_syllables is not None:
+        phonemes = phonemes.filter(word__n_syllables = number_of_syllables)
     if max_n_items_per_speaker is not None:
         print('trimming phonemes to maximally',max_n_items_per_speaker,
             'per speaker')
