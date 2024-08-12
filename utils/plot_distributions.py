@@ -66,9 +66,13 @@ def get_all_data(language_name = 'dutch', dataset_name = 'COMMON VOICE',
     minimum_n_syllables = None, number_of_syllables = None, 
     max_n_items_per_speaker = None, vowel_stress_dict = None):
     if not vowel_stress_dict:
-        d = select.select_vowels(language_name, dataset_name,
-            minimum_n_syllables, max_n_items_per_speaker, 
-            return_stress_dict = True)
+        d = select.select_vowels(
+            language_name = language_name, 
+            dataset_name = dataset_name,
+            minimum_n_syllables = minimum_n_syllables, 
+            max_n_items_per_speaker = max_n_items_per_speaker, 
+            return_stress_dict = True, 
+            number_of_syllables = number_of_syllables)
     else: d = vowel_stress_dict
     print('Processing durations')
     durations = duration.make_vowel_duration_stress_dict(vowel_stress_dict = d)
