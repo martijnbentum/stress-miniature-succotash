@@ -34,6 +34,7 @@ def select_vowels(language_name, dataset_name = 'COMMON VOICE',
     '''
     print('creating query set, for language:',language_name)
     print('dataset:',dataset_name,'minimum_n_syllables:',minimum_n_syllables)
+    print('number_of_syllables:',number_of_syllables)
     vowels = select_phonemes(language_name = language_name,
         dataset_name = dataset_name, minimum_n_syllables = minimum_n_syllables,
         number_of_syllables = number_of_syllables, bpc_name = 'vowel')
