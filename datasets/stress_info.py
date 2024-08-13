@@ -183,7 +183,9 @@ def handle_language_stress_info(language_name, si = None,
 
 
 def save_xy(X, y, language_name, section = '', layer = '', n = '', name = ''):
-    d = {'X': X, 'y': y, 'section': section, layer: layer, n: n}
+    d = {'X': X, 'y': y, 'section': section, 'layer': layer, 'n': n, 
+        'language_name': language_name, 'name': name}
     filename = f'../data/xy_language-{language_name}_section-{section}'
-    filename += f'_layer-{layer}_n-{n}_name-{name}.npy'
-    np.save(filename, d)
+    filename += f'_layer-{layer}_n-{n}_name-{name}.pickle'
+    with open(filename, 'wb') as f:
+        pickle.dump(d, f)
