@@ -55,6 +55,7 @@ def load_phoneme_codevectors(phoneme, word_codebook_indices = None,
     '''load phoneme hidden states from word hidden states'''
     word = phoneme.word
     frames = load_word_frames(word, word_codebook_indices)
+    if not frames: return None
     if return_codebook_indices: 
         return frames.codebook_indices(phoneme.start_time, phoneme.end_time)
     return frames.codevectors(phoneme.start_time, phoneme.end_time)
