@@ -224,6 +224,17 @@ class Word(models.Model):
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
 
+    def codebook_indices(self):
+        if not hasattr(self,'_codebook_indices'):
+            self._codebook_indices = lhs.load_word_codebook_indices(self)
+        return self._codebook_indices
+
+    def codevectors(self, mean = False):
+        if not hasattr(self,'_codevectors'):
+            self._codevectors = lhs.load_word_codevectors(self)
+        if mean: return np.mean(self._codevectors, axis = 0)
+        return self._codevectors
+
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
     dataset = models.ForeignKey('Dataset',**dargs)
@@ -339,6 +350,18 @@ class Syllable(models.Model):
         transformer_features = self.hidden_states.hidden_states[layer][0]
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
+
+    def codebook_indices(self):
+        if not hasattr(self,'_codebook_indices'):
+            self._codebook_indices = lhs.load_syllable_codevectors(self,
+                return_codebook_indices = True)
+        return self._codebook_indices
+
+    def codevectors(self, mean = False):
+        if not hasattr(self,'_codevectors'):
+            self._codevectors = lhs.load_syllable_codevectors(self)
+        if mean: return np.mean(self._codevectors, axis = 0)
+        return self._codevectors
 
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
@@ -458,6 +481,18 @@ class Phoneme(models.Model):
         transformer_features = self.hidden_states.hidden_states[layer][0]
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
+
+    def codebook_indices(self):
+        if not hasattr(self,'_codebook_indices'):
+            self._codebook_indices = lhs.load_phoneme_codevectors(self,
+                return_codebook_indices = True)
+        return self._codebook_indices
+
+    def codevectors(self, mean = False):
+        if not hasattr(self,'_codevectors'):
+            self._codevectors = lhs.load_phoneme_codevectors(self)
+        if mean: return np.mean(self._codevectors, axis = 0)
+        return self._codevectors
 
     
 class BPC(models.Model):
