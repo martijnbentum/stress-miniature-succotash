@@ -14,6 +14,8 @@ def phoneme_list_to_combined_hidden_states(phoneme_list, hs = 'cnn',
     for phoneme in phoneme_list:
         if hs == 'cnn':
             hidden_states = phoneme.cnn(mean = False)
+        if hs == 'codevector':
+            hidden_states = phoneme.codevector(mean = False)
         else:
             hidden_states = phoneme.transformer(layer = hs, mean = False)
         if hidden_states is None: continue
@@ -44,7 +46,7 @@ def _replace_none_hidden_states(hidden_states):
 def load_syllable_hidden_states(syllable, word_hidden_states = None):
     '''load syllable hidden states from word hidden states'''
     if not word_hidden_states:
-        word_hidden_states = load_word_hidden_states(phoneme.word)
+        word_hidden_states = load_word_hidden_states(syllable.word)
     _replace_none_hidden_states(word_hidden_states)
     start_time = syllable.start_time
     end_time = syllable.end_time
