@@ -6,6 +6,8 @@ import pickle
 from pathlib import Path
 import random
 from . import save_hidden_states as shs
+from . import load_hidden_states as lhs
+from w2v2_hidden_states import codebook
 
 def load_codebook_indices(hdf5_filename, name):
     '''
@@ -49,16 +51,24 @@ def load_word_codebook_indices(word):
     ci = load_codebook_indices(hdf5_filename, name)
     return ci
 
-def save_word_codebook_indices(word, codebook_indices, language_name = None):
+def _word_to_codebook_indices(word, model_pt):
+    outputs = lhs.load_word_hidden_states(word)
+    if outputs is None: return None
+    codebook_indices = codebook.outputs_to_codebook_indices(outputs, model_pt)
+    return codebook_indices
+
+def save_word_codebook_indices(word, model_pt):
     '''save hidden states for a specific word.'''
-    filename = shs.word_to_hdf5_filename(word, language_name)
+    filename = shs.word_to_hdf5_filename(word)
     name = make_codebook_indices_name(word)
     if check_codebook_indices_exists(filename, name):
         print('word codebook_indices already saved, skipping')
         return
+    codebook_indices = _word_to_codebook_indices(word, model_pt)
     save_codebook_indices(filename, name, codebook_indices)
 
 def make_codebook_indices_name(word):
     return word.identifier + '_codebook_indices'
 
-
+def load_model_pt():
+    return codebook.load_model_pt()
