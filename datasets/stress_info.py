@@ -165,8 +165,8 @@ def syllable_to_vowel(syllable, skip_multiple_vowels = False):
     return syllable.vowel[0]
 
 def handle_language_stress_info(language_name, si = None,
-    sections = ['vowel', 'rime','syllable'],
-    layers = ['cnn', 5,11,17,23], name = ''):
+    sections = ['vowel','rime','coda','syllable'],
+    layers = ['codevector','cnn', 5,11,17,23], name = ''):
     if not si: 
         print('selecting syllables')
         syllables = select.select_syllables(language_name, 
