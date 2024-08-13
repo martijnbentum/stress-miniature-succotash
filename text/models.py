@@ -2,6 +2,7 @@ from django.db import models
 import json
 import numpy as np
 from utils import load_hidden_states as lhs
+from utils import load_codevectors as lc
 
 # Create your models here.
 required = {'blank':False,'null':False}
@@ -517,7 +518,7 @@ class Phoneme(models.Model):
         return self._codebook_indices
         '''
 
-    def codevectors(self, mean = False):
+    def codevector(self, mean = False):
         cv = lc.load_phoneme_codevectors(self)
         if cv is None: return None
         if mean: return np.mean(cv, axis = 0)
