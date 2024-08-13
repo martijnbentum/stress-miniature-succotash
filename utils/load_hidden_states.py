@@ -64,10 +64,8 @@ def load_phoneme_hidden_states(phoneme, word_hidden_states = None):
     '''load phoneme hidden states from word hidden states'''
     if not word_hidden_states:
         word = phoneme.word
-        if hasattr(word, 'hidden_states'): 
-            word_hidden_states = word.hidden_states
-        else:
-            word_hidden_states = load_word_hidden_states(phoneme.word)
+        word_hidden_states = load_word_hidden_states(word)
+    if not word_hidden_states: return None
     _replace_none_hidden_states(word_hidden_states)
     start_time = phoneme.start_time
     end_time = phoneme.end_time
