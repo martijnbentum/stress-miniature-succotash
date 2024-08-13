@@ -22,6 +22,7 @@ def load_hidden_states(hdf5_filename, name):
     hdf5_filename   filename for the hdf5 data storage file
     name            name for the data in the hdf5 storage 
     '''
+    if not check_hidden_states_exists(hdf5_filename, name): return None
     with h5py.File(hdf5_filename, 'r') as fin:
         pickled_array = fin[name][:]
     hidden_states = pickled_array_to_data(pickled_array)

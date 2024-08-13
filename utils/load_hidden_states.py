@@ -85,11 +85,14 @@ def load_phoneme_hidden_states(phoneme, word_hidden_states = None):
 
 def add_to_word(word, add_lower = False):
     hs = load_word_hidden_states(word)
-    _replace_none_hidden_states(hs)
+    if not hs is None: 
+        _replace_none_hidden_states(hs)
     word._hidden_states = hs
     if add_lower:
         for s in word.syllables:
-            s._hidden_states = load_syllable_hidden_states(s, hs)
+            if hs is None: s._hidden_states = None
+            else: s._hidden_states = load_syllable_hidden_states(s, hs)
         for p in word.phonemes:
-            p._hidden_states = load_phoneme_hidden_states(p, hs)
+            if hs is None: p._hidden_states = None
+            else: p._hidden_states = load_phoneme_hidden_states(p, hs)
     
