@@ -14,6 +14,8 @@ def load_codebook_indices(hdf5_filename, name):
     hdf5_filename   filename for the hdf5 data storage file
     name            name for the data in the hdf5 storage 
     '''
+    if not check_codebook_indices_exists(hdf5_filename, name):
+        return None
     with h5py.File(hdf5_filename, 'r') as fin:
         pickled_array = fin[name][:]
     codebook_indices = shs.pickled_array_to_data(pickled_array)

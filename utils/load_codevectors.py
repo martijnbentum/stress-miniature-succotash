@@ -44,7 +44,8 @@ def load_syllable_codevectors(syllable, word_codebook_indices = None,
     return_codebook_indices = False):
     '''load syllable hidden states from word hidden states'''
     word = syllable.word
-    frames = load_word_codebook_indices_frames(word, word_codebook_indices)
+    frames = load_word_frames(word, word_codebook_indices)
+    if not frames: return None
     if return_codebook_indices: 
         return frames.codebook_indices(syllable.start_time, syllable.end_time)
     return frames.codevectors(syllable.start_time, syllable.end_time)
@@ -54,6 +55,7 @@ def load_phoneme_codevectors(phoneme, word_codebook_indices = None,
     '''load phoneme hidden states from word hidden states'''
     word = phoneme.word
     frames = load_word_frames(word, word_codebook_indices)
+    if not frames: return None
     if return_codebook_indices: 
         return frames.codebook_indices(phoneme.start_time, phoneme.end_time)
     return frames.codevectors(phoneme.start_time, phoneme.end_time)
