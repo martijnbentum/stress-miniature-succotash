@@ -7,6 +7,7 @@ from utils import locations
 from utils import save_hidden_states as shs
 
 def load_model(gpu = False):
+    '''load the pretrained wav2vec2 model'''
     return load.load_pretrained_model(gpu = gpu)
 
 def audio_to_vector(audio, model = None, gpu = False):
@@ -16,7 +17,6 @@ def audio_to_vector(audio, model = None, gpu = False):
     outputs = to_vector.filename_to_vector(audio_filename, model = model, 
         gpu = gpu)
     return outputs
-
     
 def handle_audio(audio, model = None, gpu = False, save_words = True):
     outputs = audio_to_vector(audio, model, gpu)
