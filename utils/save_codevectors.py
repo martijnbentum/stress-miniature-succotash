@@ -35,6 +35,11 @@ def check_codebook_indices_exists(hdf5_filename, name):
         exists = name in fin.keys()
     return exists
 
+def check_word_codebook_indices_exists(word):
+    hdf5_filename = shs.word_to_hdf5_filename(word)
+    name = make_codebook_indices_name(word)
+    return check_codebook_indices_exists(hdf5_filename, name)
+
 def remove_codebook_indices(hdf5_filename, name):
     if not Path(hdf5_filename): return False
     with h5py.File(hdf5_filename, 'a') as fout:
@@ -43,6 +48,13 @@ def remove_codebook_indices(hdf5_filename, name):
             del fout[name]
     removed = exists
     return removed
+
+def remove_word_codebook_indices(word):
+    hdf5_filename = shs.word_to_hdf5_filename(word)
+    name = make_codebook_indices_name(word)
+    if not check_codebook_indices_exists(hdf5_filename, name):
+        print(f'word codebook_indices does not exist, skipping {word}')
+    remove_codebook_indices(hdf5_filename, name)
 
 def load_word_codebook_indices(word):
     '''load hidden states for a specific word.'''
@@ -65,10 +77,15 @@ def save_word_codebook_indices(word, model_pt):
         print('word codebook_indices already saved, skipping')
         return
     codebook_indices = _word_to_codebook_indices(word, model_pt)
+    if codebook_indices is None: 
+        print(f'codebook indices not found, skipping {word}')
+        return
     save_codebook_indices(filename, name, codebook_indices)
 
 def make_codebook_indices_name(word):
     return word.identifier + '_codebook_indices'
 
 def load_model_pt():
+    '''load the pretrained wav2vec2 model with the codebook'''
     return codebook.load_model_pt()
+
