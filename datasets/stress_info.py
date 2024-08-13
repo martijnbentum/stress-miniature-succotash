@@ -177,7 +177,8 @@ def handle_language_stress_info(language_name, si = None,
         for layer in layers:
             print(f'handling {section} {layer}')
             X, y = si.xy(layer = layer, section = section)
-            save_xy(X, y, language_name, name = name)
+            save_xy(X, y, language_name, section = section, layer = layer,
+                name = name)
     return si
 
 
