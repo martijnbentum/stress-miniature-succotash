@@ -186,7 +186,32 @@ def handle_language_stress_info(language_name, si = None,
 def save_xy(X, y, language_name, section = '', layer = '', n = '', name = ''):
     d = {'X': X, 'y': y, 'section': section, 'layer': layer, 'n': n, 
         'language_name': language_name, 'name': name}
-    filename = f'../data/xy_language-{language_name}_section-{section}'
-    filename += f'_layer-{layer}_n-{n}_name-{name}.pickle'
+    filename = f'../dataset/xy_dataset-stress_language-{language_name}_'
+    filename += f'section-{section}_layer-{layer}_n-{n}_name-{name}.pickle'
     with open(filename, 'wb') as f:
         pickle.dump(d, f)
+
+def move_from_data_to_dataset():
+    import glob
+    from pathlib import Path
+    fn = glob.glob('../data/xy_*.pickle')
+    for f in fn:
+        if not 'vowel' in f: continue
+        new_f = f.replace('data', 'dataset')
+        new_f = new_f.replace('xy_', 'xy_dataset-stress_')
+        p = Path(new_f)
+        if p.exists(): 
+            print('file exists',new_f, 'skipping')
+            print('-')
+            continue
+        print('moving',f,'to',new_f)
+        with open(f, 'rb') as fout:
+            d = pickle.load(fout)
+        print(d)
+        d['data_type'] = 'stress'
+        print(d)
+        with open(new_f, 'wb') as fout:
+            pickle.dump(d, fout)
+        print('done')
+        print('-')
+    return fn
