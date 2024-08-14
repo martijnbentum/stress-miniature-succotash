@@ -77,3 +77,7 @@ def plot_dataset(source_word, dataset = None, segment_types = ['word'],
     wphs.plot_words(dataset, segment_types, hs_types, save, name, 
         use_word_orthography = use_word_orthography)
 
+
+def word_ipa_type_counts(words):
+    ipa_types = Counter([word.ipa for word in words])
+    return ipa_types
