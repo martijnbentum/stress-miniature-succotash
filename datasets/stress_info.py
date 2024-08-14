@@ -2,6 +2,7 @@ from utils import locations
 from utils import load_hidden_states as lhs
 from utils import select
 import numpy as np
+from pathlib import Path
 import pickle
 from progressbar import progressbar
 import random
@@ -164,11 +165,11 @@ def syllable_to_vowel(syllable, skip_multiple_vowels = False):
     if not syllable.vowel: return None
     return syllable.vowel[0]
 
-def handle_language_stress_info(language_name, si = None,
-    # sections = ['vowel','rime','coda','syllable'],
-    sections = ['vowel'],
-    layers = ['codevector','cnn', 5,11,17,23], name = ''):
-    if not si: 
+def handle_language_stress_info(language_name, si = None, sections = [],
+    layers = [], name = ''):
+    if not sections: sections = ['vowel']
+    if not layers: layers = ['codevector','cnn', 5,11,17,23]
+    if si is None: 
         print('selecting syllables')
         syllables = select.select_syllables(language_name, 
             number_of_syllables = 2)
@@ -177,17 +178,34 @@ def handle_language_stress_info(language_name, si = None,
     for section in sections:
         for layer in layers:
             print(f'handling {section} {layer}')
+            filename = make_dataset_filename(language_name, layer, section, 
+                name)
+            path = Path(filename)
+            if path.exists(): 
+                print(f'file {filename} exists. skipping')
+                continue
             X, y = si.xy(layer = layer, section = section)
             save_xy(X, y, language_name, section = section, layer = layer,
                 name = name)
     return si
 
+def make_dataset_filename(language_name, layer, section, name = '', n = ''):
+    from utils import perceptron
+    data_type = 'stress'
+    return perceptron.make_dataset_filename(language_name, data_type, layer,
+        section, name, n)
+        
+
 
 def save_xy(X, y, language_name, section = '', layer = '', n = '', name = ''):
     d = {'X': X, 'y': y, 'section': section, 'layer': layer, 'n': n, 
         'language_name': language_name, 'name': name}
+    '''
     filename = f'../dataset/xy_dataset-stress_language-{language_name}_'
     filename += f'section-{section}_layer-{layer}_n-{n}_name-{name}.pickle'
+    '''
+    filename = make_dataset_filename(language_name, layer, section, name, n)
+        
     with open(filename, 'wb') as f:
         pickle.dump(d, f)
 
