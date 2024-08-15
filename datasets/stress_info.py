@@ -40,22 +40,22 @@ class HiddenStates:
             self.items_attribute_names.append(self.items_attribute_name)
         self.items_attribute_name = items_attribute_name
 
-    def _xy(self, item, layer):
+    def _xy(self, item, layer, mean):
         if not self.item_to_ground_truth: return None, None
-        x = self.item_to_hidden_states(item, layer)
+        x = self.item_to_hidden_states(item, layer, mean)
         if x is None: return None, None
         y = self.item_to_ground_truth(item, self.ground_truth_dict)
         if y is None: return None, None
         return x, y
 
     def xy(self, layer = 'cnn', n = None, random_ground_truth = False,
-        items_attribute_name = None):
+        items_attribute_name = None, mean = True):
         self.set_items_attribute_name(items_attribute_name)
         items = self.get_items()
         if n: items = random.sample(items, n)
         x_values, y_values = [], []
         for item in progressbar(items):
-            x, y = self._xy(item, layer)
+            x, y = self._xy(item, layer, mean)
             if x is None: continue
             x_values.append(x)
             y_values.append(y)
@@ -119,33 +119,33 @@ class StressInfo(HiddenStates):
         
 
     def xy(self, layer = 'cnn', section = 'syllable', n = None,
-        random_ground_truth = False):
+        random_ground_truth = False, mean = True):
         self._handle_section(section)
         return super().xy(layer, n, random_ground_truth, 
-            self.items_attribute_name)
+            self.items_attribute_name, mean = mean)
             
 def get_attribute_name(name):
     if name == 'cnn': return 'cnn'
     if type(name) == int and name in tf_layers:
         return 'transformer'
 
-def get_parameters(name):
-    kwargs = {'mean': True}
+def get_parameters(name, mean):
+    kwargs = {'mean': mean}
     if name == 'cnn': return kwargs
     if type(name) == int and name in tf_layers:
         kwargs['layer'] = name
         return kwargs
 
-def get_hidden_states(item, layer):
+def get_hidden_states(item, layer, mean = True):
     attribute_name = get_attribute_name(layer)
-    parameters = get_parameters(layer)
+    parameters = get_parameters(layer, mean)
     attribute = getattr(item, attribute_name)
     return attribute(**parameters)
 
-def get_hidden_states_multiple_phonemes(phonemes, layer):
+def get_hidden_states_multiple_phonemes(phonemes, layer, mean = True):
     if not type(phonemes) == list: phonemes = [phonemes]
     o = lhs.phoneme_list_to_combined_hidden_states(phonemes, hs = layer, 
-        mean = True)
+        mean = mean)
     return o
     
 
