@@ -51,7 +51,7 @@ class HiddenStates:
     def _xy_multilayer(self, item, layers, mean):
         if not self.item_to_ground_truth: return None, None
         ground_truth = self.item_to_ground_truth(item, self.ground_truth_dict)
-        if y is None: return None, None
+        if ground_truth is None: return None, None
         x = self.item_to_hidden_states(item, layers, mean)
         if x is None: return None, None
         y = {}
