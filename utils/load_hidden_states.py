@@ -97,4 +97,46 @@ def add_to_word(word, add_lower = False):
         for p in word.phonemes:
             if hs is None: p._hidden_states = None
             else: p._hidden_states = load_phoneme_hidden_states(p, hs)
+
+
+def load_layers_from_hidden_states(hidden_states, layers, mean = False):
+    output = {}
+    if hidden_states is None: return None
+    if 'codevector' in layers:
+        raise ValueError('codevector not part of hidden states object')
+    for layer in layers:
+        if type(layer) == int:
+            o = hidden_states.hidden_states[layer]
+        elif layer == 'cnn':
+            o = hidden_states.extract_features
+        else: raise ValueError(f'layer {layer} not recognized')
+        if o.size == 0: 
+            raise ValueError(f'layer {layer} is empty')
+        if mean: o = np.mean(o, axis = 0)
+        output[layer] = o
+    return output
+
+def load_layers_from_multiple_hidden_states(hidden_states_list, layers, 
+    mean = False):
+    output = {}
+    for hs in hidden_states_list:
+        if hs is None: return None
+    if 'codevector' in layers:
+        raise ValueError('codevector not part of hidden states object')
+    for layer in layers:
+        if type(layer) == int:
+            o = np.vstack([hs.hidden_states[layer] for hs in 
+                hidden_states_list])
+        elif layer == 'cnn':
+            o = np.vstack([hs.extract_features for hs in 
+                hidden_states_list])
+        else: raise ValueError(f'layer {layer} not recognized')
+        if o.size == 0: 
+            raise ValueError(f'layer {layer} is empty')
+        o = o[0]
+        if mean: o = np.mean(o, axis = 0)
+        output[layer] = o
+    return output
+
+
     

@@ -48,6 +48,18 @@ class HiddenStates:
         if y is None: return None, None
         return x, y
 
+    def _xy_multilayer(self, item, layers, mean):
+        if not self.item_to_ground_truth: return None, None
+        ground_truth = self.item_to_ground_truth(item, self.ground_truth_dict)
+        if y is None: return None, None
+        x = self.item_to_hidden_states(item, layers, mean)
+        if x is None: return None, None
+        y = {}
+        for layer in layers:
+            if x[layer] is None: del x[layer]
+            else: y[layer] = ground_truth
+        return x, y
+
     def xy(self, layer = 'cnn', n = None, random_ground_truth = False,
         items_attribute_name = None, mean = True):
         self.set_items_attribute_name(items_attribute_name)
@@ -61,6 +73,25 @@ class HiddenStates:
             y_values.append(y)
         return np.array(x_values), np.array(y_values)
 
+    def xy_multilayer(self, layers = ['cnn', 5, 11, 17, 23], 
+        random_ground_truth = False, n = None, items_attribute_name = None,
+        mean = True):
+        self.set_items_attribute_name(items_attribute_name)
+        items = self.get_items()
+        if n: items = random.sample(items, n)
+        y_values = {layer: [] for layer in layers}
+        x_values = {layer: [] for layer in layers}
+        for item in progressbar(items):
+            x, y = self._xy_multilayer(item, layers, mean)
+            if x is None: continue
+            for layer in x.keys():
+                x_values[layer].append(x[layer])
+                y_values[layer].append(y[layer])
+        x_output, y_output = {},{}
+        for layer in x_values.keys():
+            x_output[layer] = np.array(x_values[layer])
+            y_output[layer] = np.array(y_values[layer])
+        return x_output, np.array(y_values)
 
 class StressInfo(HiddenStates):
     def __init__(self, syllables, dataset_name = 'default', 
@@ -87,10 +118,6 @@ class StressInfo(HiddenStates):
         self.model = model
         self.skip_multiple_vowels = skip_syllables_with_multiple_vowels
         self.use_multiple_vowels = use_multiple_vowels
-        self._set_info()
-
-    def _set_info(self):
-        pass
 
     def _handle_section_items(self, section, name):
         print(f'handling {section} items')
@@ -103,11 +130,17 @@ class StressInfo(HiddenStates):
                 items.append(item)
         self.items_attribute_name = name
 
-    def _set_get_hidden_state_function(self, section):
+    def _set_get_hidden_state_function(self, section, multilayers = False):
         if section == 'syllable':
-            self.item_to_hidden_states = get_hidden_states
+            if multilayers:
+                self.item_to_hidden_states = get_hidden_states_multilayers
+            else: self.item_to_hidden_states = get_hidden_states
         if section in ['onset', 'vowel','rime', 'coda']:
-            self.item_to_hidden_states = get_hidden_states_multiple_phonemes
+            if multilayers:
+                f = get_hidden_states_multilayers_multiple_phonemes
+                self.item_to_hidden_states = f
+            else:
+                self.item_to_hidden_states = get_hidden_states_multiple_phonemes
 
     def _handle_section(self, section):
         if section not in ['onset','vowel','rime','coda','syllable']:
@@ -116,13 +149,22 @@ class StressInfo(HiddenStates):
         name = section + 's'
         self._handle_section_items(section, name)
         self._set_get_hidden_state_function(section)
-        
 
     def xy(self, layer = 'cnn', section = 'syllable', n = None,
         random_ground_truth = False, mean = True):
         self._handle_section(section)
+        self._set_get_hidden_state_function(section, multilayers = False)
         return super().xy(layer, n, random_ground_truth, 
             self.items_attribute_name, mean = mean)
+
+    def xy_multilayer(self, layers = ['cnn', 5, 11, 17, 23], 
+        section = 'syllable', n = None, random_ground_truth = False, 
+        mean = True):
+        self._handle_section(section)
+        self._set_get_hidden_state_function(section, multilayers = True)
+        return super().xy_multilayer(layers, n, random_ground_truth, 
+            self.items_attribute_name, mean = mean)
+
             
 def get_attribute_name(name):
     if name == 'cnn': return 'cnn'
@@ -142,11 +184,41 @@ def get_hidden_states(item, layer, mean = True):
     attribute = getattr(item, attribute_name)
     return attribute(**parameters)
 
+def get_hidden_states_multilayers(item, layers, mean = True):
+    hidden_states = item.hidden_states
+    layers_copy = layers.copy()
+    if 'codevector' in layers:
+        # codevector is not part of hidden states object 
+        layers_copy.remove('codevector')
+        add_codevector = True
+    else: add_codevector = False
+    d = lhs.load_layers_from_hidden_states(hidden_states, layers_copy, mean)
+    if add_codevector and d:
+        d['codevector'] = get_hidden_states(item, 'codevector', mean)
+    return d 
+
 def get_hidden_states_multiple_phonemes(phonemes, layer, mean = True):
     if not type(phonemes) == list: phonemes = [phonemes]
     o = lhs.phoneme_list_to_combined_hidden_states(phonemes, hs = layer, 
         mean = mean)
     return o
+
+def get_hidden_states_multilayers_multiple_phonemes(phonemes, layers, 
+    mean = True):
+    hidden_states_list = [p.hidden_states for p in phonemes]
+    layers_copy = layers.copy()
+    if 'codevector' in layers:
+        # codevector is not part of hidden states object 
+        layers_copy.remove('codevector')
+        add_codevector = True
+    else: add_codevector = False
+    d = lhs.load_layers_from_multiple_hidden_states(hidden_states_list,
+        layers_copy, mean) 
+    if add_codevector and d:
+        d['codevector'] = get_hidden_states_multiple_phonemes(phonemes, 
+            'codevector', mean)
+    return d
+    
     
 
 def item_to_stress(item, ground_truth_dict):
@@ -188,6 +260,19 @@ def handle_language_stress_info(language_name, si = None, sections = [],
             save_xy(X, y, language_name, section = section, layer = layer,
                 name = name)
     return si
+
+def check_dataset_existence(language_name, section, layers = [], 
+    name = ''):
+    output_layers = []
+    for layer in layers:
+        filename = make_dataset_filename(language_name, layer, section, 
+            name)
+        path = Path(filename)
+        if not path.exists(): 
+            print(f'file {filename} does not exist')
+            if layer not in output_layers:
+                output_layers.append(layer)
+    return output_layers
 
 def make_dataset_filename(language_name, layer, section, name = '', n = ''):
     from utils import perceptron
