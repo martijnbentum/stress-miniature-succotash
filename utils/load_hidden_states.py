@@ -16,6 +16,8 @@ def phoneme_list_to_combined_hidden_states(phoneme_list, hs = 'cnn',
             hidden_states = phoneme.cnn(mean = False)
         elif hs == 'codevector':
             hidden_states = phoneme.codevector(mean = False)
+        elif hs == 'hidden_states':
+            hidden_states = phoneme.hidden_states
         else:
             hidden_states = phoneme.transformer(layer = hs, mean = False)
         if hidden_states is None: continue
