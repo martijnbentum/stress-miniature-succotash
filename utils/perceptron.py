@@ -45,8 +45,8 @@ def handle_classifier_training(language_name, data_type, layer, section,
 
 def train_multiple_classifiers(language_name, data_type, layers, sections,
     number_classifiers = 30, name = '', n = '', max_iter = 3000,
-    overwrite = False):
-    for i in progressbar(range(number_classifiers)):
+    overwrite = False, start_index = 0):
+    for i in progressbar(range(start_index,number_classifiers)):
         for layer in layers:
             for section in sections:
                 classifier_filename = make_classifier_filename(language_name, 
@@ -61,13 +61,14 @@ def train_multiple_classifiers(language_name, data_type, layers, sections,
                     max_iter = max_iter)
 
 def handle_language_stress(language_name, layers = None, sections = None,
-    number_classifiers = 30, overwrite = False):
+    number_classifiers = 30, overwrite = False, start_index = 0):
     if not layers: layers = ['cnn', 5, 11, 17, 23]
     if not sections: sections = ['vowel']
     print(f'training classifiers for {language_name} stress')
     print(f'layers: {layers} sections: {sections}')
     train_multiple_classifiers(language_name, 'stress', layers, sections,
-        number_classifiers = number_classifiers, overwrite = overwrite)
+        number_classifiers = number_classifiers, overwrite = overwrite,
+        start_index = start_index)
     
 
 class Result:
