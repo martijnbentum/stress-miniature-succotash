@@ -5,8 +5,7 @@ import pickle
 from progressbar import progressbar
 from sklearn.metrics import matthews_corrcoef, accuracy_score
 from sklearn.metrics import classification_report
-from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import train_test_split
+from utils import stats
 
 class Results:
     def __init__(self, directory = '../results'):
@@ -27,6 +26,38 @@ class Results:
             r.result_type == result_type and
             r.layer == layer and r.section == section and r.name == name and
             r.n == n]
+
+    @property
+    def languages(self):
+        if not hasattr(self, '_languages'):
+            self._languages = list(set([r.language_name for r in self.results]))
+        return self._languages
+
+    @property
+    def result_types(self):
+        if not hasattr(self, '_result_types'):
+            self._result_types= list(set([r.result_type for r in self.results]))
+        return self._result_types
+
+    @property
+    def layers(self):
+        if not hasattr(self, '_layers'):
+            temp = list(set([r.layer for r in self.results]))
+            self._layers = []
+            if 'codevector' in temp:
+                self._layers.append('codevector') 
+                temp.remove('codevector')
+            if 'cnn' in temp:
+                self._layers.append('cnn')
+                temp.remove('cnn')
+            self._layers = self._layers + temp
+        return self._layers
+
+    @property
+    def sections(self):
+        if not hasattr(self, '_sections'):
+            self._sections = list(set([r.section for r in self.results]))
+        return self._sections
 
 
 class Result:
@@ -55,7 +86,7 @@ class Result:
         if not self.result_dict: self.to_dict()
 
     def __repr__(self):
-        return self.info 
+        return self.info_str 
 
     def __str__(self):
         m = f'result {self.result_filename}\n'
@@ -133,11 +164,19 @@ class Result:
             pickle.dump(self.result_dict, f)
 
     @property
-    def info(self):
+    def info_str(self):
         info = f'{self.language_name} {self.result_type} {self.layer}'
         info += f' {self.section} {self.name} {self.n} {self.random_state}'
         info += ' mcc: ' + str(round(self.mcc,3)) 
         return info
+
+    @property
+    def info(self):
+        names = 'language_name,result_type,layer,section,name,n,random_state'
+        output = []
+        for name in names.split(','):
+             output.append(getattr(self,name))
+        return output
 
     @property
     def categories(self):
@@ -148,6 +187,29 @@ class Result:
     def chance_accuracy(self):
         if self.y_test is None: return None
         return 1/len(self.categories)
+
+def to_mccs(results_list):
+    return [r.mcc for r in results_list]
+
+def _to_mcc_dict(mccs,language_name, classifier_name, mcc_dict = {}):
+    if len(mccs) == 0: 
+        raise ValueError('No mccs provided')
+    if not language_name in mcc_dict: mcc_dict[language_name] = {}
+    if not classifier_name in mcc_dict[language_name]:
+        mcc_dict[language_name][classifier_name] = {}
+    mcc_dict[language_name][classifier_name]['mccs'] = mccs
+    mean, sem, ci = stats.compute_mean_sem_ci(mccs)
+    mcc_dict[language_name][classifier_name]['mean'] = mean
+    mcc_dict[language_name][classifier_name]['sem'] = sem
+    mcc_dict[language_name][classifier_name]['ci'] = ci
+    return mcc_dict
+
+
+def results_filename_to_info(filename):
+    f = str(filename)
+    f = f.split('/')[-1].split('.')[0]
+    language_name,result_type,layer,section,name,n,random_state = f.split('_')
+    return language_name,result_type,layer,section,name,n,random_state
 
 
 def make_result_filename(language_name, result_type, layer, section, name, n,
