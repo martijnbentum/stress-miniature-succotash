@@ -24,8 +24,7 @@ def handle_language(language_name = 'dutch',
             return_stress_dict = True, 
             number_of_syllables = number_of_syllables)
     else: d = vowel_stress_dict
-    mccs = compute_acoustic_correlates_mccs(n = 30, vowel_stress_dict = d, 
-        name = language_name)
+    mccs = compute_acoustic_correlates_mccs(n = 30, vowel_stress_dict = d)
     if save:
         if name: name = f'_{name}'
         filename=f'../results/{language_name}_'
