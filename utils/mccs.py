@@ -8,24 +8,36 @@ import numpy as np
 from progressbar import progressbar
 from utils import density_classifier
 from utils import lda
+from utils import select
+from utils.results import Results, to_mccs, _to_mcc_dict
 
 def handle_language(language_name = 'dutch', 
-    dataset_name = 'COMMON VOICE',minimum_n_syllables = 2,
-    max_n_items_per_speaker = None, vowel_stress_dict = None):
+    dataset_name = 'COMMON VOICE',minimum_n_syllables = None, 
+    number_of_syllables = 2, name = '',
+    max_n_items_per_speaker = None, vowel_stress_dict = None, save = True):
     if not vowel_stress_dict:
-        d = select.select_vowels(language_name, dataset_name,
-            minimum_n_syllables, max_n_items_per_speaker, 
-            return_stress_dict = True)
+        d = select.select_vowels(
+            language_name = language_name, 
+            dataset_name = dataset_name,
+            minimum_n_syllables = minimum_n_syllables, 
+            max_n_items_per_speaker = max_n_items_per_speaker, 
+            return_stress_dict = True, 
+            number_of_syllables = number_of_syllables)
     else: d = vowel_stress_dict
-    mccs = compute_mccs_with_ci(n = 100, vowel_stress_dict = d, 
+    mccs = compute_mccs(n = 30, vowel_stress_dict = d, 
         name = language_name)
+    if save:
+        if name: name = f'_{name}'
+        filename=f'../results/{language_name}_'
+        filename+=f'_mccs_clf_acoustic_correlates{name}.json'
+        save_dict_to_json(mccs, filename)
     return mccs
     
-def compute_mccs_with_ci(n = 100, formant_data = None, intensities = None,
-    pitch = None, durations = None, spectral_tilts = None, 
-    combined_feature = None,vowel_stress_dict = None, name = '', save = True):
+def compute_acoustic_correlates_mccs(n = 30, formant_data = None, 
+    intensities = None, pitch = None, durations = None, spectral_tilts = None, 
+    combined_feature = None,vowel_stress_dict = None):
     mccs = {'formant':[], 'intensity':[], 'pitch':[], 'duration':[],
-        'spectral tilt','combined features':[]}
+        'spectral tilt':[],'combined features':[]}
     for key in mccs.keys():
         if key == 'formant':
             data = formant_data
@@ -52,11 +64,6 @@ def compute_mccs_with_ci(n = 100, formant_data = None, intensities = None,
             _ = clf.classification_report()
             mccs[key].append(clf.mcc)
         print(key, 'done',np.mean(mccs[key]), np.std(mccs[key]), mccs[key])
-    if save:
-        if name: name = f'_{name}'
-        filename = f'../mccs_density_clf_acoustic_correlates{name}.json'
-        dict_to_json(mccs, filename)
-    return mccs
 
 def make_formant_classifier(stress_distance = None, random_state=42,
        vowel_stress_dict = None, verbose = False):
@@ -66,7 +73,7 @@ def make_formant_classifier(stress_distance = None, random_state=42,
             vowel_stress_dict = vowel_stress_dict)
     stress = stress_distance['stress']
     no_stress = stress_distance['no_stress']
-    clf = Classifier(stress, no_stress, name = 'formant', 
+    clf = density_classifier.Classifier(stress, no_stress, name = 'formant', 
         random_state=random_state)
     return clf
     
@@ -78,7 +85,7 @@ def make_intensity_classifier(intensities = None, random_state=42,
             vowel_stress_dict = vowel_stress_dict)
     stress = intensities['stress']
     no_stress = intensities['no_stress']
-    clf = Classifier(stress, no_stress, name = 'intensity', 
+    clf = density_classifier.Classifier(stress, no_stress, name = 'intensity', 
         random_state=random_state)
     return clf
 
@@ -90,7 +97,7 @@ def make_pitch_classifier(pitch = None, random_state=42,
             vowel_stress_dict = vowel_stress_dict)
     stress = pitch['stress']
     no_stress = pitch['no_stress']
-    clf = Classifier(stress, no_stress, name = 'pitch', 
+    clf = density_classifier.Classifier(stress, no_stress, name = 'pitch', 
         random_state=random_state)
     return clf
 
@@ -103,7 +110,7 @@ def make_duration_classifier(durations = None, random_state=42,
     stress = durations['stress']
     no_stress = durations['no_stress']
     print('making classifier')
-    clf = Classifier(stress, no_stress, name = 'duration', 
+    clf = density_classifier.Classifier(stress, no_stress, name = 'duration', 
         random_state=random_state)
     return clf
 
@@ -129,17 +136,26 @@ def make_combined_feature_classifier(combined_feature = None, random_state=42,
         random_state = random_state)
     return clf
 
-    
+def save_dict_to_json(d, path):
+    with open(path, 'w') as f:
+        json.dump(d, f)
 
-'''
-def compute_mccs_with_ci(X,y, n = 100):
-    compute MCCs for the combined features dataset
-    mccs = {'combined':[]}
-    for i in progressbar(range(n)):
-        clf, data, report = train_lda(X, y, random_state = i)
-        mccs['combined'].append(report['mcc'])
-    print('done',np.mean(mccs['combined']), np.std(mccs['combined']))
-    density_classifier.dict_to_json(mccs, 
-        '../mccs_combined_features_lda_clf.json')
-    return mccs
-'''
+def results_to_mcc_dict(results = None, result_type = 'stress', 
+    section = 'vowel', mcc_dict = {}, save = True):
+    if not results:
+        results = Results()
+    for language_name in results.languages:
+        for layer in results.layers:
+            results_list = results.select_results(language_name, result_type,
+                layer, section)
+            if not results_list:
+                m = f'No results for {language_name} {result_type} '
+                m += f'{layer} {section}, skipping'
+                print(m)
+                continue
+            mccs = to_mccs(results_list)
+            _to_mcc_dict(mccs, language_name, layer, mcc_dict)
+    if save:
+        filename = f'../results/mccs_{result_type}_{section}.json'
+        save_dict_to_json(mcc_dict, filename)
+    return mcc_dict
