@@ -33,7 +33,7 @@ def handle_language(language_name = 'dutch',
     return mccs
     
 def compute_acoustic_correlates_mccs(n = 30, formant_data = None, 
-    intensities = None, pitch = None, durations = None, spectral_tilts = None, 
+    intensities = None, pitches = None, durations = None, spectral_tilts = None, 
     combined_feature = None,vowel_stress_dict = None):
     mccs = {'formant':[], 'intensity':[], 'pitch':[], 'duration':[],
         'spectral tilt':[],'combined features':[]}
@@ -45,7 +45,7 @@ def compute_acoustic_correlates_mccs(n = 30, formant_data = None,
             data = intensities
             function = make_intensity_classifier
         if key == 'pitch':
-            data = pitch
+            data = pitches
             function = make_pitch_classifier
         if key == 'duration':
             data = durations
@@ -88,14 +88,14 @@ def make_intensity_classifier(intensities = None, random_state=42,
         random_state=random_state)
     return clf
 
-def make_pitch_classifier(pitch = None, random_state=42,
+def make_pitch_classifier(pitches = None, random_state=42,
     vowel_stress_dict = None, verbose = False):
-    if not pitch: 
+    if not pitches: 
         if verbose:print('computing vowel pitch')
-        pitch= pitch.make_vowel_pitch_stress_dict(
+        pitches= pitch.make_vowel_pitch_stress_dict(
             vowel_stress_dict = vowel_stress_dict)
-    stress = pitch['stress']
-    no_stress = pitch['no_stress']
+    stress = pitches['stress']
+    no_stress = pitches['no_stress']
     clf = density_classifier.Classifier(stress, no_stress, name = 'pitch', 
         random_state=random_state)
     return clf
