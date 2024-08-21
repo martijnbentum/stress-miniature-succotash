@@ -105,7 +105,7 @@ def make_duration_classifier(durations = None, random_state=42,
     if not durations: 
         if verbose:print('computing vowel durations')
         durations = duration.make_vowel_duration_stress_dict(
-            vowel_stress_dict = None)
+            vowel_stress_dict = vowel_stress_dict)
     stress = durations['stress']
     no_stress = durations['no_stress']
     print('making classifier')
@@ -140,7 +140,11 @@ def save_dict_to_json(d, path):
         json.dump(d, f)
 
 def results_to_mcc_dict(results = None, result_type = 'stress', 
-    section = 'vowel', mcc_dict = {}, save = True):
+    section = 'vowel', mcc_dict = {}, save = False):
+    '''aggregate mccs from results to mcc_dict
+    the mccs are based on perceptrons trained on the layers in the wav2vec 2.0
+    model
+    '''
     if not results:
         results = Results()
     for language_name in results.languages:
@@ -158,3 +162,28 @@ def results_to_mcc_dict(results = None, result_type = 'stress',
         filename = f'../results/mccs_{result_type}_{section}.json'
         save_dict_to_json(mcc_dict, filename)
     return mcc_dict
+
+def plot_classifier_mccs(results, language_name = 'dutch', classifier = 'cnn',
+    new_figure = True):
+    pass
+
+def plot_language_mccs(results, language_name = 'dutch', new_figure = True):
+    plt.ion()
+    if new_figure: plt.figure()
+    plt.ylim(0,1)
+    for classifier in results[language].keys():
+        for key in results[language][layer].keys():
+            plt.plot(results[language][layer][key], label = key)
+        plt.title(f'{language} {layer}')
+        plt.legend()
+        plt.show()
+
+def plot_mccs(results = None, new_figure = True):
+    plt.ion()
+    if new_figure: plt.figure()
+    plt.ylim(0,1)
+    for language in results.keys():
+        for layer in results[language].keys():
+            pass
+
+        
