@@ -5,6 +5,7 @@ from audio import pitch
 from audio import combined_features
 from audio import frequency_band
 import json
+from matplotlib import pyplot as plt
 import numpy as np
 from progressbar import progressbar
 from utils import density_classifier
@@ -164,27 +165,50 @@ def results_to_mcc_dict(results = None, result_type = 'stress',
         save_dict_to_json(mcc_dict, filename)
     return mcc_dict
 
-def plot_classifier_mccs(results, language_name = 'dutch', classifier = 'cnn',
-    new_figure = True):
-    pass
 
-def plot_language_mccs(results, language_name = 'dutch', new_figure = True):
+def _plot_language_mccs(mcc_result_dict, language_name = 'dutch', 
+    new_figure = True, offset = 0, color = 'black'):
     plt.ion()
     if new_figure: plt.figure()
     plt.ylim(0,1)
-    for classifier in results[language].keys():
-        for key in results[language][layer].keys():
-            plt.plot(results[language][layer][key], label = key)
-        plt.title(f'{language} {layer}')
-        plt.legend()
-        plt.show()
+    d = mcc_result_dict[language_name]
+    x = np.arange(len(d)) + offset
+    means = [d[layer]['mean'] for layer in d.keys()]
+    cis = [d[layer]['ci'] for layer in d.keys()]
+    plt.errorbar(x, means, yerr = cis, label = language_name, markersize = 12,
+        color = color, fmt = ',', elinewidth = 2.5, capsize = 9, 
+        capthick = 1.5)
+    if abs(x[0]) < 0.01:
+        plt.xticks(x, d.keys(), rotation = 45)
+    plt.ylabel('Matthews correlation coefficient')
 
-def plot_mccs(results = None, new_figure = True):
+def _plot_vertical_lines(n_categories, width = 1):
+    x = np.arange(n_categories)
+    offset = width / 2
+    for i in range(n_categories):
+        if i % 2 == 0:
+            plt.axvspan(x[i] - offset, x[i] + offset, color = 'grey', 
+                alpha = .1) 
+    
+def plot_mccs(mcc_result_dict = None, new_figure = True):
+    if not mcc_result_dict:
+        with open('../results/mccs_stress_vowel.json') as f:
+            mcc_result_dict = json.load(f)
     plt.ion()
     if new_figure: plt.figure()
     plt.ylim(0,1)
-    for language in results.keys():
-        for layer in results[language].keys():
-            pass
+    n_languages = len(mcc_result_dict.keys())
+    delta_offset = 1 / n_languages
+    offset = 0 - delta_offset
+    colors = plt.get_cmap('tab10').colors
+    for i,language in enumerate(mcc_result_dict.keys()):
+        print('plotting', language)
+        _plot_language_mccs(mcc_result_dict, language, new_figure = False, 
+            offset = offset, color = colors[i])
+        offset += delta_offset
+    n_categories = len(mcc_result_dict[language].keys())
+    _plot_vertical_lines(n_categories)
+    plt.legend()
+    plt.grid(alpha = .5, axis = 'y')
 
         
