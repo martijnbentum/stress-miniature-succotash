@@ -3,6 +3,7 @@ from audio import formants
 from audio import intensity
 from audio import pitch
 from audio import combined_features
+from audio import frequency_band
 import json
 import numpy as np
 from progressbar import progressbar
@@ -117,7 +118,7 @@ def make_spectral_tilt_classifier(spectral_tilts = None, random_state=42,
     vowel_stress_dict = None, verbose = False):
     if not spectral_tilts: 
         if verbose: print('computing vowel spectral tilts')
-        spectral_tilts = formants.make_dataset(
+        spectral_tilts = frequency_band.make_dataset(
             vowel_stress_dict = vowel_stress_dict)
     X, y = spectral_tilts
     clf = frequency_band.train_lda(X, y, report = True, 
