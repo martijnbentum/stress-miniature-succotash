@@ -22,7 +22,7 @@ def load_language_words(language_name):
         dataset=dataset)
     return words
 
-def handle_hungarian():
+def handle_hungarian(word_start_index = 0):
     '''In Hungarian, the stress is mostly on the first syllable.'''
     words = load_language_words('hungarian')
     print('n hungarian words:', words.count())
@@ -33,12 +33,15 @@ def handle_hungarian():
     print('n hungarian words after exclusion:', words.count())
     stress_syllables = []
     no_stress_syllables = []
-    for word in progressbar(words):
-        stress_syllable = word.syllables[0]
+    print('starting from word:', word_start_index)
+    for word in progressbar(words[word_start_index:]):
+        syllables = word.syllables
+        if not syllables: continue
+        stress_syllable = syllables[0]
         handle_syllable(stress_syllable, True)
         stress_syllables.append(stress_syllable)
         if len(word.syllables) > 1:
-            for syllable in word.syllables[1:]:
+            for syllable in syllables[1:]:
                 handle_syllable(syllable, False)
                 no_stress_syllables.append(syllable)
     print('n stress syllables:', len(stress_syllables))
@@ -97,9 +100,27 @@ def handle_french():
     words = load_language_words('french')
     for word in progressbar(words):
         syllables = word.syllables
+        if not syllables: continue
         stress_syllable = syllables[-1]
         vowel = stress_syllable.vowel[0]
         if vowel == 'ə': stress_syllable == None
+        for syllable in syllables:
+            if syllable == stress_syllable:
+                handle_syllable(syllable, True)
+            else:
+                handle_syllable(syllable, False)
+
+def handle_spanish():
+    words = load_language_words('spanish')
+    for word in progressbar(words):
+        syllables = word.syllables
+        if not syllables: continue
+        if len(syllables) == 1:
+            stress_syllable = syllables[0]
+        elif word.word.endswith('n') or word.word.endswith('s'):
+            stress_syllable = syllables[-2]
+        elif word.phonemes and 'consonant' in word.phonemes[-1].bpcs_str: 
+            stress_syllable = syllables[-1]
         for syllable in syllables:
             if syllable == stress_syllable:
                 handle_syllable(syllable, True)
