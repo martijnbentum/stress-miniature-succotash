@@ -37,8 +37,8 @@ def handle_language(language_name = 'dutch',
 def compute_acoustic_correlates_mccs(n = 30, formant_data = None, 
     intensities = None, pitches = None, durations = None, spectral_tilts = None, 
     combined_feature = None,vowel_stress_dict = None):
-    mccs = {'formant':[], 'intensity':[], 'pitch':[], 'duration':[],
-        'spectral tilt':[],'combined features':[]}
+    mccs = {'spectral tilt':[], 'combined features':[], 'formant':[], 
+        'intensity':[], 'pitch':[], 'duration':[]}
     for key in mccs.keys():
         if key == 'formant':
             data = formant_data
@@ -62,8 +62,11 @@ def compute_acoustic_correlates_mccs(n = 30, formant_data = None,
         for i in progressbar(range(n)):
             clf = function(data, random_state=i, 
                 vowel_stress_dict = vowel_stress_dict)
-            _ = clf.classification_report()
-            mccs[key].append(clf.mcc)
+            if key == 'spectral tilt' or key == 'combined features':
+                mccs[key].append(clf[-1]['mcc'])
+            else:
+                _ = clf.classification_report()
+                mccs[key].append(clf.mcc)
         print(key, 'done',np.mean(mccs[key]), np.std(mccs[key]), mccs[key])
 
 def make_formant_classifier(stress_distance = None, random_state=42,
@@ -122,9 +125,8 @@ def make_spectral_tilt_classifier(spectral_tilts = None, random_state=42,
         spectral_tilts = frequency_band.make_dataset(
             vowel_stress_dict = vowel_stress_dict)
     X, y = spectral_tilts
-    clf = frequency_band.train_lda(X, y, report = True, 
+    return frequency_band.train_lda(X, y, report = True, 
         random_state = random_state)
-    return clf
 
 def make_combined_feature_classifier(combined_feature = None, random_state=42,
     vowel_stress_dict = None, verbose = False):
@@ -133,9 +135,8 @@ def make_combined_feature_classifier(combined_feature = None, random_state=42,
         combined_feature = combined_features.make_dataset(
             vowel_stress_dict = vowel_stress_dict)
     X, y = combined_feature
-    clf = combined_features.train_lda(X, y, report = True, 
+    return combined_features.train_lda(X, y, report = True, 
         random_state = random_state)
-    return clf
 
 def save_dict_to_json(d, path):
     with open(path, 'w') as f:
