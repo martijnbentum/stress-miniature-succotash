@@ -30,7 +30,7 @@ def handle_language(language_name = 'dutch',
     if save:
         if name: name = f'_{name}'
         filename=f'../results/{language_name}_'
-        filename+=f'_mccs_clf_acoustic_correlates{name}.json'
+        filename+=f'vowel_mccs_clf_acoustic_correlates{name}.json'
         save_dict_to_json(mccs, filename)
     return mccs
     
@@ -68,6 +68,7 @@ def compute_acoustic_correlates_mccs(n = 30, formant_data = None,
                 _ = clf.classification_report()
                 mccs[key].append(clf.mcc)
         print(key, 'done',np.mean(mccs[key]), np.std(mccs[key]), mccs[key])
+    return mccs
 
 def make_formant_classifier(stress_distance = None, random_state=42,
        vowel_stress_dict = None, verbose = False):
