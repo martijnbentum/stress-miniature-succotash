@@ -1,6 +1,6 @@
 ## Overview of the acoustic correlates of stress for Dutch, German and English
 
-### words with exactly two syllables (Dutch, German and English)
+### Words with exactly two syllables (Dutch, German and English)
 Intensity, duration, formant peripherality, pitch, spectral tilt (used LDA to compute a single value) and all acoustic features combined.
 
 Stressed syllables are typically louder (higher intensity), have a longer duration, the formants F1 & F2 are more peripheral, have a shallower spectral tilt. The distributions of stressed and unstressed vowel shown below for Dutch, German and English show tendencies in the expected directions
@@ -17,6 +17,10 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 
 <img width="1888" alt="Screenshot 2024-08-12 at 11 54 15" src="https://github.com/user-attachments/assets/9f5b2d48-c9f8-467f-8fe8-9592851a710c">
 
+
+### Classifier performance based on acoustic correlates of stress and wav2vec 2 embeddings
+
+<img width="1861" alt="Screenshot 2024-08-22 at 11 26 18" src="https://github.com/user-attachments/assets/49b0d9db-ff86-4e60-bc56-acd963c1f202">
 
 
 
