@@ -73,12 +73,13 @@ def _handle_polish_exceptions(word, syllables):
         handle_syllable(syllable, False)
     return True
 
-def handle_polish():
+def handle_polish(start_index = 0):
     '''In Polish, the stress is mostly on the penultimate syllable.'''
     words = load_language_words('polish')
     exceptions, stress_syllables, no_stress_syllables = [], [], []
-    for word in progressbar(words):
+    for word in progressbar(words[start_index:]):
         syllables = word.syllables
+        if not syllables: continue
         exception = _handle_polish_exceptions(word, syllables)
         if exception:
             exceptions.append(word)
