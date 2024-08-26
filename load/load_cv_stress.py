@@ -12,6 +12,10 @@ def handle_language(language_name):
         handle_hungarian()
     if language_name == 'polish':
         handle_polish()
+    if language_name == 'french':
+        handle_french()
+    if language_name == 'spanish':
+        handle_spanish()
 
 
 def load_language_words(language_name):
@@ -103,7 +107,8 @@ def handle_french():
         syllables = word.syllables
         if not syllables: continue
         stress_syllable = syllables[-1]
-        vowel = stress_syllable.vowel[0]
+        if len(stress_syllable.vowel) == 0: vowel = None
+        else: vowel = stress_syllable.vowel[0]
         if vowel == 'ə': stress_syllable == None
         for syllable in syllables:
             if syllable == stress_syllable:
