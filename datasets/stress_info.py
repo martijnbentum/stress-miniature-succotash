@@ -223,7 +223,7 @@ def get_hidden_states_multilayers_multiple_phonemes(phonemes, layers,
 
 def item_to_stress(item, ground_truth_dict):
     if type(item) == list: item = item[0]
-    if not item.stress: return None
+    if item.stress is None: return None
     return ground_truth_dict[item.stress]
 
 def item_to_word_type(item, ground_truth_dict):
