@@ -28,9 +28,16 @@ def handle_classifier_training(language_name, data_type, layer, section,
     print('training classifier')
     y_test, hyp, clf = train_mlp_classifier(X, y, random_state = rs, 
         max_iter = max_iter)
-    result = Result(y_test = y_test, hyp = hyp, language_name = language_name,
+    classifier_filename = make_classifier_filename(language_name, 
+        data_type, layer, section, name, n, rs)
+    dataset_filename = make_dataset_filename(language_name, data_type, layer, 
+        section, name, n)
+    result = results.Result(y_test = y_test, hyp = hyp, 
+        language_name = language_name,
         layer = layer, section = section, name = name, n = n, 
-        random_state = rs, result_type = data_type)
+        random_state = rs, result_type = data_type,
+        dataset_filename = dataset_filename, 
+        classifier_filename = classifier_filename)
     print(result)
     result.save()
     save_classifier(clf, language_name, data_type, layer, section, name, n, rs)
@@ -38,7 +45,7 @@ def handle_classifier_training(language_name, data_type, layer, section,
     return clf, result
 
 def train_multiple_classifiers(language_name, data_type, layers, sections,
-    number_classifiers = 30, name = '', n = '', max_iter = 3000,
+    number_classifiers = 20, name = '', n = '', max_iter = 3000,
     overwrite = False, start_index = 0):
     for i in progressbar(range(start_index,number_classifiers)):
         for layer in layers:
