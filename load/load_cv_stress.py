@@ -169,5 +169,17 @@ def handle_syllable(syllable, stress):
         phoneme.stress = stress
         phoneme.save()
          
+def fix_word_stress(word):
+    '''set stress to None if word does not have exactly one stressed syllable.
+    '''
+    syllables = word.syllables
+    if not syllables: return
+    stress_is_none = sum([s.stress == None for s in syllables]) > 0 
+    if stress_is_none: return 
+    n_stressed = sum([s.stress for s in syllables])
+    if n_stressed == 1: return False
+    for syllable in syllables:
+        handle_syllable(syllable, None)
+    return True
 
         
