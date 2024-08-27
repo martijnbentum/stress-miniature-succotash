@@ -2,6 +2,7 @@ from utils import locations
 from pathlib import Path
 import pickle
 from progressbar import progressbar
+from utils import results
 from sklearn.metrics import matthews_corrcoef, accuracy_score
 from sklearn.metrics import classification_report
 from sklearn.neural_network import MLPClassifier
