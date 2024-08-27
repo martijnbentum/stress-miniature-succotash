@@ -125,7 +125,7 @@ def select_words(language_name = None, dataset_name = None,
     if minimum_n_syllables is not None:
         words = words.filter(n_syllables__gt = minimum_n_syllables - 1)
     if number_of_syllables is not None:
-        word = word.filter(word__n_syllables = number_of_syllables)
+        words = words.filter(word__n_syllables = number_of_syllables)
     if word is not None:
         words = words.filter(word=word)
     return words
