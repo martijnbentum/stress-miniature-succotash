@@ -63,7 +63,7 @@ def train_multiple_classifiers(language_name, data_type, layers, sections,
                     max_iter = max_iter)
 
 def handle_language_stress(language_name, layers = None, sections = None,
-    number_classifiers = 30, overwrite = False, start_index = 0):
+    number_classifiers = 20, overwrite = False, start_index = 0):
     if not layers: layers = ['codevector', 'cnn', 5, 11, 17, 23]
     if not sections: sections = ['vowel']
     print(f'training classifiers for {language_name} stress')
