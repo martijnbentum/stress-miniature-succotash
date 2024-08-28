@@ -127,8 +127,11 @@ def handle_spanish():
             stress_syllable = syllables[-2]
         elif word.phonemes and 'consonant' in word.phonemes[-1].bpcs_str: 
             stress_syllable = syllables[-1]
+        else: stress_syllable = None
         for syllable in syllables:
-            if syllable == stress_syllable:
+            if stress_syllable == None:
+                handle_syllable(syllable, None)
+            elif syllable == stress_syllable:
                 handle_syllable(syllable, True)
             else:
                 handle_syllable(syllable, False)
