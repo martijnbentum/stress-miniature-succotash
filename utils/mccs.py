@@ -28,7 +28,7 @@ def handle_language(language_name = 'dutch',
             return_stress_dict = True, 
             number_of_syllables = number_of_syllables)
     else: d = vowel_stress_dict
-    mccs = compute_acoustic_correlates_mccs(n = 30, vowel_stress_dict = d)
+    mccs = compute_acoustic_correlates_mccs(n = 20, vowel_stress_dict = d)
     if save:
         if name: name = f'_{name}'
         filename=f'../results/{language_name}_'
@@ -36,7 +36,7 @@ def handle_language(language_name = 'dutch',
         save_dict_to_json(mccs, filename)
     return mccs
     
-def compute_acoustic_correlates_mccs(n = 30, formant_data = None, 
+def compute_acoustic_correlates_mccs(n = 20, formant_data = None, 
     intensities = None, pitches = None, durations = None, spectral_tilts = None, 
     combined_feature = None,vowel_stress_dict = None):
     mccs = {'spectral tilt':[], 'combined features':[], 'formant':[], 
