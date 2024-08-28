@@ -21,14 +21,14 @@ def balance_speakers(items, max_n_items_per_speaker = 100):
 def make_stress_dict(items):
     d = {'stress':[],'no_stress':[]}
     for item in items:
-        if item.stress:d['stress'].append(item)
-        else:d['no_stress'].append(item)
+        if item.stress == True:d['stress'].append(item)
+        elif item.stress == False:d['no_stress'].append(item)
     return d
 
 def select_vowels(language_name, dataset_name = 'COMMON VOICE',
     minimum_n_syllables = 2, number_of_syllables = None, 
     max_n_items_per_speaker = None,
-    exclude_diphtong = True, return_stress_dict = False):
+    exclude_diphtong = False, return_stress_dict = False):
     '''
     Collects the stress and no stress vowels for a given language.
     '''
