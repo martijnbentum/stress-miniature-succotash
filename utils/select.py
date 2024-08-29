@@ -106,10 +106,41 @@ def select_syllables(language_name = None, dataset_name = 'COMMON VOICE',
         syllables = balance_speakers(syllables, max_n_items_per_speaker)
     return syllables
     
+def _filter_words_without_stress_annotation(words):
+    output, exclude = [], []
+    print('filtering words without stress annotation, returning word list')
+    for word in words:
+        bad = False
+        for syllable in word.syllables:
+            if syllable.stress is None: bad = True
+        if bad: exclude.append(word)
+        else: output.append(word)
+    return output, exclude
     
+def _remove_words_with_diphtongs(words):
+    output, exclude = [], []
+    print('removing words with diphtongs, returning word list')
+    for word in words:
+        bpcs_str = ','.join([x.bpcs_str for x in word.phonemes])
+        if 'diphtong' in bpcs_str: exclude.append(word)
+        else: output.append(word)
+    return output, exclude
+
+def _retain_words_with_one_vowel_per_syllable(words):
+    output, exclude = [], []
+    print('retaining words with one vowel per syllable, returning word list')
+    for word in words:
+        syllables = word.syllables
+        bad = False
+        for syllable in syllables:
+            if len(syllable.vowel) != 1: bad = True
+        if bad: exclude.append(word) 
+        else: output.append(word)
+    return output, exclude
 
 def select_words(language_name = None, dataset_name = None, 
-    minimum_n_syllables = None, number_of_syllables = None, word = None):
+    minimum_n_syllables = None, number_of_syllables = None, word = None,
+    no_diphthongs = False, one_vowel_per_syllable = False, has_stress = False):
     '''
     Select words based on language, dataset and number of syllables.
     '''
@@ -125,9 +156,22 @@ def select_words(language_name = None, dataset_name = None,
     if minimum_n_syllables is not None:
         words = words.filter(n_syllables__gt = minimum_n_syllables - 1)
     if number_of_syllables is not None:
-        words = words.filter(word__n_syllables = number_of_syllables)
+        words = words.filter(n_syllables = number_of_syllables)
     if word is not None:
         words = words.filter(word=word)
+    if has_stress:
+        words, exclude = _filter_words_without_stress_annotation(words)
+        print('excluded words:',len(exclude), 'based on stress annotation')
+        print('remaining words:',len(words))
+    if no_diphthongs:
+        words, exclude = _remove_words_with_diphtongs(words)
+        print('excluded words:',len(exclude), 'based on exclusion of diphtongs')
+        print('remaining words:',len(words))
+    if one_vowel_per_syllable:
+        print('excluded words:',len(exclude), 
+            'based on words with one vowel per syllable')
+        print('remaining words:',len(words))
+        words, exclude = _retain_words_with_one_vowel_per_syllable(words)
     return words
 
 def select_language(language_name):
