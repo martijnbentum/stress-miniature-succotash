@@ -9,8 +9,8 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 |----------|--------------|----------|
 | Dutch    | Stress       |   157,760|
 | Dutch    | No Stress    |   157,760|
-| German   | Stress       |   373,553|
-| German   | No Stress    |   675,786|
+| German   | Stress       |   264,963|
+| German   | No Stress    |   264,963|
 | English  | Stress       |   523,453|
 | English  | No Stress    |   523,453|
 | Polish   | Stress       |   320,937|
