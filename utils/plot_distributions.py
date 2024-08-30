@@ -64,16 +64,20 @@ def plot_stress_no_stress_distributions(value_dict, new_figure = True,
 
 def get_all_data(language_name = 'dutch', dataset_name = 'COMMON VOICE',
     minimum_n_syllables = None, number_of_syllables = None, 
-    max_n_items_per_speaker = None, vowel_stress_dict = None):
+    max_n_items_per_speaker = None, vowel_stress_dict = None,
+    no_diphthongs = True, one_vowel_per_syllable = True, has_stress = True):
     if not vowel_stress_dict:
-        d = select.select_vowels(
-            language_name = language_name, 
-            dataset_name = dataset_name,
-            minimum_n_syllables = minimum_n_syllables, 
-            max_n_items_per_speaker = max_n_items_per_speaker, 
-            return_stress_dict = True, 
-            number_of_syllables = number_of_syllables)
-    else: d = vowel_stress_dict
+        words = select.select_words(language_name = language_name,
+            dataset_name = dataset_name, 
+            minimum_n_syllables = minimum_n_syllables,
+            number_of_syllables = number_of_syllables, 
+            no_diphthongs = no_diphthongs, 
+            one_vowel_per_syllable = one_vowel_per_syllable, 
+            has_stress = has_stress)
+        syllables = select.words_to_syllables(words)
+        vowels = select.syllables_to_vowels(syllables)
+        vowel_stress_dict = select.make_stress_dict(vowels)
+    d = vowel_stress_dict
     print('Processing durations')
     durations = duration.make_vowel_duration_stress_dict(vowel_stress_dict = d)
     print('Processing formants')
@@ -174,28 +178,28 @@ def plot_languages(language_names = ['dutch','german', 'english'],
             all_data[language] = o
     return all_data
 
-def save_all_data_dutch_german_english(all_data, filename = ''):
+def save_all_data_dutch_german_english_polish_hungarian(all_data,filename = ''):
     if not filename:
         filename = '../data/acoustic_correlates'
-        filename += '_dutch-german-english_n-sylalbles-2.pickle'
+        filename+= '_dutch-german-english-polish-hungarian_n-syllables-2.pickle'
     with open(filename, 'wb') as f:
         pickle.dump(all_data, f)
     
-def load_all_data_dutch_german_english(filename = ''):
+def load_all_data_dutch_german_english_polish_hungarian(filename = ''):
     if not filename:
         filename = '../data/acoustic_correlates'
-        filename += '_dutch-german-english_n-sylalbles-2.pickle'
+        filename+= '_dutch-german-english-polish-hungarian_n-syllables-2.pickle'
     with open(filename, 'rb') as f:
         all_data = pickle.load(f)
     return all_data
     
-def make_all_data_dutch_german_english(save = False):
+def make_all_data_dutch_german_english_polish_hungarian(save = False):
     all_data = {}
-    for language_name in ['dutch','german','english']:
+    for language_name in ['dutch','german','english', 'polish', 'hungarian']:
         print('Processing', language_name)
         all_data[language_name] = get_all_data(language_name, 
             number_of_syllables = 2)
-    if save: save_all_data_dutch_german_english(all_data)
+    if save: save_all_data_dutch_german_english_polish_hungarian(all_data)
     return all_data
     
     
