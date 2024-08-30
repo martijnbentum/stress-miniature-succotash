@@ -244,8 +244,13 @@ def handle_language_stress_info(language_name, si = None, sections = [],
     if not layers: layers = ['codevector','cnn', 5,11,17,23]
     if si is None: 
         print('selecting syllables')
-        syllables = select.select_syllables(language_name, 
-            number_of_syllables = 2)
+        words = select.select_words(language_name = language_name,
+            dataset_name = 'COMMON VOICE', 
+            number_of_syllables = 2,
+            no_diphtongs = True,
+            one_vowel_per_syllable = True,
+            has_stress = True)
+        syllables = select.words_to_syllables(words)
         print('creating StressInfo object')
         si = StressInfo(syllables)
     for section in sections:
