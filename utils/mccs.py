@@ -18,23 +18,30 @@ from utils import stats
 def handle_language(language_name = 'dutch', 
     dataset_name = 'COMMON VOICE',minimum_n_syllables = None, 
     number_of_syllables = 2, name = '',
-    max_n_items_per_speaker = None, vowel_stress_dict = None, save = True):
+    max_n_items_per_speaker = None, vowel_stress_dict = None, save = True,
+    no_diphthongs = True, one_vowel_per_syllable = True, has_stress = True,
+    do_mccs_computations = True):
     if not vowel_stress_dict:
-        d = select.select_vowels(
-            language_name = language_name, 
-            dataset_name = dataset_name,
-            minimum_n_syllables = minimum_n_syllables, 
-            max_n_items_per_speaker = max_n_items_per_speaker, 
-            return_stress_dict = True, 
-            number_of_syllables = number_of_syllables)
-    else: d = vowel_stress_dict
-    mccs = compute_acoustic_correlates_mccs(n = 20, vowel_stress_dict = d)
+        words = select.select_words(language_name = language_name,
+            dataset_name = dataset_name, 
+            minimum_n_syllables = minimum_n_syllables,
+            number_of_syllables = number_of_syllables, 
+            no_diphthongs = no_diphthongs, 
+            one_vowel_per_syllable = one_vowel_per_syllable, 
+            has_stress = has_stress)
+        syllables = select.words_to_syllables(words)
+        vowels = select.syllables_to_vowels(syllables)
+        vowel_stress_dict = select.make_stress_dict(vowels)
+    d = vowel_stress_dict
+    if do_mccs_computations:
+        mccs = compute_acoustic_correlates_mccs(n = 20, vowel_stress_dict = d)
+    else: mccs = None
     if save:
         if name: name = f'_{name}'
         filename=f'../results/{language_name}_'
         filename+=f'vowel_mccs_clf_acoustic_correlates{name}.json'
         save_dict_to_json(mccs, filename)
-    return mccs
+    return mccs, vowel_stress_dict
     
 def compute_acoustic_correlates_mccs(n = 20, formant_data = None, 
     intensities = None, pitches = None, durations = None, spectral_tilts = None, 
