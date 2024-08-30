@@ -31,6 +31,7 @@ def plot_stress_no_stress_distributions(value_dict, new_figure = True,
     dict should contain stress no_stress keys with lists of values 
     (e.g. duration)
     '''
+    print(xlim,'xlim')
     d = value_dict
     plt.ion()
     if new_figure: plt.figure()
@@ -144,18 +145,22 @@ def plot_all_acoustic_features(language_name = 'dutch',
     plt.subplot(nrows,6,plot_index + 5)
     frequency_band.plot_lda_hist(**data['spectral_tilt'],
         new_figure = False, minimal_frame = True, plot_density = plot_density,
-        add_left = False, add_legend = False, ylim = ylim, **kwargs)
+        add_left = False, add_legend = False, ylim = ylim, xlim = (-5,5),
+        **kwargs)
     plt.subplot(nrows,6,plot_index + 6)
     add_legend = True if row_index == nrows else False
     combined_features.plot_lda_hist(**data['combined'],
         new_figure = False, minimal_frame = True, plot_density = plot_density,
-        add_left = False, add_legend = add_legend, ylim = ylim, **kwargs)
+        add_left = False, add_legend = add_legend, ylim = ylim, xlim = (-5,5),
+        **kwargs)
     return data
 
     
-def plot_languages(language_names = ['dutch','german', 'english'],
+def plot_languages(language_names = [],
     all_data = None, minimum_n_syllables = 1, max_n_items_per_speaker = None,
     plot_density = True):
+    if not language_names: 
+        language_names = ['dutch','german','english', 'polish', 'hungarian']
     if not all_data:
         all_data = {}
         for language_name in language_names:
