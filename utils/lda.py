@@ -41,7 +41,6 @@ def plot_lda_hist(X, y, clf = None, new_figure = True,
     d = {}
     d['stress'] = tf[y==1].ravel()
     d['no_stress'] = tf[y==0].ravel()
-    print('xlimmm', xlim)
     plot_distributions.plot_stress_no_stress_distributions(d, 
         new_figure = new_figure, minimal_frame = minimal_frame,
         ylim = ylim, add_left = add_left, add_legend = add_legend,

@@ -31,7 +31,6 @@ def plot_stress_no_stress_distributions(value_dict, new_figure = True,
     dict should contain stress no_stress keys with lists of values 
     (e.g. duration)
     '''
-    print(xlim,'xlim')
     d = value_dict
     plt.ion()
     if new_figure: plt.figure()
