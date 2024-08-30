@@ -1,4 +1,4 @@
-## Overview of the acoustic correlates of stress for Dutch, German and English
+## Overview of the acoustic correlates of stress for Dutch, German, English, Polish
 
 ### Words with exactly two syllables (Dutch, German and English)
 Intensity, duration, formant peripherality, pitch, spectral tilt (used LDA to compute a single value) and all acoustic features combined.
@@ -7,12 +7,16 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 
 | Language | Stress Type  |   Count  |
 |----------|--------------|----------|
-| Dutch    | Stress       |   177,014|
-| Dutch    | No Stress    |   177,014|
-| German   | Stress       |   373,553|
-| German   | No Stress    |   675,786|
-| English  | Stress       |   555,360|
-| English  | No Stress    |   781,921|
+| Dutch    | Stress       |   157,760|
+| Dutch    | No Stress    |   157,760|
+| German   | Stress       |   264,963|
+| German   | No Stress    |   264,963|
+| English  | Stress       |   523,453|
+| English  | No Stress    |   523,453|
+| Polish   | Stress       |   320,937|
+| Polish   | No Stress    |   320,937|
+| Hungarian| Stress       |   104,970|
+| Hungarian| No Stress    |   104,970|
 
 
 <img width="1888" alt="Screenshot 2024-08-12 at 11 54 15" src="https://github.com/user-attachments/assets/9f5b2d48-c9f8-467f-8fe8-9592851a710c">
