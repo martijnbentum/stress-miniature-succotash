@@ -19,7 +19,7 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 | Hungarian| No Stress    |   104,970|
 
 
-<img width="1888" alt="Screenshot 2024-08-12 at 11 54 15" src="https://github.com/user-attachments/assets/9f5b2d48-c9f8-467f-8fe8-9592851a710c">
+<img width="1903" alt="Screenshot 2024-08-30 at 12 29 32" src="https://github.com/user-attachments/assets/47e14311-a007-47fd-9811-ef44fc02ec80">
 
 
 ### Classifier performance based on acoustic correlates of stress and wav2vec 2 embeddings
