@@ -81,6 +81,17 @@ def select_phonemes(language_name = None, stress = None, dataset_name = None,
         phonemes = balance_speakers(phonemes, max_n_items_per_speaker)
     return phonemes
 
+def syllables_to_vowels(syllables):
+    '''
+    Convert a list of syllables to a list of vowels.
+    '''
+    vowels = []
+    for syllable in syllables:
+        if len(syllable.vowel) == 0: continue
+        vowels.append( syllable.vowel[0] )
+    return vowels
+    
+
 def select_syllables(language_name = None, dataset_name = 'COMMON VOICE',
     minimum_n_syllables = None, number_of_syllables = None,
     max_n_items_per_speaker = None):
@@ -138,6 +149,15 @@ def _retain_words_with_one_vowel_per_syllable(words):
         else: output.append(word)
     return output, exclude
 
+def words_to_syllables(words):
+    '''
+    Convert a list of words to a list of syllables.
+    '''
+    syllables = []
+    for word in words:
+        syllables += word.syllables
+    return syllables
+
 def select_words(language_name = None, dataset_name = None, 
     minimum_n_syllables = None, number_of_syllables = None, word = None,
     no_diphthongs = False, one_vowel_per_syllable = False, has_stress = False):
@@ -168,10 +188,10 @@ def select_words(language_name = None, dataset_name = None,
         print('excluded words:',len(exclude), 'based on exclusion of diphtongs')
         print('remaining words:',len(words))
     if one_vowel_per_syllable:
+        words, exclude = _retain_words_with_one_vowel_per_syllable(words)
         print('excluded words:',len(exclude), 
             'based on words with one vowel per syllable')
         print('remaining words:',len(words))
-        words, exclude = _retain_words_with_one_vowel_per_syllable(words)
     return words
 
 def select_language(language_name):
