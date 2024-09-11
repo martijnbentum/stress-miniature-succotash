@@ -24,7 +24,8 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 
 ### Classifier performance based on acoustic correlates of stress and wav2vec 2 embeddings
 
-<img width="1912" alt="Screenshot 2024-09-11 at 17 28 08" src="https://github.com/user-attachments/assets/398c75f6-55b6-4f6e-b677-1347447666ae">
+<img width="1910" alt="Screenshot 2024-09-11 at 17 30 31" src="https://github.com/user-attachments/assets/f68e34fe-6f13-48c9-9e98-3cb957090ed2">
+
 
 
 
