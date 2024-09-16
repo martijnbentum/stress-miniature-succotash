@@ -41,6 +41,18 @@ def word_to_info(word):
     name = word.word
     return start_time, end_time, identifier, name
 
+def audio_filename_to_vector(audio_filename, model = None, gpu = False,
+    save_pickle = False):
+    if not model: 
+        model = load.load_pretrained_model(gpu = gpu)
+    outputs = to_vector.filename_to_vector(audio_filename, model = model, 
+        gpu = gpu)
+    if save_pickle:
+        pickle_filename = audio_filename.replace('.wav', '.pickle')
+        with open(pickle_filename, 'wb') as fout:
+            pickle.dump(outputs)
+    return outputs
+
 '''
 no speed up
 def audio_to_hidden_states(audio, model = False, gpu = False):
