@@ -256,7 +256,8 @@ def _plot_vertical_lines(n_categories, width = 1):
             plt.axvspan(x[i] - offset, x[i] + offset, color = 'grey', 
                 alpha = .1) 
     
-def plot_mccs(mcc_result_dict = None, new_figure = True):
+def plot_mccs(mcc_result_dict = None, new_figure = True, 
+    language_names = []):
     if not mcc_result_dict:
         with open('../results/mccs_stress_vowel.json') as f:
             mcc_result_dict = json.load(f)
@@ -265,9 +266,10 @@ def plot_mccs(mcc_result_dict = None, new_figure = True):
     plt.ylim(0,1)
     n_languages = len(mcc_result_dict.keys())
     delta_offset = 1 / n_languages
-    offset = 0 - delta_offset
+    offset = 0 - delta_offset if n_languages % 2 == 0 else 0 - delta_offset * 2
     colors = plt.get_cmap('tab10').colors
-    for i,language in enumerate(mcc_result_dict.keys()):
+    if not language_names: language_names = mcc_result_dict.keys()
+    for i,language in enumerate(language_names):
         print('plotting', language)
         _plot_language_mccs(mcc_result_dict, language, new_figure = False, 
             offset = offset, color = colors[i])
