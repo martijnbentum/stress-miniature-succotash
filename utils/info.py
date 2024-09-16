@@ -4,6 +4,7 @@ from pathlib import Path
 
 def get_all_item_counts_per_language(dataset_name = 'COMMON VOICE'):
     '''prints number words syllables and phonemes per language.'''
+    get_phrase_counts_per_language(dataset_name)
     get_word_counts_per_language(dataset_name)
     get_syllables_counts_per_language(dataset_name)
     get_phonemes_counts_per_language(dataset_name)
@@ -21,6 +22,9 @@ def _get_item_counts_per_language(item_type = 'word',
     for language in Language.objects.all():
         items = getattr(language,item_type + '_set').filter(**d)
         print(f'{language}: {items.count()}')
+
+def get_phrase_counts_per_language(dataset_name = 'COMMON VOICE'):
+    _get_item_counts_per_language('phrase', dataset_name)
 
 def get_word_counts_per_language(dataset_name = 'COMMON VOICE'):
     _get_item_counts_per_language('word', dataset_name)
