@@ -48,10 +48,22 @@ def audio_filename_to_vector(audio_filename, model = None, gpu = False,
     outputs = to_vector.filename_to_vector(audio_filename, model = model, 
         gpu = gpu)
     if save_pickle:
+        audio_filename = str(audio_filename)
         pickle_filename = audio_filename.replace('.wav', '.pickle')
+        print('saving', pickle_filename)
         with open(pickle_filename, 'wb') as fout:
-            pickle.dump(outputs)
+            pickle.dump(outputs, fout)
     return outputs
+
+def directory_to_vectors(directory, model, gpu = False):
+    p = Path(directory)
+    output = []
+    for audio_filename in p.glob('*.wav'):
+        print('processing', audio_filename)
+        f = str(audio_filename)
+        o = audio_filename_to_vector(f, model, gpu, save_pickle = True)
+        output.append(o)
+    return output
 
 '''
 no speed up
