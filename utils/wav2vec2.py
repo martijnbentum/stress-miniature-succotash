@@ -61,6 +61,10 @@ def directory_to_vectors(directory, model, gpu = False):
     for audio_filename in p.glob('*.wav'):
         print('processing', audio_filename)
         f = str(audio_filename)
+        pickle_filename = f.replace('.wav', '.pickle')
+        if Path(pickle_filename).exists():
+            print('skipping', pickle_filename, 'already exists')
+            continue
         o = audio_filename_to_vector(f, model, gpu, save_pickle = True)
         output.append(o)
     return output
