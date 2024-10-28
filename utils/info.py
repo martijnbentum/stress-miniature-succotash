@@ -1,23 +1,20 @@
+from collections import Counter
 import json
 from utils import locations
+from utils import select
 from pathlib import Path
 from progressbar import progressbar
 
 def word_type_count_dict(dataset_name= 'COMMON VOICE', language_name = 'dutch',
-    transcription = 'ipa'):
+    transcription = 'word', n_syllables = None, words = None):
     if transcription not in ['ipa', 'word']:
-        raise ValueError('transcription must be either ipa (phonemic) or word
-            (orthographic) ')
-    from text.models import Language, Dataset, Word
-    d = Dataset.objects.get(name = dataset_name)
-    l = Language.objects.get(language__iexact = language_name)
-    w = Word.objects.filter(language = l, dataset = d)
-    output = {}
-    for word in progressbar(w):
-        lemma = getattr(word, transcription).lower()
-        if lemma in output: output[lemma] += 1
-        else: output[lemma] = 1
-    return output
+        m = 'transcription must be either ipa (phonemic) or word (orthographic)'
+        raise ValueError(m)
+    if words == None:
+        words = select.select_words(dataset_name = dataset_name, 
+            language_name = language_name, number_of_syllables = n_syllables)
+    lemmas = [getattr(word, transcription).lower() for word in words]
+    return Counter(lemmas)
 
 def get_all_item_counts_per_language(dataset_name = 'COMMON VOICE'):
     '''prints number words syllables and phonemes per language.'''
