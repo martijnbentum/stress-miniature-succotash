@@ -29,10 +29,14 @@ def make_or_load_all_ipas():
         f.write('\n'.join(ipas))
     return ipas
 
-def load_word_set():
+def load_selected_words():
     f = directory / 'bisyllabic_dutch_word_frequency-30-100.txt'
     with f.open('r') as file:
         selected_words = file.read().split('\n')
+    return selected_words
+
+def load_word_set():
+    selected_words = load_selected_words()
     from text.models import Word
     words = select.select_words(language_name = 'dutch',  
         number_of_syllables = 2)
