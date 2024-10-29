@@ -86,6 +86,6 @@ formants_dir = Path('../formants/')
 
 hidden_states_dir = Path('../hidden_states/')
 if sys.platform == 'linux':
-    hidden_states_dir = Path('/vol/bigdata3/datasets3/hidden_states')
+    hidden_states_dir = Path('/vol/mlusers/mbentum/indeep/hidden_states/')
 
 language_naudios_dict = Path('../language_naudios_dict.json')
