@@ -1,6 +1,7 @@
 # experiment to test whether bisyllabic words and combined syllables accross
 # word boundaries have distinct representations.
 
+import json
 from pathlib import Path
 from utils import select
 import numpy as np
@@ -29,14 +30,14 @@ def make_or_load_all_ipas():
         f.write('\n'.join(ipas))
     return ipas
 
-def load_selected_words():
+def load_selected_word_list():
     f = directory / 'bisyllabic_dutch_word_frequency-30-100.txt'
     with f.open('r') as file:
         selected_words = file.read().split('\n')
     return selected_words
 
 def load_word_set():
-    selected_words = load_selected_words()
+    selected_words = load_selected_word_list()
     from text.models import Word
     words = select.select_words(language_name = 'dutch',  
         number_of_syllables = 2)
@@ -115,6 +116,7 @@ class Phrase_info:
                 self.selected_syllables)
         if not syllable_pairs: return None
         return syllable_pairs
+
 
 def check_syllable_ok(syllable, has_vowel = True, has_consonant = None,
     has_stress = None):
@@ -250,5 +252,29 @@ def load_syllable_pair_dataset(used = False, has_vowel = True,
         output.append(d)
     return output
 
-    
+def words_to_sentence(words):
+    return ','.join([word.word for word in words])
+
+def words_to_syllable_sentence(words):
+    o = ','.join(['|'.join([x.ipa for x in word.syllables]) for word in words])
+    return o
+
+def phrase_info_to_dict(self):
+    d = {'sentence':self.sentence, 'words': [x.word for x in self.words],
+        'word_indices': self.selected_word_indices,
+        'word_syllables': [[syl.ipa for syl in x.syllables] for x in self.words],
+        'syllables': [x.ipa for x in self.syllables],
+        'syllable_indices': self.selected_syllable_indices,
+        'audio_filename': self.audio.filename.split('/')[-1],}
+    return d
+
+def make_phrase_info_json(phrase_infos, save = False):
+    output = []
+    for pi in phrase_infos:
+        d = phrase_info_to_dict(pi)
+        output.append(d)
+    filename = directory / 'phrase_infos.json'
+    with open(filename,'w') as f:
+        json.dump(output, f)
+    return output
 
