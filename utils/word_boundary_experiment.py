@@ -262,8 +262,12 @@ def words_to_syllable_sentence(words):
 def phrase_info_to_dict(self):
     d = {'sentence':self.sentence, 'words': [x.word for x in self.words],
         'word_indices': self.selected_word_indices,
+        'word_start_times': [x.start_time for x in self.words],
+        'word_end_times': [x.end_time for x in self.words],
         'word_syllables': [[syl.ipa for syl in x.syllables] for x in self.words],
         'syllables': [x.ipa for x in self.syllables],
+        'syllable_start_times': [x.start_time for x in self.syllables],
+        'syllable_end_times': [x.end_time for x in self.syllables],
         'syllable_indices': self.selected_syllable_indices,
         'audio_filename': self.audio.filename.split('/')[-1],}
     return d
