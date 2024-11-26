@@ -89,3 +89,5 @@ if sys.platform == 'linux':
     hidden_states_dir = Path('/vol/mlusers/mbentum/indeep/hidden_states/')
 
 language_naudios_dict = Path('../language_naudios_dict.json')
+
+perceptron_dir = Path('../classifiers/')
