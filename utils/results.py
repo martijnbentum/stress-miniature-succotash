@@ -17,12 +17,14 @@ class Results:
             em = f'Directory {self.directory} does not exist'
             raise ValueError(em)
         self.fn = list(self.directory.glob('*.json'))
-        self.results = [Result(result_filename = f, verbose = False) 
-            for f in self.fn]
+        self.results = []
+        for f in self.fn:
+            if 'mccs' in str(f): continue
+            self.results.append(Result(result_filename = f, verbose = False))
 
     def select_results(self, language_name, result_type, layer, section, 
         name = '', n = ''):
-        return [r for r in self.results if language_name == r.language_name and
+        return [r for r in self.results if language_name==r.language_name and
             r.result_type == result_type and
             r.layer == layer and r.section == section and r.name == name and
             r.n == n]
@@ -30,13 +32,14 @@ class Results:
     @property
     def languages(self):
         if not hasattr(self, '_languages'):
-            self._languages = list(set([r.language_name for r in self.results]))
+            self._languages=list(set([r.language_name for r in self.results]))
         return self._languages
 
     @property
     def result_types(self):
-        if not hasattr(self, '_result_types'):
-            self._result_types= list(set([r.result_type for r in self.results]))
+        if hasattr(self, '_result_types'):
+            return self._result_types
+        self._result_types=list(set([r.result_type for r in self.results]))
         return self._result_types
 
     @property
