@@ -90,4 +90,4 @@ if sys.platform == 'linux':
 
 language_naudios_dict = Path('../language_naudios_dict.json')
 
-perceptron_dir = Path('../classifiers/')
+classifier_dir = Path('../classifiers/')
