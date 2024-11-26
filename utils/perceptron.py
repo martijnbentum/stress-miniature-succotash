@@ -88,6 +88,20 @@ def save_classifier(clf, language_name, data_type, layer, section, name = '',
     with open(filename, 'wb') as f:
         pickle.dump(clf, f)
 
+def load_classifier(language_name, data_type = 'stress', layer = 'cnn', 
+    section = 'vowel', name = '', n = '', random_state = 1):
+    filename = make_classifier_filename(language_name, data_type, layer, 
+        section, name, n, random_state)
+    with open(filename,'rb') as f:
+        clf = pickle.load(f)
+    info = {'language_name': language_name, 'data_type': data_type,
+        'layer': layer, 'section': section, 'name': name, 'n': n, 
+        'random_state': random_state}
+    clf.info = info
+    return clf
+    
+    
+
 def load_dataset(language_name, data_type, layer, section, name = '', n = ''): 
     filename = make_dataset_filename(language_name, data_type, layer, section, 
         name, n)
@@ -97,6 +111,7 @@ def load_dataset(language_name, data_type, layer, section, name = '', n = ''):
 
 def make_dataset_filename(language_name, data_type, layer, section, 
     name = '', n = ''):
-    f = f'../dataset/xy_dataset-{data_type}_language-{language_name}_'
+    dataset_dir = locations.dataset_dir
+    f = f'{dataset_dir}/xy_dataset-{data_type}_language-{language_name}_'
     f += f'section-{section}_layer-{layer}_n-{n}_name-{name}.pickle'
     return f
