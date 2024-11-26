@@ -7,13 +7,58 @@ from audio import frequency_band
 import json
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 from pathlib import Path
 from progressbar import progressbar
 from utils import density_classifier
-from utils import lda
+from utils import lda, perceptron
 from utils import select
 from utils.results import Results, to_mccs, _to_mcc_dict
 from utils import stats
+
+def _fix_all_combined_features(overwrite = False):
+    from text.models import Language
+    output = {}
+    for language in Language.objects.all():
+        print('handling', language.language)
+        language_name = language.language.lower()
+        filename=f'../results/{language_name}_combined_features_fix.json'
+        if os.path.exists(filename) and not overwrite: 
+            print(filename, 'already exists, skipping')
+            continue
+        data = combined_features.load_dataset(language_name)
+        if not data: 
+            _, vowel_stress_dict = handle_language(
+                language_name = language_name, 
+                save = False, do_mccs_computations = False)
+        else: vowel_stress_dict = None
+        mccs = _fix_combined_features_mccs(language = language_name, 
+            vowel_stress_dict = vowel_stress_dict, combined_features = data)
+        save_dict_to_json(mccs, filename)
+        output[language_name] = mccs
+    return output
+
+def _fix_combined_features_mccs(language = 'dutch', combined_features = None,
+    vowel_stress_dict = None, n = 20):
+    '''combined features did not use duration and did not use mlp
+    this will recomputes the mccs for combined features
+    '''
+    if not combined_features:
+        print('making combined features dataset')
+        combined_features = combined_features.make_dataset(
+            vowel_stress_dict = vowel_stress_dict)
+        X, y = combined_features
+        combined_features.save_dataset(language.lower(), X, y)
+    mccs = []
+    for i in progressbar(range(n)):
+        clf, data, report = make_combined_feature_classifier(
+            combined_feature = combined_features, random_state = i,)
+        perceptron.save_classifier(clf, language.lower(), 'stress', 
+        'combined-features', 
+        'vowel', name = '',random_state = i)
+        mccs.append(report['mcc'])
+    return mccs
+        
 
 def handle_language(language_name = 'dutch', 
     dataset_name = 'COMMON VOICE',minimum_n_syllables = None, 
@@ -145,7 +190,7 @@ def make_combined_feature_classifier(combined_feature = None, random_state=42,
         combined_feature = combined_features.make_dataset(
             vowel_stress_dict = vowel_stress_dict)
     X, y = combined_feature
-    return combined_features.train_lda(X, y, report = True, 
+    return combined_features.train_perceptron(X, y,  
         random_state = random_state)
 
 def save_dict_to_json(d, path):
