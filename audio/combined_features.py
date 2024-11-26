@@ -21,6 +21,7 @@ def get_combined_features(phoneme):
     if not spectral_tilt: spectral_tilt = [None, None, None, None]
     features.extend(spectral_tilt)
     features.append( phoneme.intensity )
+    features.append( phoneme.duration)
     return features
 
 def make_dataset(language_name = 'dutch', 
