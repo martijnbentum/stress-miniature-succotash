@@ -91,3 +91,4 @@ if sys.platform == 'linux':
 language_naudios_dict = Path('../language_naudios_dict.json')
 
 classifier_dir = Path('../classifiers/')
+dataset_dir = Path('../dataset/')
