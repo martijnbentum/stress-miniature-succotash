@@ -3,7 +3,7 @@ from audio import formants
 import json
 import numpy as np
 from progressbar import progressbar
-from utils import lda
+from utils import lda, perceptron
 from utils import density_classifier
 from utils import select
 
@@ -51,6 +51,19 @@ def train_lda(X, y, test_size = .33, report = True,random_state = 42):
     '''
     clf, data, report = lda.train_lda(X, y, test_size = test_size, 
         report = report, random_state = random_state)
+    return clf, data, report
+
+
+def train_perceptron(X,y, random_state = 42, max_iter = 3000):
+    '''
+    train perceptron classifier on the combined features dataset
+    '''
+    y_test, hyp, clf = perceptron.train_mlp_classifier(X,y, 
+    random_state = random_state, max_iter = max_iter)
+    cr = classification_report(y_test, y_pred)
+    mcc = matthews_corrcoef(y_test, y_pred)
+    report = {'classification_report': cr, 'mcc': mcc}
+    data = {'y_test': y_test, 'hyp': hyp}
     return clf, data, report
 
 def plot_lda_hist(X, y, clf = None, new_figure = True, 
