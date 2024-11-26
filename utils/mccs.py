@@ -18,9 +18,9 @@ from utils import stats
 def handle_language(language_name = 'dutch', 
     dataset_name = 'COMMON VOICE',minimum_n_syllables = None, 
     number_of_syllables = 2, name = '',
-    max_n_items_per_speaker = None, vowel_stress_dict = None, save = True,
+    max_n_items_per_speaker = None, vowel_stress_dict = None, save = False,
     no_diphthongs = True, one_vowel_per_syllable = True, has_stress = True,
-    do_mccs_computations = True):
+    do_mccs_computations = False):
     if not vowel_stress_dict:
         words = select.select_words(language_name = language_name,
             dataset_name = dataset_name, 
