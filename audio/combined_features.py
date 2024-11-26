@@ -2,10 +2,16 @@ from audio import pitch
 from audio import formants
 import json
 import numpy as np
+import os
+import pickle
 from progressbar import progressbar
+from sklearn.metrics import classification_report
+from sklearn.metrics import matthews_corrcoef
 from utils import lda, perceptron
 from utils import density_classifier
 from utils import select
+from utils import locations
+    
 
 
 def get_f0_f1_f2(phoneme):
@@ -45,6 +51,32 @@ def make_dataset(language_name = 'dutch',
             y.append(y_value)
     return X, y
 
+def make_dataset_filename(language_name):
+    language_name = language_name.lower()
+    dataset_dir= locations.dataset_dir
+    dataset_filename = f'{dataset_dir}/xy_dataset-stress_'
+    dataset_filename += f'language-{language_name}_section-vowel_'
+    dataset_filename += f'layer-combined-features_n-_name-.pickle'
+    return dataset_filename
+
+def save_dataset(language_name, X, y):
+    dataset_filename = make_dataset_filename(language_name)
+    print(f'saving combined features dataset to {dataset_filename}')
+    d = {'X':X,'y':y, 'language_name':language_name, 
+        'layer':'combined-features','n':None, 'name':None, 'section':'vowel'}
+    with open(dataset_filename, 'wb') as f:
+        pickle.dump(d, f)
+
+def load_dataset(language_name):
+    dataset_filename = make_dataset_filename(language_name)
+    print(f'loading combined features dataset from {dataset_filename}')
+    if not os.path.exists(dataset_filename):
+        print(f'file {dataset_filename} does not exist')
+        return None
+    with open(dataset_filename, 'rb') as f:
+        d = pickle.load(f)
+    return d['X'], d['y']
+
 def train_lda(X, y, test_size = .33, report = True,random_state = 42):
     '''
     train LDA classifier on the combined features dataset
@@ -60,8 +92,8 @@ def train_perceptron(X,y, random_state = 42, max_iter = 3000):
     '''
     y_test, hyp, clf = perceptron.train_mlp_classifier(X,y, 
     random_state = random_state, max_iter = max_iter)
-    cr = classification_report(y_test, y_pred)
-    mcc = matthews_corrcoef(y_test, y_pred)
+    cr = classification_report(y_test, hyp)
+    mcc = matthews_corrcoef(y_test, hyp)
     report = {'classification_report': cr, 'mcc': mcc}
     data = {'y_test': y_test, 'hyp': hyp}
     return clf, data, report
