@@ -75,7 +75,7 @@ def handle_language_stress(language_name, layers = None, sections = None,
 
 def make_classifier_filename(language_name, data_type, layer, section,
     name = '', n = '', random_state = 1):
-    d = locations.perceptron_dir
+    d = locations.classifier_dir
     f =  f'clf_{language_name}_{data_type}_{layer}_{section}'
     f += f'_{name}_{n}_{random_state}.pickle'
     f = d / f
