@@ -17,8 +17,8 @@ from utils.results import Results, to_mccs, _to_mcc_dict
 from utils import stats
 
 def _check_cf_data(data, vowel_stress_dict):
-    X, y = data
     if vowel_stress_dict is None:
+        X, y = data
         if len(X) == 0:
             print('no vowel_stress_dict and no data')
             return False
