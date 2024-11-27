@@ -160,7 +160,7 @@ def words_to_syllables(words):
 
 def select_words(language_name = None, dataset_name = None, 
     minimum_n_syllables = None, number_of_syllables = None, word = None,
-    no_diphthongs = False, one_vowel_per_syllable = False, has_stress = False):
+    no_diphtongs = False, one_vowel_per_syllable = False, has_stress = False):
     '''
     Select words based on language, dataset and number of syllables.
     '''
@@ -183,7 +183,7 @@ def select_words(language_name = None, dataset_name = None,
         words, exclude = _filter_words_without_stress_annotation(words)
         print('excluded words:',len(exclude), 'based on stress annotation')
         print('remaining words:',len(words))
-    if no_diphthongs:
+    if no_diphtongs:
         words, exclude = _remove_words_with_diphtongs(words)
         print('excluded words:',len(exclude), 'based on exclusion of diphtongs')
         print('remaining words:',len(words))
