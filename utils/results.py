@@ -161,8 +161,10 @@ class Result:
 
     def save(self, overwrite = False):
         if self.path.exists() and not overwrite:
-            em = f'File {self.result_filename} exists. Use overwrite = True'
-            raise ValueError(em)
+            m = f'File {self.result_filename} exists. Use overwrite = True'
+            m += 'doing nothing'
+            print(m)
+            return
         with open(self.result_filename, 'wb') as f:
             pickle.dump(self.result_dict, f)
 
