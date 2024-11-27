@@ -16,6 +16,21 @@ from utils import select
 from utils.results import Results, to_mccs, _to_mcc_dict
 from utils import stats
 
+def _check_cf_data(data, vowel_stress_dict):
+    X, y = data
+    if vowel_stress_dict is None:
+        if len(X) == 0:
+            print('no vowel_stress_dict and no data')
+            return False
+        return True
+    if 'stress' in vowel_stress_dict.keys():
+        stress = vowel_stress_dict['stress']
+        if len(stress) == 0:
+            print('no stressed vowels')
+            return False
+        return True
+    return False
+
 def _fix_all_combined_features(overwrite = False):
     from text.models import Language
     output = {}
@@ -32,27 +47,31 @@ def _fix_all_combined_features(overwrite = False):
                 language_name = language_name, 
                 save = False, do_mccs_computations = False)
         else: vowel_stress_dict = None
+        data_ok = _check_cf_data(data, vowel_stress_dict)
+        if not data_ok:
+            print('data not ok', language_name)
+            continue
         mccs = _fix_combined_features_mccs(language = language_name, 
-            vowel_stress_dict = vowel_stress_dict, combined_features = data)
+            vowel_stress_dict = vowel_stress_dict, combined_feature = data)
         save_dict_to_json(mccs, filename)
         output[language_name] = mccs
     return output
 
-def _fix_combined_features_mccs(language = 'dutch', combined_features = None,
+def _fix_combined_features_mccs(language = 'dutch', combined_feature = None,
     vowel_stress_dict = None, n = 20):
     '''combined features did not use duration and did not use mlp
     this will recomputes the mccs for combined features
     '''
-    if not combined_features:
+    if not combined_feature:
         print('making combined features dataset')
-        combined_features = combined_features.make_dataset(
+        combined_feature = combined_features.make_dataset(
             vowel_stress_dict = vowel_stress_dict)
-        X, y = combined_features
+        X, y = combined_feature
         combined_features.save_dataset(language.lower(), X, y)
     mccs = []
     for i in progressbar(range(n)):
         clf, data, report = make_combined_feature_classifier(
-            combined_feature = combined_features, random_state = i,)
+            combined_feature = combined_feature, random_state = i,)
         perceptron.save_classifier(clf, language.lower(), 'stress', 
         'combined-features', 
         'vowel', name = '',random_state = i)
