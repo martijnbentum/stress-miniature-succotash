@@ -61,6 +61,17 @@ def make_vowel_f1f2_stress_dict(language_name = 'dutch',
     d = _vowels_to_f1f2(d)
     return d
 
+def make_dataset(vowel_stress_dict): 
+    d = _vowels_to_f1f2(vowel_stress_dict)
+    X, y = [], []
+    for stress_status,f1f2s in d.items():
+        y_value = 1 if stress_status == 'stress' else 0
+        for f1f2 in f1f2s:
+            X.append(f1f2) 
+            y.append(y_value)
+    return X, y
+
+
 def global_f1f2(f1f2):
     '''uses the output of make_vowel_f1f2_stress_dict to make 
     global f1 f2 values

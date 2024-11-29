@@ -59,6 +59,16 @@ def make_vowel_intensity_stress_dict(language_name = 'dutch',
     d = _vowels_to_intensity(d)
     return d
 
+def make_dataset(vowel_stress_dict): 
+    d = _vowels_to_intensity(vowel_stress_dict)
+    X, y = [], []
+    for stress_status,intensities in d.items():
+        y_value = 1 if stress_status == 'stress' else 0
+        for intensity in intensities:
+            X.append(intensity) 
+            y.append(y_value)
+    return X, y
+
 def plot_stress_no_stress_distributions(intensities = None, new_figure = True,
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
     bins = 240, plot_density = False, xlabel = 'Intensity (dB)'):
