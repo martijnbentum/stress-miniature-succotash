@@ -16,14 +16,14 @@ class Results:
         if not self.directory.exists():
             em = f'Directory {self.directory} does not exist'
             raise ValueError(em)
-        self.fn = list(self.directory.glob('*.json'))
+        self.fn = list(self.directory.glob('*.pickle'))
         self.results = []
-        for f in self.fn:
+        for f in progressbar(self.fn):
             if 'mccs' in str(f): continue
             self.results.append(Result(result_filename = f, verbose = False))
 
-    def select_results(self, language_name, result_type, layer, section, 
-        name = '', n = ''):
+    def select_results(self, language_name,  layer, result_type = 'stress',
+        section = 'vowel', name = '', n = ''):
         return [r for r in self.results if language_name==r.language_name and
             r.result_type == result_type and
             r.layer == layer and r.section == section and r.name == name and
@@ -62,6 +62,25 @@ class Results:
             self._sections = list(set([r.section for r in self.results]))
         return self._sections
 
+    @property
+    def names(self):
+        if not hasattr(self, '_names'):
+            self._names = list(set([r.name for r in self.results]))
+        return self._names
+
+    @property
+    def random_state_sets(self):
+        if hasattr(self, '_random_state_sets'): return self._random_state_sets
+        self._random_state_sets = {}
+        for result in self.results:
+            if result.identifier not in self._random_state_sets:
+                self._random_state_sets[result.identifier] = [result]
+            else:
+                self._random_state_sets[result.identifier].append(result)
+        return self._random_state_sets
+
+        
+
 
 class Result:
     def __init__(self, y_test = None, hyp = None, result_filename = '',
@@ -86,6 +105,10 @@ class Result:
             raise ValueError(em)
         self._handle_info(dataset_dict, kwargs)
         self._set_filename()
+        if self.name:
+            self.identifier = f'{self.language_name}_{self.layer}_{self.name}'
+        else:
+            self.identifier = f'{self.language_name}_{self.layer}'
         if not self.result_dict: self.to_dict()
 
     def __repr__(self):
@@ -224,7 +247,7 @@ def make_result_filename(language_name, result_type, layer, section, name, n,
     return f
 
 def save_results(y_test, hyp, language_name, data_type, layer, section, 
-    name, n, rs, dataset_filename, classifier_filename):
+    name, n, rs, dataset_filename, classifier_filename, overwrite = False):
     result = Result(y_test = y_test, hyp = hyp, 
         language_name = language_name,
         layer = layer, section = section, name = name, n = n, 
@@ -232,7 +255,7 @@ def save_results(y_test, hyp, language_name, data_type, layer, section,
         dataset_filename = dataset_filename, 
         classifier_filename = classifier_filename)
     print(result)
-    result.save()
+    result.save(overwrite = overwrite)
     return result
 
 
