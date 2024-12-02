@@ -137,9 +137,9 @@ def train_lda(X, y, test_size = .33, report = True,random_state = 42):
     '''train an LDA based on the vowel spectral balance data
     X, y can be computed with the make_dataset function
     '''
-    clf, data, report = lda.train_lda(X, y, test_size = test_size, 
+    y_test, hyp, clf = lda.train_lda(X, y, test_size = test_size, 
         report = report, random_state = random_state)
-    return clf, data, report
+    return y_test, hyp, clf
 
 def plot_lda_hist(X, y, clf = None, new_figure = True, 
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
