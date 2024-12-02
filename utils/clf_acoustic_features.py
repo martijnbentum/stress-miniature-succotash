@@ -8,11 +8,19 @@ feature_names = acoustic_correlates.feature_names
 language_names = acoustic_correlates.language_names
 
 
-def handle_language(language_name, n = 20):
-    for i in range(n):
+def handle_cross_lingual(language_name, n_iterations = 20):
+    for other_langauge in language_names:
+        print('handling', language_name, other_langauge)
+        if other_langauge == language_name: continue
+        handle_language(language_name, n_iterations,
+            name = f'other-language-{other_langauge}')
+        
+
+def handle_language(language_name, n_iterations = 20, name =''):
+    for i in range(n_iterations):
         random_state = i
         for feature_name in feature_names:
-            _handle_feature(language_name, feature_name, random_state)
+            _handle_feature(language_name, feature_name, random_state, name)
 
 def _handle_feature(language_name, feature_name, random_state = 42, 
     name = '', n = '', overwrite = False):
