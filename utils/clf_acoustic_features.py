@@ -8,19 +8,21 @@ feature_names = acoustic_correlates.feature_names
 language_names = acoustic_correlates.language_names
 
 
-def handle_cross_lingual(language_name, n_iterations = 20):
+def handle_cross_lingual(language_name, n_iterations = 20, overwrite = False):
     for other_langauge in language_names:
         print('handling', language_name, other_langauge)
         if other_langauge == language_name: continue
         handle_language(language_name, n_iterations,
-            name = f'other-language-{other_langauge}')
+            name = f'other-language-{other_langauge}', overwrite = overwrite)
         
 
-def handle_language(language_name, n_iterations = 20, name =''):
+def handle_language(language_name, n_iterations = 20, name ='', 
+    overwrite = False):
     for i in range(n_iterations):
         random_state = i
         for feature_name in feature_names:
-            _handle_feature(language_name, feature_name, random_state, name)
+            _handle_feature(language_name, feature_name, random_state, 
+            name = name, overwrite = overwrite)
 
 def _handle_feature(language_name, feature_name, random_state = 42, 
     name = '', n = '', overwrite = False):
@@ -32,8 +34,13 @@ def _handle_feature(language_name, feature_name, random_state = 42,
     if not overwrite and Path(result_filename).exists():
         print(f'file {result_filename} exists. skipping')
         return
-    dataset_filename = make_dataset_filename(language_name, 
-        feature_name)
+    if 'other-language' in name:
+        other_language_name = name.split('-')[-1]
+        dataset_filename = make_dataset_filename(other_language_name,
+            feature_name)
+    else:
+        dataset_filename = make_dataset_filename(language_name, 
+            feature_name)
     classifier_filename = make_classifier_filename(language_name,
         data_type, feature_name, section , random_state=random_state)
     X, y = load_dataset(language_name, feature_name)
@@ -42,7 +49,7 @@ def _handle_feature(language_name, feature_name, random_state = 42,
     result = results.save_results(y_test, hyp, language_name, data_type, 
         feature_name, section, rs = random_state, name = name, n = n,
         dataset_filename = dataset_filename, 
-        classifier_filename = classifier_filename)
+        classifier_filename = classifier_filename, overwrite = overwrite)
     save_classifier(clf, language_name, data_type, feature_name,
         section, random_state = random_state)
     return result
