@@ -71,6 +71,12 @@ def make_dataset(vowel_stress_dict):
             y.append(y_value)
     return X, y
 
+def formant_dataset_to_distance_dataset(X):
+    f1, f2 = X[:,0], X[:,1]
+    global_f1, global_f2 = np.mean(X, axis = 0)
+    return np.sqrt((f1 - global_f1)**2 + (f2 - global_f2)**2)
+    
+
 
 def global_f1f2(f1f2):
     '''uses the output of make_vowel_f1f2_stress_dict to make 
