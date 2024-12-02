@@ -38,12 +38,13 @@ def _handle_feature(language_name, feature_name, random_state = 42,
         other_language_name = name.split('-')[-1]
         dataset_filename = make_dataset_filename(other_language_name,
             feature_name)
+        X, y = load_dataset(other_language_name, feature_name)
     else:
         dataset_filename = make_dataset_filename(language_name, 
             feature_name)
+        X, y = load_dataset(language_name, feature_name)
     classifier_filename = make_classifier_filename(language_name,
         data_type, feature_name, section , random_state=random_state)
-    X, y = load_dataset(language_name, feature_name)
     function = feature_to_function[feature_name]
     y_test, hyp, clf = function(X, y)
     result = results.save_results(y_test, hyp, language_name, data_type, 
