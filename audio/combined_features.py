@@ -81,9 +81,9 @@ def train_lda(X, y, test_size = .33, report = True,random_state = 42):
     '''
     train LDA classifier on the combined features dataset
     '''
-    clf, data, report = lda.train_lda(X, y, test_size = test_size, 
+    y_test, hyp, clf = lda.train_lda(X, y, test_size = test_size, 
         report = report, random_state = random_state)
-    return clf, data, report
+    return y_test, hyp, clf
 
 
 def train_perceptron(X,y, random_state = 42, max_iter = 3000):
@@ -91,12 +91,8 @@ def train_perceptron(X,y, random_state = 42, max_iter = 3000):
     train perceptron classifier on the combined features dataset
     '''
     y_test, hyp, clf = perceptron.train_mlp_classifier(X,y, 
-    random_state = random_state, max_iter = max_iter)
-    cr = classification_report(y_test, hyp)
-    mcc = matthews_corrcoef(y_test, hyp)
-    report = {'classification_report': cr, 'mcc': mcc}
-    data = {'y_test': y_test, 'hyp': hyp}
-    return clf, data, report
+        random_state = random_state, max_iter = max_iter)
+    return y_test, hyp, clf
 
 def plot_lda_hist(X, y, clf = None, new_figure = True, 
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 

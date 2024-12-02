@@ -25,10 +25,8 @@ def train_lda(X, y, test_size = 0.33, report = True, random_state = 42):
         X,y, test_size = test_size, random_state=random_state)
     clf = LinearDiscriminantAnalysis()
     clf.fit(X_train, y_train)
-    data = {'X_train': X_train, 'X_test': X_test, 'y_train': y_train}
-    if report: report = make_lda_report(clf, X_test, y_test)
-    else: report = None
-    return clf, data, report
+    hyp = clf.predict(X_test)
+    return y_test, hyp, clf 
 
 def plot_lda_hist(X, y, clf = None, new_figure = True, 
     minimal_frame = False, ylim = None, add_left = True, add_legend = True, 
