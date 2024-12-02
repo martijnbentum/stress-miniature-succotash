@@ -20,17 +20,16 @@ class Classifier:
     '''classifier based on the density of a feature for stressed and
     unstressed vowels.
     '''
-    def __init__(self, stress, no_stress, name = '', random_state=42, 
+    def __init__(self, X, y, name = '', random_state=42, 
         verbose=False):
-        self.stress=stress 
-        self.no_stress=no_stress 
+        self.X = X
+        self.y = y
         self.name = name
         self.random_state = random_state
         self.verbose = verbose
         self._train()
 
     def _train(self, test_size=0.33):
-        self.X, self.y = make_dataset(self.stress, self.no_stress)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.X,self.y, test_size = test_size, 
             random_state=self.random_state)
@@ -48,6 +47,9 @@ class Classifier:
 
     def classification_report(self):
         if hasattr(self, '_report'): return self._report
+        if not hasattr(self, 'X_test'): 
+            print('no test set available')
+            return
         self.hyp = self.predict(self.X_test)
         self.cr = classification_report(self.y_test, 
             self.hyp)
@@ -60,12 +62,6 @@ class Classifier:
                         'mcc': self.mcc}
         return self._report
 
-def make_dataset(stress, no_stress):
-    '''create a dataset for the density classifier.
-    '''
-    X = np.concatenate([stress, no_stress])
-    y = np.concatenate([np.ones(len(stress)), np.zeros(len(no_stress))])
-    return X, y
 
 def dict_to_json(d, filename):
     '''save a dictionary to a json file.
