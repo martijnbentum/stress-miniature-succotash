@@ -220,8 +220,20 @@ def results_filename_to_info(filename):
 def make_result_filename(language_name, result_type, layer, section, name, n,
     random_state):
     f = f'../results/{language_name}_{result_type}_{layer}_'
-    f += f'{section}_{name}_{n}_{random_state}.json'
+    f += f'{section}_{name}_{n}_{random_state}.pickle'
     return f
+
+def save_results(y_test, hyp, language_name, data_type, layer, section, 
+    name, n, rs, dataset_filename, classifier_filename):
+    result = Result(y_test = y_test, hyp = hyp, 
+        language_name = language_name,
+        layer = layer, section = section, name = name, n = n, 
+        random_state = rs, result_type = data_type,
+        dataset_filename = dataset_filename, 
+        classifier_filename = classifier_filename)
+    print(result)
+    result.save()
+    return result
 
 
 
