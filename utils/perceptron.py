@@ -33,14 +33,8 @@ def handle_classifier_training(language_name, data_type, layer, section,
         data_type, layer, section, name, n, rs)
     dataset_filename = make_dataset_filename(language_name, data_type, layer, 
         section, name, n)
-    result = results.Result(y_test = y_test, hyp = hyp, 
-        language_name = language_name,
-        layer = layer, section = section, name = name, n = n, 
-        random_state = rs, result_type = data_type,
-        dataset_filename = dataset_filename, 
-        classifier_filename = classifier_filename)
-    print(result)
-    result.save()
+    result = results.save_results(y_test, hyp, language_name, data_type, layer, 
+        section,name, n, rs, dataset_filename, classifier_filename)
     save_classifier(clf, language_name, data_type, layer, section, name, n, rs)
     print('saved classifier and result')
     return clf, result
@@ -88,6 +82,7 @@ def save_classifier(clf, language_name, data_type, layer, section, name = '',
     with open(filename, 'wb') as f:
         pickle.dump(clf, f)
 
+
 def load_classifier(language_name, data_type = 'stress', layer = 'cnn', 
     section = 'vowel', name = '', n = '', random_state = 1):
     filename = make_classifier_filename(language_name, data_type, layer, 
@@ -100,8 +95,6 @@ def load_classifier(language_name, data_type = 'stress', layer = 'cnn',
     clf.info = info
     return clf
     
-    
-
 def load_dataset(language_name, data_type, layer, section, name = '', n = ''): 
     filename = make_dataset_filename(language_name, data_type, layer, section, 
         name, n)
