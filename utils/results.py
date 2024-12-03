@@ -90,6 +90,8 @@ class Results:
         results = []
         for result in self.results:
             results.append(result.to_dict())
+        for result in self.cross_lingual_results:
+            results.append(result.to_dict())
         with open(filename, 'w') as f:
             json.dump(results, f, indent = 4) 
 
