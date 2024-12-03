@@ -55,7 +55,6 @@ def filter_cross_lingual(cross_lingual = True):
             if not 'other-language-' in result['name']:
                 output.append(result)
     return output
-        
 
 def filter_language(language_name, cross_lingual = False):
     results = load_results()
@@ -68,8 +67,8 @@ def filter_language(language_name, cross_lingual = False):
     return output
 
 def plot_language_mccs(language_name = 'dutch', new_figure = True, 
-    offset =0, color = 'black', plot_grid = True):
-    results = filter_language(language_name)
+    offset =0, color = 'black', plot_grid = True, cross_lingual = False):
+    results = filter_language(language_name, cross_lingual = cross_lingual)
     plt.ion()
     if new_figure: plt.figure()
     plt.ylim(0,1)
@@ -95,7 +94,7 @@ def _plot_vertical_lines(n_categories, width = 1):
             plt.axvspan(x[i] - offset, x[i] + offset, color = 'grey', 
                 alpha = .1) 
     
-def plot_mccs(new_figure = True, languages= []):
+def plot_mccs(new_figure = True, languages= [], cross_lingual = False):
     plt.ion()
     if new_figure: plt.figure()
     if not languages: languages = language_names
@@ -107,7 +106,8 @@ def plot_mccs(new_figure = True, languages= []):
     for i,language in enumerate(language_names):
         print('plotting', language)
         plot_language_mccs(language, new_figure = False, 
-            offset = offset, color = colors[i], plot_grid = False)
+            offset = offset, color = colors[i], plot_grid = False,
+            cross_lingual = cross_lingual)
         offset += delta_offset
     n_categories = len(classifier_order)
     _plot_vertical_lines(n_categories)
