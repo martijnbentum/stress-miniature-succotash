@@ -7,17 +7,22 @@ from utils import density_classifier, results, perceptron
 feature_names = acoustic_correlates.feature_names
 language_names = acoustic_correlates.language_names
 
-
 def handle_cross_lingual(language_name, n_iterations = 20, overwrite = False):
+    '''computed classification results with classifiers trained on other
+    language than the test data e.g. dutch clf and test data from english
+    n_iterations: number of data split to run the classifier on the test data
+    '''
     for other_langauge in language_names:
         print('handling', language_name, other_langauge)
         if other_langauge == language_name: continue
         handle_language(language_name, n_iterations,
             name = f'other-language-{other_langauge}', overwrite = overwrite)
-        
 
 def handle_language(language_name, n_iterations = 20, name ='', 
     overwrite = False):
+    '''computes classification results for all features for a language
+    n_iterations: number of data split to run the classifier on the test data
+    '''
     for i in range(n_iterations):
         random_state = i
         for feature_name in feature_names:
@@ -26,6 +31,9 @@ def handle_language(language_name, n_iterations = 20, name ='',
 
 def _handle_feature(language_name, feature_name, random_state = 42, 
     name = '', n = '', overwrite = False):
+    '''computes classification results for a feature for a language
+    name: name of the classifier e.g. 'other-language-dutch'
+    '''
     data_type = 'stress'
     section = 'vowel'
     print('handling', language_name, feature_name, random_state, name)
@@ -135,11 +143,12 @@ def save_results(y_test, hyp, language_name, data_type, layer, section,
     return result
 
 def trim_classifier(clf):
+    '''removes bloated data from the classifier'''
     for attr in ['X','y','X_train','y_train', 'X_test','y_test']: 
         if hasattr(clf, attr): delattr(clf, attr)
     return clf
 
-
+# map feature names to classification functions
 feature_to_function = {
     'duration': duration_classifier,
     'formant': formant_classifier,
