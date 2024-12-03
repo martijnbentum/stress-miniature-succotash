@@ -66,9 +66,19 @@ def filter_language(language_name, cross_lingual = False):
     output = sorted(output, key = lambda x: classifier_order.index(x['layer']))
     return output
 
+def filter_other_language(language_name, other_language_name):
+    results = filter_language(language_name, cross_lingual = True)
+    output = []
+    for result in results:
+        if other_language_name in result['name']:
+            output.append(result)
+    output = sorted(output, key = lambda x: classifier_order.index(x['layer']))
+    return output
+
 def plot_language_mccs(language_name = 'dutch', new_figure = True, 
-    offset =0, color = 'black', plot_grid = True):
-    results = filter_language(language_name) 
+    offset =0, color = 'black', plot_grid = True, results = None, 
+    error_alpha = 1):
+    if not results: results = filter_language(language_name) 
     plt.ion()
     if new_figure: plt.figure()
     plt.ylim(0,1)
@@ -79,7 +89,7 @@ def plot_language_mccs(language_name = 'dutch', new_figure = True,
     cis = [result['ci'] for result in results]
     plt.errorbar(x, means, yerr = cis, label = language_name, markersize = 12,
         color = color, fmt = ',', elinewidth = 1.5, capsize = 3, 
-        capthick = 1.5)
+        capthick = 1.5, alpha = error_alpha)
     if abs(x[0]) < 0.01:
         plt.xticks(x, x_tick_names, rotation = 90)
     plt.ylabel('Matthews correlation coefficient')
@@ -94,7 +104,7 @@ def _plot_vertical_lines(n_categories, width = 1):
             plt.axvspan(x[i] - offset, x[i] + offset, color = 'grey', 
                 alpha = .1) 
     
-def plot_mccs(new_figure = True, languages= [], cross_lingual = False):
+def plot_mccs(new_figure = True, languages= []):
     plt.ion()
     if new_figure: plt.figure()
     if not languages: languages = language_names
@@ -113,4 +123,36 @@ def plot_mccs(new_figure = True, languages= [], cross_lingual = False):
     plt.legend()
     plt.grid(alpha = .5, axis = 'y')
 
+def plot_cross_lingual(language_name = 'dutch', new_figure = True):
+    plt.ion()
+    if new_figure: plt.figure()
+    languages = language_names
+    plt.ylim(0,1)
+    n_languages = len(languages)
+    other_languages = [x for x in language_names if x != language_name]
+    delta_offset = 1 / n_languages
+    offset = 0 - delta_offset if n_languages % 2 == 0 else 0 - delta_offset * 2
+    colors = plt.get_cmap('tab10').colors
+    for i,language in enumerate(language_names):
+        print('plotting', language)
+        if language == language_name:
+            plot_language_mccs(language, new_figure = False, 
+                offset = offset, color = colors[i], plot_grid = False)
+        else:
+            other_language_name = language
+            print(language_name, other_language_name)
+            results = filter_other_language(language_name, other_language_name)
+            print(results)
+            try:
+                plot_language_mccs(language_name = other_language_name,
+                    results = results, 
+                    new_figure = False, error_alpha = .5, 
+                    offset = offset, color = colors[i], plot_grid = False)
+            except:print('no results for', language_name, other_language_name)
+        offset += delta_offset
+    n_categories = len(classifier_order)
+    _plot_vertical_lines(n_categories)
+    plt.legend()
+    plt.grid(alpha = .5, axis = 'y')
+    
         
