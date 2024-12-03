@@ -46,7 +46,7 @@ def _handle_feature(language_name, feature_name, random_state = 42,
     classifier_filename = make_classifier_filename(language_name,
         data_type, feature_name, section , random_state=random_state)
     function = feature_to_function[feature_name]
-    y_test, hyp, clf = function(X, y)
+    y_test, hyp, clf = function(X, y, random_state = random_state)
     result = results.save_results(y_test, hyp, language_name, data_type, 
         feature_name, section, rs = random_state, name = name, n = n,
         dataset_filename = dataset_filename, 
@@ -77,13 +77,14 @@ def intensity_classifier(X, y, random_state=42, verbose = False, trim = True):
     return y_test, hyp, clf
 
 def pitch_classifier(X, y, random_state=42, verbose = False, trim = True):
-    print('training pitch classifier')
+    print(f'training pitch classifier')
     y_test, hyp, clf = _density_classifier(X, y, 'pitch', random_state,
         verbose, trim)
     return y_test, hyp, clf
 
 def _density_classifier(X, y, name, random_state=42, verbose = False, 
     trim = True):
+    print(f'training density classifier with random state {random_state}')
     clf = density_classifier.Classifier(X, y, name = name, 
         random_state=random_state)
     X_test, y_test = clf.X_test, clf.y_test
@@ -93,7 +94,7 @@ def _density_classifier(X, y, name, random_state=42, verbose = False,
 
 def spectral_tilt_classifier(X, y, random_state=42,verbose = False, 
     trim = True):
-    print('training spectral tilt classifier')
+    print(f'training spectral tilt classifier with random state {random_state}')
     y_test, hyp, clf = frequency_band.train_lda(X, y, report = False, 
         random_state = random_state)
     if trim: clf = trim_classifier(clf)
