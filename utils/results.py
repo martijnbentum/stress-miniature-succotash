@@ -18,9 +18,16 @@ class Results:
             raise ValueError(em)
         self.fn = list(self.directory.glob('*.pickle'))
         self.results = []
+        self.cross_lingual_results = []
         for f in progressbar(self.fn):
-            if 'mccs' in str(f): continue
-            self.results.append(Result(result_filename = f, verbose = False))
+            if 'mccs' in str(f): 
+                print(f'skipping mccs file {f}')
+                continue
+            result = Result(result_filename = f, verbose = False)
+            if 'other-language' in result.name:
+                self.cross_lingual_results.append(result)
+            else:
+                self.results.append(result)
 
     def select_results(self, language_name,  layer, result_type = 'stress',
         section = 'vowel', name = '', n = ''):
@@ -79,7 +86,13 @@ class Results:
                 self._random_state_sets[result.identifier].append(result)
         return self._random_state_sets
 
-        
+    def save_json(self, filename = '../results.json'):
+        results = []
+        for result in self.results:
+            results.append(result.to_dict())
+        with open(filename, 'w') as f:
+            json.dump(results, f, indent = 4) 
+
 
 
 class Result:
@@ -164,10 +177,9 @@ class Result:
             setattr(self, key, d[key])
 
     def to_dict(self):
-        if self.result_dict: return self.result_dict
         keys = ['language_name', 'result_type', 'layer', 'section', 'accuracy',
             'mcc', 'report', 'name', 'n', 'random_state', 'dataset_filename',
-            'classifier_filename', 'hyp', 'y_test']
+            'classifier_filename']
         self.result_dict = {}
         for key in keys:
             if hasattr(self, key):
@@ -215,6 +227,11 @@ class Result:
     def chance_accuracy(self):
         if self.y_test is None: return None
         return 1/len(self.categories)
+
+    def trim(self):
+        keys = ['y_test', 'hyp']
+        for key in keys:
+            if hasattr(self, key): delattr(self, key)
 
 def to_mccs(results_list):
     return [r.mcc for r in results_list]
