@@ -18,7 +18,8 @@ def audio_to_vector(audio, model = None, gpu = False):
         gpu = gpu)
     return outputs
     
-def handle_audio(audio, model = None, gpu = False, save_words = True):
+def handle_audio(audio, model = None, gpu = False, save_words = True, 
+    model_name = 'pretrained-xlsr'):
     outputs = audio_to_vector(audio, model, gpu)
     words = audio.word_set.all()
     language_name = audio.language.language
@@ -30,7 +31,8 @@ def handle_audio(audio, model = None, gpu = False, save_words = True):
         word_output.identifier = identifier
         word_output.name = name
         if save_words:
-            shs.save_word_hidden_states(word, word_output)
+            shs.save_word_hidden_states(word, word_output, 
+                model_name = model_name)
         output.append(word_output)
     return output
 
