@@ -1,4 +1,4 @@
-import json
+import json 
 from utils import locations
 from utils import plot_distributions
 from utils import select
@@ -69,7 +69,9 @@ def make_dataset(vowel_stress_dict):
         for f1f2 in f1f2s:
             X.append(f1f2) 
             y.append(y_value)
+    X = formant_dataset_to_distance_dataset(np.array(X))
     return X, y
+
 
 def formant_dataset_to_distance_dataset(X):
     f1, f2 = X[:,0], X[:,1]
