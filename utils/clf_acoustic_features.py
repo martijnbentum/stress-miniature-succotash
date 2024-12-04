@@ -19,11 +19,11 @@ def handle_cross_lingual(language_name, n_iterations = 20, overwrite = False):
             name = f'other-language-{other_langauge}', overwrite = overwrite)
 
 def handle_language(language_name, n_iterations = 20, name ='', 
-    overwrite = False):
+    overwrite = False, start = 0):
     '''computes classification results for all features for a language
     n_iterations: number of data split to run the classifier on the test data
     '''
-    for i in range(n_iterations):
+    for i in range(start,n_iterations):
         random_state = i
         for feature_name in feature_names:
             _handle_feature(language_name, feature_name, random_state, 
@@ -73,7 +73,6 @@ def duration_classifier(X,y, random_state=42,verbose = False, trim = True):
 
 def formant_classifier(X, y, random_state=42, verbose = False, trim = True):
     print('training formant classifier')
-    X = formants.formant_dataset_to_distance_dataset(X)
     y_test, hyp, clf = _density_classifier(X, y, 'formant', random_state,
         verbose, trim)
     return y_test, hyp, clf
