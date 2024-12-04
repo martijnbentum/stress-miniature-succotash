@@ -77,7 +77,7 @@ def filter_other_language(language_name, other_language_name):
 
 def plot_language_mccs(language_name = 'dutch', new_figure = True, 
     offset =0, color = 'black', plot_grid = True, results = None, 
-    error_alpha = 1):
+    error_alpha = 1, prepend_label = ''):
     if not results: results = filter_language(language_name) 
     plt.ion()
     if new_figure: plt.figure()
@@ -87,7 +87,8 @@ def plot_language_mccs(language_name = 'dutch', new_figure = True,
     x_tick_names[x_tick_names.index('combined-features')] = 'combined'
     means = [result['mean'] for result in results]
     cis = [result['ci'] for result in results]
-    plt.errorbar(x, means, yerr = cis, label = language_name, markersize = 12,
+    plt.errorbar(x, means, yerr = cis, label = prepend_label + language_name, 
+        markersize = 12,
         color = color, fmt = ',', elinewidth = 1.5, capsize = 3, 
         capthick = 1.5, alpha = error_alpha)
     if abs(x[0]) < 0.01:
@@ -137,22 +138,59 @@ def plot_cross_lingual(language_name = 'dutch', new_figure = True):
         print('plotting', language)
         if language == language_name:
             plot_language_mccs(language, new_figure = False, 
+                prepend_label = 'clf ',
                 offset = offset, color = colors[i], plot_grid = False)
         else:
             other_language_name = language
             print(language_name, other_language_name)
             results = filter_other_language(language_name, other_language_name)
             print(results)
-            try:
-                plot_language_mccs(language_name = other_language_name,
-                    results = results, 
-                    new_figure = False, error_alpha = .5, 
-                    offset = offset, color = colors[i], plot_grid = False)
-            except:print('no results for', language_name, other_language_name)
+            plot_language_mccs(language_name = other_language_name,
+                results = results, 
+                new_figure = False, error_alpha = .5, 
+                offset = offset, color = colors[i], plot_grid = False)
         offset += delta_offset
     n_categories = len(classifier_order)
     _plot_vertical_lines(n_categories)
     plt.legend()
     plt.grid(alpha = .5, axis = 'y')
     
+
+def matrix_cell(clf_language, data_language, layer_name = 'duration', 
+    results = None):
+    if not results: results = load_results(return_stats = True)
+    if data_language == clf_language: 
+        identifier = f'{clf_language}-{layer_name}'
+    else:
+        identifier=f'{clf_language}-{layer_name}-other-language-{data_language}'
+    for result in results:
+        if result['identifier'] == identifier:
+            print(identifier, round(result['mean'],5))
+            return result['mean']
+    return 0
+        
+
+def mcc_matrix(layer_name = 'duration', plot = False):
+    languages = language_names
+    n_languages = len(languages)
+    columns, rows = languages,languages 
+    results = load_results()
+    matrix = np.zeros((n_languages, n_languages))
+    for i,data_language in enumerate(rows):
+        for j,clf_language in enumerate(columns):
+            matrix[i,j] = matrix_cell(clf_language, data_language, layer_name, 
+                results)
+    if plot: plot_matrix(matrix, columns, rows, ylabel = 'Data language',
+        xlabel = 'Classifier language')
+    return matrix
+
+def plot_matrix(matrix, columns, rows, ylabel = '', xlabel = ''):
+    plt.figure()
+    plt.imshow(matrix, cmap = 'viridis')
+    plt.xticks(np.arange(len(columns)), columns, rotation = 90)
+    plt.yticks(np.arange(len(rows)), rows)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.colorbar()
+    plt.tight_layout()
         
