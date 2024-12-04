@@ -222,7 +222,7 @@ class Word(models.Model):
     def transformer(self, layer = 1, mean = False, 
         model_name = 'pretrained-xlsr'):
         hidden_states = self.hidden_states(model_name = model_name)
-        hidden_states is None: return None
+        if hidden_states is None: return None
         transformer_features = hidden_states.hidden_states[layer][0]
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
@@ -336,7 +336,7 @@ class Syllable(models.Model):
 
     def cnn(self, mean = False):
         hidden_states = self.hidden_states()
-        hidden_states is None: return None
+        if hidden_states is None: return None
         cnn_features = hidden_states.extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
         return cnn_features
