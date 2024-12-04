@@ -4,9 +4,15 @@ from utils import locations
 import numpy as np
 import pickle
 from pathlib import Path
+from progressbar import progressbar
 import random
 
 n_hdf5_files = 500
+
+def _migrate_audio_hidden_state_to_hidde_state_model(audios):
+    for audio in progressbar(audios):
+        audio.hidden_state_model = f'{audio.hidden_state}_pretrained-xlsr'
+        audio.save()
 
 def remove_last_hidden_state(hidden_states):
     hidden_states.last_hidden_state = None
@@ -67,15 +73,37 @@ def pickled_array_to_data(pickled_array):
     return data
 
 
-def load_word_hidden_states(word):
+def load_word_hidden_states(word, model_name = 'pretrained-xlsr'):
     '''load hidden states for a specific word.'''
-    hdf5_filename = word_to_hdf5_filename(word)
+    hdf5_filename = word_to_hdf5_filename(word, model_name = model_name)
     name = word.identifier
     hidden_states = load_hidden_states(hdf5_filename, name)
     return hidden_states
 
-def _save_hidden_state_number(audio,number):
-    audio.hidden_state = number
+def audio_hidden_state_model_field_to_dict(hidden_state_model):
+    if not hidden_state_model: return {}
+    model_saves = hidden_state_model.split(',')
+    model_dict = {}
+    for model_save in model_saves:
+        number, name = model_save.split('_')
+        model_dict[name] = int(number)
+    return model_dict
+
+def hidden_state_model_field_dict_to_string(model_dict):
+    model_saves = [f'{number}_{name}' for name,number in model_dict.items()]
+    model_saves = ','.join(model_saves)
+    return model_saves
+
+def _save_hidden_state_number(audio,number, model_name = 'pretrained-xlsr'):
+    d = audio_hidden_state_model_field_to_dict(audio.hidden_state_model)
+    if model_name in d:
+        print(f'{audio.identifier} overwriting {model_name} in {d[model_name]}',
+            f'with {number}')
+        d[model_name] = number
+    else: 
+        print(f'{audio.identifier} adding {model_name} with {number}')
+        d[model_name] = number
+    audio.hidden_state_model = hidden_state_model_field_dict_to_string(d)
     audio.save()
 
 def save_word_hidden_states(word, hidden_states, language_name = None):
@@ -96,27 +124,43 @@ def check_word_hidden_states_exists(word, filename = None):
     exists = check_hidden_states_exists(filename, name)
     return exists
 
-def hdf5_filename(language_name, number):
+def hdf5_filename(language_name, number, model_name = 'pretrained-xlsr'):
     language_name = language_name.lower()
     filename = 'hidden_states_' + language_name + '_' + str(number) + '.h5'
-    filename = locations.hidden_states_dir / filename
+    directory = locations.hidden_states_dir / model_name 
+    if not directory.exists():
+        print('creating directory', directory)
+        directory.mkdir()
+    filename = locations.hidden_states_dir / model_name / filename
     return filename
 
 def language_to_language_name(language):
     return language.language.lower()
 
-def audio_to_hdf5_filename(audio, language_name = None):
+def _audio_to_number(audio, model_name = 'pretrained-xlsr'):
+    if not audio.hidden_state_model:
+        return None
+    d = audio_hidden_state_model_field_to_dict(audio.hidden_state_model)
+    if model_name in d:
+        return d[model_name]
+    return None
+
+def audio_to_hdf5_filename(audio, language_name = None, 
+    model_name = 'pretrained-xlsr'):
     if not language_name:
         language_name = language_to_language_name(audio.language)
-    number = audio.hidden_state
+    number = _audio_to_number(audio, model_name)
     if not number: 
-        filename, number = get_hdf5_filename(language_name)
-        _save_hidden_state_number(audio, number)
-    filename = hdf5_filename(language_name, number)
+        filename, number = get_hdf5_filename(language_name, 
+            model_name = model_name)
+        _save_hidden_state_number(audio, number, model_name = model_name)
+    filename = hdf5_filename(language_name, number, model_name)
     return filename
 
-def word_to_hdf5_filename(word, language_name = None):
-    filename = audio_to_hdf5_filename(word.audio, language_name)
+def word_to_hdf5_filename(word, language_name = None, 
+    model_name = 'pretrained-xlsr'):
+    filename = audio_to_hdf5_filename(word.audio, language_name, 
+        model_name = model_name)
     return filename
 
 def syllable_to_hdf5_filename(syllable):
@@ -180,22 +224,21 @@ def find_filename_with_number(number, filenames = [], language_name = ''):
         if n == number: return filename
     return None
 
-def find_filenames_with_language_name(language_name):
+def find_filenames_with_language_name(language_name, 
+    model_name = 'pretrained-xlsr'):
     pattern = 'hidden_states_'+language_name+'*.h5'
-    fn = list(locations.hidden_states_dir.glob(pattern))
+    directory = locations.hidden_states_dir / model_name
+    fn = list(directory.glob(pattern))
     return fn
-
-def find_filename_with_space(filenames):
-    for filename in filenames:
-        if has_space(filename): return filename
 
 def has_space(filename, max_n_items = 1000):
     if not filename: return False
     k = hdf5_keys(filename)
     return len(k) <= max_n_items
 
-def get_hdf5_filename(language_name, current_number = None, max_n_items = 1000):
-    filenames = find_filenames_with_language_name(language_name)
+def get_hdf5_filename(language_name, current_number = None, max_n_items = 1000,
+    model_name = 'pretrained-xlsr'):
+    filenames = find_filenames_with_language_name(language_name, model_name)
     numbers = filenames_to_numbers(filenames)
     if not current_number:
         if numbers: current_number = max(numbers)
@@ -204,7 +247,7 @@ def get_hdf5_filename(language_name, current_number = None, max_n_items = 1000):
         filenames = filenames, language_name = language_name)
     if has_space(filename): return filename, current_number
     number = max(numbers) + 1 if numbers else 1
-    return hdf5_filename(language_name, number), number
+    return hdf5_filename(language_name, number, model_name), number
         
     
 
