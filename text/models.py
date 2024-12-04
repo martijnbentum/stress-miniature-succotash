@@ -42,6 +42,7 @@ class Audio(models.Model):
     language = models.ForeignKey('Language',**dargs)
     dataset = models.ForeignKey('Dataset',**dargs)
     hidden_state = models.IntegerField(default=None, null = True)
+    hidden_state_model = models.TextField(blank=True, null=True)
 
     def __str__(self):
         m = self.identifier + ' ' + str(self.duration) 
@@ -207,28 +208,30 @@ class Word(models.Model):
         signal = item_to_samples(self, signal, sr)
         return signal, sr
 
-    @property
-    def hidden_states(self):
+    def hidden_states(self, model_name = 'pretrained-xlsr'):
         from utils import load_hidden_states as lhs
-        return lhs.load_word_hidden_states(self)
+        return lhs.load_word_hidden_states(self, model_name = model_name)
 
     def cnn(self, mean = False):
-        if self.hidden_states is None: return None
-        cnn_features = self.hidden_states.extract_features[0]
+        hidden_states = self.hidden_states()
+        if hidden_states is None: return None
+        cnn_features = hidden_states.extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
         return cnn_features
 
-    def transformer(self, layer = 1, mean = False):
-        if self.hidden_states is None: return None
-        transformer_features = self.hidden_states.hidden_states[layer][0]
+    def transformer(self, layer = 1, mean = False, 
+        model_name = 'pretrained-xlsr'):
+        hidden_states = self.hidden_states(model_name = model_name)
+        hidden_states is None: return None
+        transformer_features = hidden_states.hidden_states[layer][0]
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
 
-    def codebook_indices(self):
+    def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
         return lc.load_word_codebook_indices(self)
 
-    def codevectors(self, mean = False):
+    def codevectors(self, mean = False, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
         return lc.load_word_codevectors(self)
 
@@ -326,18 +329,21 @@ class Syllable(models.Model):
         signal = item_to_samples(self, signal, sr)
         return signal, sr
 
-    @property
-    def hidden_states(self):
+    def hidden_states(self, model_name = 'pretrained-xlsr'):
         from utils import load_hidden_states as lhs
-        return lhs.load_syllable_hidden_states(self, self.word.hidden_states)
+        return lhs.load_syllable_hidden_states(self, 
+            self.word.hidden_states(model_name))
 
     def cnn(self, mean = False):
-        if self.hidden_states is None: return None
-        cnn_features = self.hidden_states.extract_features[0]
+        hidden_states = self.hidden_states()
+        hidden_states is None: return None
+        cnn_features = hidden_states.extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
         return cnn_features
 
-    def transformer(self, layer = 1, mean = False):
+    def transformer(self, layer = 1, mean = False, 
+        model_name = 'pretrained-xlsr'):
+        hidden_states = self.hidden_states(model_name = model_name)
         if self.hidden_states is None: return None
         transformer_features = self.hidden_states.hidden_states[layer][0]
         if mean: return np.mean(transformer_features, axis = 0)
@@ -452,10 +458,10 @@ class Phoneme(models.Model):
         signal = item_to_samples(self, signal, sr)
         return signal, sr
 
-    @property
-    def hidden_states(self):
+    def hidden_states(self, model_name = 'pretrained-xlsr'):
         from utils import load_hidden_states as lhs
-        return lhs.load_phoneme_hidden_states(self, self.word.hidden_states)
+        return lhs.load_phoneme_hidden_states(self, 
+            self.word.hidden_states(model_name))
 
     def cnn(self, mean = False):
         if self.hidden_states is None: return None
@@ -463,9 +469,11 @@ class Phoneme(models.Model):
         if mean: return np.mean(cnn_features, axis = 0)
         return cnn_features
 
-    def transformer(self, layer = 1, mean = False):
-        if self.hidden_states is None: return None
-        transformer_features = self.hidden_states.hidden_states[layer][0]
+    def transformer(self, layer = 1, mean = False, 
+        model_name = 'pretrained-xlsr'):
+        hidden_states = self.hidden_states(model_name = model_name)
+        if hidden_states is None: return None
+        transformer_features = hidden_states.hidden_states[layer][0]
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
 
