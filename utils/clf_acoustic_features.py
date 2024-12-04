@@ -47,20 +47,24 @@ def _handle_feature(language_name, feature_name, random_state = 42,
         dataset_filename = make_dataset_filename(other_language_name,
             feature_name)
         X, y = load_dataset(other_language_name, feature_name)
+        clf = load_classifier(language_name, data_type, feature_name,
+            section, name = '', n = n, random_state = random_state)
+        hyp = clf.predict(X)
+        y_test = y
     else:
         dataset_filename = make_dataset_filename(language_name, 
             feature_name)
         X, y = load_dataset(language_name, feature_name)
+        function = feature_to_function[feature_name]
+        y_test, hyp, clf = function(X, y, random_state = random_state)
+        save_classifier(clf, language_name, data_type, feature_name,
+            section, random_state = random_state)
     classifier_filename = make_classifier_filename(language_name,
         data_type, feature_name, section , random_state=random_state)
-    function = feature_to_function[feature_name]
-    y_test, hyp, clf = function(X, y, random_state = random_state)
     result = results.save_results(y_test, hyp, language_name, data_type, 
         feature_name, section, rs = random_state, name = name, n = n,
         dataset_filename = dataset_filename, 
         classifier_filename = classifier_filename, overwrite = overwrite)
-    save_classifier(clf, language_name, data_type, feature_name,
-        section, random_state = random_state)
     return result
 
     
@@ -129,6 +133,11 @@ def make_classifier_filename(language_name, data_type, layer, section,
     name = '', n = '', random_state = 1):
     f = perceptron.make_classifier_filename(language_name, data_type, layer, 
         section, name, n, random_state)
+
+def load_classifier(language_name, data_type, layer, section, name = '', n = '',
+    random_state = 1):
+    return perceptron.load_classifier(language_name, data_type, layer, section, 
+        name, n, random_state)
 
 def save_classifier(clf, language_name, data_type, layer, section, name = '',
     n = '', random_state = 1):
