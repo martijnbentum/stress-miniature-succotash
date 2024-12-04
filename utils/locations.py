@@ -92,3 +92,7 @@ language_naudios_dict = Path('../language_naudios_dict.json')
 
 classifier_dir = Path('../classifiers/')
 dataset_dir = Path('../dataset/')
+
+finetuned_dir = Path('/vol/tensusers3/mbentum/finetune/')
+sampa_xlsr_dir = finetuned_dir / 'sampa_xlsr_300m/checkpoint-15300/'
+orthographic_xlsr_dir = finetuned_dir / 'orthographic_xlsr_300m/checkpoint-13671/'
