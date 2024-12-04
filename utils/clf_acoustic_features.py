@@ -7,7 +7,8 @@ from utils import density_classifier, results, perceptron
 feature_names = acoustic_correlates.feature_names
 language_names = acoustic_correlates.language_names
 
-def handle_cross_lingual(language_name, n_iterations = 20, overwrite = False):
+def handle_cross_lingual(language_name, n_iterations = 20, overwrite = False,
+    start = 0):
     '''computed classification results with classifiers trained on other
     language than the test data e.g. dutch clf and test data from english
     n_iterations: number of data split to run the classifier on the test data
@@ -16,7 +17,8 @@ def handle_cross_lingual(language_name, n_iterations = 20, overwrite = False):
         print('handling', language_name, other_langauge)
         if other_langauge == language_name: continue
         handle_language(language_name, n_iterations,
-            name = f'other-language-{other_langauge}', overwrite = overwrite)
+            name = f'other-language-{other_langauge}', overwrite = overwrite,
+            start = start)
 
 def handle_language(language_name, n_iterations = 20, name ='', 
     overwrite = False, start = 0):
