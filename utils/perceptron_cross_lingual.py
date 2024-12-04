@@ -66,15 +66,19 @@ def test_classifier_on_other_language(classifier_language_name,
 
 def test_all_language_pairs(overwrite = False):
     output = []
-    for random_state in range(20):
-        for classifier_language_name, test_language_name in language_pairs:
-            print(f'testing classifier {classifier_language_name}',
-                f'on {test_language_name}')
-            result = test_classifier_on_other_language(classifier_language_name, 
-                test_language_name, random_state = random_state,
-                overwrite = overwrite)
-            print(result)
-            output.append(result)
+    layers = ['codevector', 5, 11, 17, 23]
+    for layer in layers:
+        for random_state in range(20):
+            for classifier_language_name, test_language_name in language_pairs:
+                print(f'testing classifier {classifier_language_name}',
+                    f'on {test_language_name}')
+                result = test_classifier_on_other_language(
+                    classifier_language_name, 
+                    test_language_name, layer = layer,
+                    random_state = random_state,
+                    overwrite = overwrite)
+                print(result)
+                output.append(result)
     return output
 
 
