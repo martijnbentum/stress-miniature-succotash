@@ -94,7 +94,12 @@ def hidden_state_model_field_dict_to_string(model_dict):
     model_saves = ','.join(model_saves)
     return model_saves
 
+def check_model_name(model_name):
+    if '_' in model_name:
+        raise ValueError('model_name cannot contain underscore', model_name)
+
 def _save_hidden_state_number(audio,number, model_name = 'pretrained-xlsr'):
+    check_model_name(model_name)
     d = audio_hidden_state_model_field_to_dict(audio.hidden_state_model)
     if model_name in d:
         print(f'{audio.identifier} overwriting {model_name} in {d[model_name]}',
@@ -106,9 +111,11 @@ def _save_hidden_state_number(audio,number, model_name = 'pretrained-xlsr'):
     audio.hidden_state_model = hidden_state_model_field_dict_to_string(d)
     audio.save()
 
-def save_word_hidden_states(word, hidden_states, language_name = None):
+def save_word_hidden_states(word, hidden_states, language_name = None, 
+    model_name = 'pretrained-xlsr'):
     '''save hidden states for a specific word.'''
-    filename = word_to_hdf5_filename(word, language_name)
+    check_model_name(model_name)
+    filename = word_to_hdf5_filename(word, language_name, model_name)
     name = word.identifier
     if check_word_hidden_states_exists(word, filename):
         print('word hidden states already saved, skipping')
@@ -138,6 +145,7 @@ def language_to_language_name(language):
     return language.language.lower()
 
 def _audio_to_number(audio, model_name = 'pretrained-xlsr'):
+    check_model_name(model_name)
     if not audio.hidden_state_model:
         return None
     d = audio_hidden_state_model_field_to_dict(audio.hidden_state_model)
@@ -147,6 +155,7 @@ def _audio_to_number(audio, model_name = 'pretrained-xlsr'):
 
 def audio_to_hdf5_filename(audio, language_name = None, 
     model_name = 'pretrained-xlsr'):
+    check_model_name(model_name)
     if not language_name:
         language_name = language_to_language_name(audio.language)
     number = _audio_to_number(audio, model_name)
@@ -159,16 +168,17 @@ def audio_to_hdf5_filename(audio, language_name = None,
 
 def word_to_hdf5_filename(word, language_name = None, 
     model_name = 'pretrained-xlsr'):
+    check_model_name(model_name)
     filename = audio_to_hdf5_filename(word.audio, language_name, 
         model_name = model_name)
     return filename
 
-def syllable_to_hdf5_filename(syllable):
-    filename = word_to_hdf5_filename(syllable.word)
+def syllable_to_hdf5_filename(syllable, model_name = 'pretrained-xlsr'):
+    filename = word_to_hdf5_filename(syllable.word, model_name = model_name)
     return filename
 
-def phoneme_to_hdf5_filename(phoneme):
-    filename = word_to_hdf5_filename(phoneme.word)
+def phoneme_to_hdf5_filename(phoneme, model_name = 'pretrained-xlsr'):
+    filename = word_to_hdf5_filename(phoneme.word, model_name = model_name)
     return filename
 
 
