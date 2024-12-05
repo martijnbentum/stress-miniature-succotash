@@ -3,7 +3,7 @@ import numpy
 import pickle
 
 def check_xy_datasets(language_name):
-    fn = glob.glob('../dataset/xy_dataset-stress_language-dutch*')
+    fn = glob.glob(f'../dataset/xy_dataset-stress_language-{language_name}*')
     counts, stressed = [], []
     for f in fn:
         d = pickle.load(open(f,'rb'))
@@ -14,6 +14,6 @@ def check_xy_datasets(language_name):
         counts.append(n)
         stressed.append(n_stressed)
     print('max difference:', max(counts) - min(counts))
-    print('max difference stressed:', max(stressed) - min(stressed)
+    print('max difference stressed:', max(stressed) - min(stressed))
 
 
