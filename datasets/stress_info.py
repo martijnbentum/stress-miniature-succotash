@@ -155,7 +155,7 @@ class StressInfo(HiddenStates):
         self._handle_section(section)
         self._set_get_hidden_state_function(section, multilayers = False)
         return super().xy(layer, n, random_ground_truth, 
-            self.items_attribute_name, mean = mean, model_name)
+            self.items_attribute_name, mean = mean, model_name = model_name)
 
     def xy_multilayer(self, layers = ['cnn', 5, 11, 17, 23], 
         section = 'syllable', n = None, random_ground_truth = False, 
@@ -163,7 +163,7 @@ class StressInfo(HiddenStates):
         self._handle_section(section)
         self._set_get_hidden_state_function(section, multilayers = True)
         return super().xy_multilayer(layers, n, random_ground_truth, 
-            self.items_attribute_name, mean = mean, model_name)
+            self.items_attribute_name, mean = mean, model_name = model_name)
 
             
 def get_attribute_name(name):
@@ -239,7 +239,7 @@ def syllable_to_vowel(syllable, skip_multiple_vowels = False):
     return syllable.vowel[0]
 
 def handle_language_stress_info(language_name, si = None, sections = [],
-    layers = [], name = ''):
+    layers = [], name = '', model_name = 'pretrained-xlsr'):
     if not sections: sections = ['vowel']
     if not layers: layers = ['codevector','cnn', 5,11,17,23]
     if si is None: 
