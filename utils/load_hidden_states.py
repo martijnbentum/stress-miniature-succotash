@@ -13,7 +13,7 @@ def phoneme_list_to_combined_hidden_states(phoneme_list, hs = 'cnn',
     hidden_states_list = []
     for phoneme in phoneme_list:
         if hs == 'cnn':
-            hidden_states = phoneme.cnn(mean = False)
+            hidden_states = phoneme.cnn(mean = False, model_name = model_name)
         elif hs == 'codevector':
             hidden_states = phoneme.codevector(mean = False)
         elif hs == 'hidden_states':
