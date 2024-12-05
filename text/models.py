@@ -464,8 +464,9 @@ class Phoneme(models.Model):
             self.word.hidden_states(model_name))
 
     def cnn(self, mean = False):
+        hidden_states = self.hidden_states()
         if self.hidden_states is None: return None
-        cnn_features = self.hidden_states.extract_features[0]
+        cnn_features = self.hidden_states().extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
         return cnn_features
 
