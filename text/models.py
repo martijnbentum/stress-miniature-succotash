@@ -212,8 +212,8 @@ class Word(models.Model):
         from utils import load_hidden_states as lhs
         return lhs.load_word_hidden_states(self, model_name = model_name)
 
-    def cnn(self, mean = False):
-        hidden_states = self.hidden_states()
+    def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
+        hidden_states = self.hidden_states(model_name = model_name)
         if hidden_states is None: return None
         cnn_features = hidden_states.extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
@@ -334,8 +334,8 @@ class Syllable(models.Model):
         return lhs.load_syllable_hidden_states(self, 
             self.word.hidden_states(model_name))
 
-    def cnn(self, mean = False):
-        hidden_states = self.hidden_states()
+    def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
+        hidden_states = self.hidden_states(model_name = model_name)
         if hidden_states is None: return None
         cnn_features = hidden_states.extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
@@ -345,7 +345,7 @@ class Syllable(models.Model):
         model_name = 'pretrained-xlsr'):
         hidden_states = self.hidden_states(model_name = model_name)
         if self.hidden_states is None: return None
-        transformer_features = self.hidden_states.hidden_states[layer][0]
+        transformer_features = hidden_states.hidden_states[layer][0]
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
 
@@ -463,8 +463,8 @@ class Phoneme(models.Model):
         return lhs.load_phoneme_hidden_states(self, 
             self.word.hidden_states(model_name))
 
-    def cnn(self, mean = False):
-        hidden_states = self.hidden_states()
+    def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
+        hidden_states = self.hidden_states(model_name = model_name)
         if self.hidden_states is None: return None
         cnn_features = self.hidden_states().extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
