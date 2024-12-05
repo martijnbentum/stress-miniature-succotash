@@ -84,7 +84,9 @@ def plot_language_mccs(language_name = 'dutch', new_figure = True,
     plt.ylim(0,1)
     x = np.arange(len(results)) + offset
     x_tick_names = [result['layer'] for result in results]
-    x_tick_names[x_tick_names.index('combined-features')] = 'combined'
+    print(x_tick_names)
+    try:x_tick_names[x_tick_names.index('combined-features')] = 'combined'
+    except:return
     means = [result['mean'] for result in results]
     cis = [result['ci'] for result in results]
     plt.errorbar(x, means, yerr = cis, label = prepend_label + language_name, 
