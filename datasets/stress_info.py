@@ -156,7 +156,7 @@ class StressInfo(HiddenStates):
         self._handle_section(section)
         self._set_get_hidden_state_function(section, multilayers = False)
         return super().xy(layer, n, random_ground_truth, 
-            self.items_attribute_name, mean = mean, model_name = model_name)
+            self.items_attribute_name, mean = mean)
 
     def xy_multilayer(self, layers = ['cnn', 5, 11, 17, 23], 
         section = 'syllable', n = None, random_ground_truth = False, 
@@ -182,6 +182,7 @@ def get_parameters(name, mean, model_name = 'pretrained-xlsr'):
 def get_hidden_states(item, layer, mean = True, model_name = 'pretrained-xlsr'):
     attribute_name = get_attribute_name(layer)
     parameters = get_parameters(layer, mean, model_name)
+    print(attribute_name, parameters)
     attribute = getattr(item, attribute_name)
     return attribute(**parameters)
 
@@ -198,10 +199,11 @@ def get_hidden_states_multilayers(item, layers, mean = True):
         d['codevector'] = get_hidden_states(item, 'codevector', mean)
     return d 
 
-def get_hidden_states_multiple_phonemes(phonemes, layer, mean = True):
+def get_hidden_states_multiple_phonemes(phonemes, layer, mean = True,
+    model_name = 'pretrained-xlsr'):
     if not type(phonemes) == list: phonemes = [phonemes]
     o = lhs.phoneme_list_to_combined_hidden_states(phonemes, hs = layer, 
-        mean = mean)
+        mean = mean, model_name = model_name)
     return o
 
 def get_hidden_states_multilayers_multiple_phonemes(phonemes, layers, 
@@ -253,19 +255,19 @@ def handle_language_stress_info(language_name, si = None, sections = [],
             has_stress = True)
         syllables = select.words_to_syllables(words)
         print('creating StressInfo object')
-        si = StressInfo(syllables)
+        si = StressInfo(syllables, model_name = model_name)
     for section in sections:
         for layer in layers:
             print(f'handling {section} {layer}')
             filename = make_dataset_filename(language_name, layer, section, 
-                name)
+                name, n = model_name)
             path = Path(filename)
             if path.exists(): 
                 print(f'file {filename} exists. skipping')
                 continue
             X, y = si.xy(layer = layer, section = section)
             save_xy(X, y, language_name, section = section, layer = layer,
-                name = name)
+                name = name, n = model_name)
     return si
 
 def check_dataset_existence(language_name, section, layers = [], 
