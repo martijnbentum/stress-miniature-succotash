@@ -40,19 +40,19 @@ class HiddenStates:
             self.items_attribute_names.append(self.items_attribute_name)
         self.items_attribute_name = items_attribute_name
 
-    def _xy(self, item, layer, mean):
+    def _xy(self, item, layer, mean, model_name = 'pretrained-xlsr'):
         if not self.item_to_ground_truth: return None, None
-        x = self.item_to_hidden_states(item, layer, mean)
+        x = self.item_to_hidden_states(item, layer, mean, model_name)
         if x is None: return None, None
         y = self.item_to_ground_truth(item, self.ground_truth_dict)
         if y is None: return None, None
         return x, y
 
-    def _xy_multilayer(self, item, layers, mean):
+    def _xy_multilayer(self, item, layers, mean, model_name = 'pretrained-xlsr'):
         if not self.item_to_ground_truth: return None, None
         ground_truth = self.item_to_ground_truth(item, self.ground_truth_dict)
         if ground_truth is None: return None, None
-        x = self.item_to_hidden_states(item, layers, mean)
+        x = self.item_to_hidden_states(item, layers, mean, model_name)
         if x is None: return None, None
         y = {}
         for layer in layers:
@@ -151,19 +151,19 @@ class StressInfo(HiddenStates):
         self._set_get_hidden_state_function(section)
 
     def xy(self, layer = 'cnn', section = 'syllable', n = None,
-        random_ground_truth = False, mean = True):
+        random_ground_truth = False, mean = True, model_name = 'pretrained-xlsr'):
         self._handle_section(section)
         self._set_get_hidden_state_function(section, multilayers = False)
         return super().xy(layer, n, random_ground_truth, 
-            self.items_attribute_name, mean = mean)
+            self.items_attribute_name, mean = mean, model_name)
 
     def xy_multilayer(self, layers = ['cnn', 5, 11, 17, 23], 
         section = 'syllable', n = None, random_ground_truth = False, 
-        mean = True):
+        mean = True, model_name = 'pretrained-xlsr'):
         self._handle_section(section)
         self._set_get_hidden_state_function(section, multilayers = True)
         return super().xy_multilayer(layers, n, random_ground_truth, 
-            self.items_attribute_name, mean = mean)
+            self.items_attribute_name, mean = mean, model_name)
 
             
 def get_attribute_name(name):
