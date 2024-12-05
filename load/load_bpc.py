@@ -137,5 +137,16 @@ def group_phonemes(ipa_list, groups = ''):
         grouped_list.extend(group_dict[group])
     print('double:', double)
     return grouped_list, group_dict, double
+
+def add_bpcs_str(phonemes):
+    n, skip = 0, 0
+    for phoneme in progressbar(phonemes):
+        if phoneme.bpcs_str: 
+            print(phoneme.bpcs_str, phoneme.identifier)
+            skip += 1
+            continue
+        phoneme.bpcs_str = ','.join([bpc.bpc for bpc in phoneme.bpcs.all()])
+        phoneme.save()
+        n += 1
     
     
