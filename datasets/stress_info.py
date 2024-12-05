@@ -15,7 +15,7 @@ class HiddenStates:
         item_to_ground_truth = None, 
         ground_truth_dict = None,
         name = 'default',
-        model = 'wav2vec2-xls-r-300m'): 
+        model_name = 'pretrained-xlsr'): 
         setattr(self, items_attribute_name, items)
         self.set_items_attribute_name(items_attribute_name)
         if not item_to_hidden_states: item_to_hidden_states = get_hidden_states
@@ -23,7 +23,7 @@ class HiddenStates:
         self.item_to_ground_truth = item_to_ground_truth
         self.ground_truth_dict = ground_truth_dict
         self.name = name
-        self.model = model
+        self.model = model_name
 
     def get_items(self):
         return getattr(self, self.items_attribute_name)
@@ -40,19 +40,19 @@ class HiddenStates:
             self.items_attribute_names.append(self.items_attribute_name)
         self.items_attribute_name = items_attribute_name
 
-    def _xy(self, item, layer, mean, model_name = 'pretrained-xlsr'):
+    def _xy(self, item, layer, mean) :
         if not self.item_to_ground_truth: return None, None
-        x = self.item_to_hidden_states(item, layer, mean, model_name)
+        x = self.item_to_hidden_states(item, layer, mean, self.model_name)
         if x is None: return None, None
         y = self.item_to_ground_truth(item, self.ground_truth_dict)
         if y is None: return None, None
         return x, y
 
-    def _xy_multilayer(self, item, layers, mean, model_name = 'pretrained-xlsr'):
+    def _xy_multilayer(self, item, layers, mean):
         if not self.item_to_ground_truth: return None, None
         ground_truth = self.item_to_ground_truth(item, self.ground_truth_dict)
         if ground_truth is None: return None, None
-        x = self.item_to_hidden_states(item, layers, mean, model_name)
+        x = self.item_to_hidden_states(item, layers, mean, self.model_name)
         if x is None: return None, None
         y = {}
         for layer in layers:
@@ -95,16 +95,16 @@ class HiddenStates:
 
 class StressInfo(HiddenStates):
     def __init__(self, syllables, dataset_name = 'default', 
-        model = 'wav2vec2-xls-r-300m', 
         skip_syllables_with_multiple_vowels = False,
-        use_multiple_vowels = False):
+        use_multiple_vowels = False,
+        model_name = 'pretrained-xlsr'):
         '''Initialize StressInfo object to extract hiddenstates from syllables.
         the class can be used to create a dataset of hiddenstates based on 
         stress status
         the input can be syllables or the onset vowel rime coda of a syllable.
         syllables:          list of syllables as defined in text.models.
         dataset_name:       name of the dataset.
-        model:              name of the asr model which outputed the 
+        model_name:         name of the asr model which outputed the 
                             hiddenstates.
         skip_syllables...:  if True, syllables with multiple vowels are skipped.
         use_multiple_v...:  if True and a syllable has multiple vowels 
@@ -113,9 +113,10 @@ class StressInfo(HiddenStates):
         self.ground_truth_dict = {False: 0, True: 1}
         super().__init__(syllables, item_to_ground_truth = item_to_stress,
             items_attribute_name = 'syllables', 
-            ground_truth_dict = self.ground_truth_dict )
+            ground_truth_dict = self.ground_truth_dict, 
+            model_name = model_name)
         self.dataset_name = dataset_name
-        self.model = model
+        self.model_name = model_name
         self.skip_multiple_vowels = skip_syllables_with_multiple_vowels
         self.use_multiple_vowels = use_multiple_vowels
 
@@ -171,16 +172,16 @@ def get_attribute_name(name):
     if type(name) == int and name in tf_layers:
         return 'transformer'
 
-def get_parameters(name, mean):
-    kwargs = {'mean': mean}
+def get_parameters(name, mean, model_name = 'pretrained-xlsr'):
+    kwargs = {'mean': mean, 'model_name': model_name}
     if name == 'cnn': return kwargs
     if type(name) == int and name in tf_layers:
         kwargs['layer'] = name
         return kwargs
 
-def get_hidden_states(item, layer, mean = True):
+def get_hidden_states(item, layer, mean = True, model_name = 'pretrained-xlsr'):
     attribute_name = get_attribute_name(layer)
-    parameters = get_parameters(layer, mean)
+    parameters = get_parameters(layer, mean, model_name)
     attribute = getattr(item, attribute_name)
     return attribute(**parameters)
 
