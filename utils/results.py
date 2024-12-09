@@ -82,7 +82,8 @@ class Results:
     def random_state_sets(self):
         if hasattr(self, '_random_state_sets'): return self._random_state_sets
         self._random_state_sets = {}
-        for result in self.results:
+        results = self.results + self.cross_lingual_results + self.other_models
+        for result in results:
             if result.identifier not in self._random_state_sets:
                 self._random_state_sets[result.identifier] = [result]
             else:
@@ -95,10 +96,10 @@ class Results:
             results.append(result.to_dict())
         for result in self.cross_lingual_results:
             results.append(result.to_dict())
+        for result in self.other_models:
+            results.append(result.to_dict())
         with open(filename, 'w') as f:
             json.dump(results, f, indent = 4) 
-
-
 
 class Result:
     def __init__(self, y_test = None, hyp = None, result_filename = '',
