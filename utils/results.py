@@ -19,6 +19,7 @@ class Results:
         self.fn = list(self.directory.glob('*.pickle'))
         self.results = []
         self.cross_lingual_results = []
+        self.other_models = []
         for f in progressbar(self.fn):
             if 'mccs' in str(f): 
                 print(f'skipping mccs file {f}')
@@ -26,6 +27,8 @@ class Results:
             result = Result(result_filename = f, verbose = False)
             if 'other-language' in result.name:
                 self.cross_lingual_results.append(result)
+            if result.n:
+                self.other_models.append(result)
             else:
                 self.results.append(result)
 
