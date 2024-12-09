@@ -24,11 +24,32 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 
 ### Classifier performance based on acoustic correlates of stress and wav2vec 2 embeddings
 
-<img width="1910" alt="Screenshot 2024-09-11 at 17 30 31" src="https://github.com/user-attachments/assets/f68e34fe-6f13-48c9-9e98-3cb957090ed2">
+<img width="629" alt="Screenshot 2024-12-09 at 10 04 58" src="https://github.com/user-attachments/assets/2131d02b-af00-4dd9-9a9d-a21770b69012">
+
+### Classifier performance on other language
+
+#### Dutch classifiers on other languages
+
+<img width="631" alt="Screenshot 2024-12-09 at 10 04 46" src="https://github.com/user-attachments/assets/4170350a-6007-41d4-a3b4-1b0435e9e84d">
+
+#### English classifiers on other languages
+
+<img width="629" alt="Screenshot 2024-12-09 at 10 04 33" src="https://github.com/user-attachments/assets/c3a574e8-ba54-4abd-a302-03d2b5488d72">
+
+#### German classifiers on other languages
+
+<img width="630" alt="Screenshot 2024-12-09 at 10 04 17" src="https://github.com/user-attachments/assets/37ebbb10-af27-48a9-a5d3-f952046fded0">
+
+#### Polish classifiers on other languages
+
+<img width="631" alt="Screenshot 2024-12-09 at 10 04 04" src="https://github.com/user-attachments/assets/22e6916f-9390-49e3-95e6-41a847a1e48f">
+
+#### Hungarian classifiers on other languages
+
+<img width="632" alt="Screenshot 2024-12-09 at 10 03 50" src="https://github.com/user-attachments/assets/e171e4ca-3e38-43d0-a1fe-cc05fc095215">
 
 
-
-
+# OLD
 
 ### All syllables (Dutch, German and English)
 
