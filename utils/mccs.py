@@ -9,24 +9,31 @@ classifier_order = ['duration', 'intensity', 'pitch', 'formant',
     'spectral-tilt', 'combined-features', 'codevector', 'cnn', 5, 11, 
     17, 23]
         
-def load_results(return_stats = True):
+def load_results(return_stats = True, focus_language = None):
     with open('../results.json') as f:
         d = json.load(f)
-    if return_stats: return results_to_stats(d)
+    if return_stats: return results_to_stats(d, focus_language = focus_language)
     return d
 
 def _result_to_identifier(result):
     language_name = result['language_name']
     layer = result['layer']
     name = result['name']
-    if not name: return f'{language_name}-{layer}'
-    return f'{language_name}-{layer}-{name}'
+    n = result['n']
+    if name: return f'{language_name}-{layer}-{name}'
+    if n: return f'{language_name}-{layer}-{n}'
+    return f'{language_name}-{layer}'
 
-def results_to_stats(results):
+def results_to_stats(results, focus_language = None):
     output = {}
     for result in results:
         identifier = _result_to_identifier(result)
         language_name = result['language_name']
+        if focus_language:  
+            if language_name != focus_language: continue
+            if not 'other-language-' in identifier: continue
+            identifier = identifier.split('-other')[0] + '-other-language-'
+            print(identifier)
         layer = result['layer']
         mcc = result['mcc']
         name = result['name']
@@ -44,9 +51,13 @@ def results_to_stats(results):
         o.append(item)
     return o 
 
-def filter_cross_lingual(cross_lingual = True):
-    results = load_results()
+def filter_cross_lingual(results = None, cross_lingual = True):
+    if not results: results = load_results()
     output = []
+    if cross_lingual:
+        print('loading cross-lingual results')
+    else:
+        print('loading monolingual results')
     for result in results:
         if cross_lingual:
             if 'other-language-' in result['name']:
@@ -56,13 +67,22 @@ def filter_cross_lingual(cross_lingual = True):
                 output.append(result)
     return output
 
-def filter_language(language_name, cross_lingual = False):
-    results = load_results()
-    results = filter_cross_lingual(cross_lingual)
+def filter_language(language_name, cross_lingual = False, finetuned = False,
+    focus_language = None):
+    if focus_language: 
+        print('loading with focus language', focus_language)
+        results = load_results(focus_language = language_name)
+    else:
+        results = filter_cross_lingual(cross_lingual = cross_lingual)
     output = []
     for result in results:
         if language_name == result['language_name']:
-            output.append(result)
+            if finetuned:
+                if 'finetuned' in result['identifier']:
+                    output.append(result)
+            else:
+                if not 'finetuned' in result['identifier']:
+                    output.append(result)
     output = sorted(output, key = lambda x: classifier_order.index(x['layer']))
     return output
 
@@ -77,19 +97,28 @@ def filter_other_language(language_name, other_language_name):
 
 def plot_language_mccs(language_name = 'dutch', new_figure = True, 
     offset =0, color = 'black', plot_grid = True, results = None, 
-    error_alpha = 1, prepend_label = ''):
-    if not results: results = filter_language(language_name) 
+    error_alpha = 1, prepend_label = '', append_label = '', finetuned = False, 
+    focus_language = None):
+    if not results: results = filter_language(language_name, 
+        finetuned = finetuned, focus_language = focus_language) 
     plt.ion()
     if new_figure: plt.figure()
     plt.ylim(0,1)
-    x = np.arange(len(results)) + offset
-    x_tick_names = [result['layer'] for result in results]
-    print(x_tick_names)
-    try:x_tick_names[x_tick_names.index('combined-features')] = 'combined'
-    except:return
+    x_temp = np.arange(len(classifier_order)) + offset
+    temp = [result['layer'] for result in results]
+    x, x_tick_names = [], []
+    for i, co in enumerate(classifier_order):
+        if co in temp:
+            x.append(x_temp[i])
+            x_tick_names.append(co)
+    # x_tick_names = [co for co in classifier_order if co in temp]
+    if 'combined-features' in x_tick_names: 
+        x_tick_names[x_tick_names.index('combined-features')] = 'combined'
+    print(x,x_tick_names)
     means = [result['mean'] for result in results]
     cis = [result['ci'] for result in results]
-    plt.errorbar(x, means, yerr = cis, label = prepend_label + language_name, 
+    plt.errorbar(x, means, yerr = cis, 
+        label = prepend_label + language_name + append_label, 
         markersize = 12,
         color = color, fmt = ',', elinewidth = 1.5, capsize = 3, 
         capthick = 1.5, alpha = error_alpha)
@@ -154,8 +183,25 @@ def plot_cross_lingual(language_name = 'dutch', new_figure = True):
         offset += delta_offset
     n_categories = len(classifier_order)
     _plot_vertical_lines(n_categories)
-    plt.legend()
+    legend = plt.legend()
+    texts = legend.get_texts()
+    for text in texts:
+        if 'clf' in text.get_text(): text.set_color('red') 
     plt.grid(alpha = .5, axis = 'y')
+
+def compare_pretrained_finetuned_other(language_name = 'dutch', 
+    new_figure = True):
+    plot_language_mccs(language_name, new_figure = True)
+    plot_language_mccs(language_name, new_figure = False, finetuned = True,
+        color = 'red', plot_grid = False, prepend_label = 'finetuned ',
+        error_alpha = .8)
+    plot_language_mccs(language_name, new_figure = False,
+        focus_language = language_name,
+        color = 'grey', plot_grid = False, 
+        append_label = ' tested on other languages', error_alpha = 0.6)
+    plt.legend()
+        
+
     
 
 def matrix_cell(clf_language, data_language, layer_name = 'duration', 
