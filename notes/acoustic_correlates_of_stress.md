@@ -48,6 +48,11 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 
 <img width="632" alt="Screenshot 2024-12-09 at 10 03 50" src="https://github.com/user-attachments/assets/e171e4ca-3e38-43d0-a1fe-cc05fc095215">
 
+### Pretrained dutch Finetuned Dutch and test results on all other languages combined
+
+<img width="630" alt="Screenshot 2024-12-09 at 11 34 03" src="https://github.com/user-attachments/assets/a0ac4f0f-912a-4a83-bde5-19facdb2dcfd">
+
+
 
 # OLD
 
