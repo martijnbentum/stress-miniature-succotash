@@ -10,11 +10,11 @@ For each syllable of each item the hidden states for the vowels were extracted a
 
 We applied layer specific (i.e. cnn, 5, 11, ...) stress classifiers we trained on Dutch Common voice materials and collected the results.
 
-_Table 1, percentage of correctly assigned stress labels for words and pseudowords for different layers of the wav2vec 2 model_
+_Table 1, percentage of correctly assigned stress labels for words and pseudowords for different layers of the pretrained wav2vec 2 xlrs model (and the same model finetuned on dutch orthography)_
 | Wav2Vec 2 Layer | Words  | Pseudowords |
 |-----------------|--------|-----------|
 | cnn             | 76.14  | 77.67     |
-| 5               | 82.52  | 86.83     |
-| 11              | 93.63  | 95.33     |
-| 17              | 91.67  | 92.5      |
-| 23              | 89.05  | 88.83     |
+| 5               | 82.52 (87.09) | 86.83 (88.0)     |
+| 11              | 93.63 (88.07) | 95.33 (87.5)    |
+| 17              | 91.67 (83.5) | 92.5 (86.17)     |
+| 23              | 89.05 (50) | 88.83 (50)    |
