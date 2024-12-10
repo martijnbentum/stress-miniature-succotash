@@ -1,5 +1,7 @@
+import os
 import pickle
 from pathlib import Path
+from progressbar import progressbar
 from w2v2_hidden_states import frame
 from w2v2_hidden_states import load
 from w2v2_hidden_states import to_vector
@@ -44,30 +46,41 @@ def word_to_info(word):
     return start_time, end_time, identifier, name
 
 def audio_filename_to_vector(audio_filename, model = None, gpu = False,
-    save_pickle = False):
+    save_pickle = False, output_filename = ''):
+    if save_pickle and not output_filename:
+        audio_filename = str(audio_filename)
+        output_filename = audio_filename.replace('.wav', '.pickle')
+        if os.path.exists(output_filename):
+            print('skipping', output_filename, 'already exists')
+            return False
     if not model: 
         model = load.load_pretrained_model(gpu = gpu)
     outputs = to_vector.filename_to_vector(audio_filename, model = model, 
         gpu = gpu)
     if save_pickle:
-        audio_filename = str(audio_filename)
-        pickle_filename = audio_filename.replace('.wav', '.pickle')
-        print('saving', pickle_filename)
-        with open(pickle_filename, 'wb') as fout:
+        print('saving', output_filename)
+        with open(output_filename, 'wb') as fout:
             pickle.dump(outputs, fout)
     return outputs
 
-def directory_to_vectors(directory, model, gpu = False):
+def directory_to_vectors(directory, model, gpu = False, output_directory = ''):
     p = Path(directory)
     output = []
-    for audio_filename in p.glob('*.wav'):
+    print('processing', directory, 'and saving to', output_directory)
+    for audio_filename in progressbar(p.glob('*.wav')):
         print('processing', audio_filename)
         f = str(audio_filename)
         pickle_filename = f.replace('.wav', '.pickle')
+        if output_directory:
+            if not output_directory.endswith('/'):
+                output_directory += '/'
+            pickle_filename = pickle_filename.replace(directory, 
+                output_directory)
         if Path(pickle_filename).exists():
             print('skipping', pickle_filename, 'already exists')
             continue
-        o = audio_filename_to_vector(f, model, gpu, save_pickle = True)
+        o = audio_filename_to_vector(f, model, gpu, save_pickle = True, 
+            output_filename = pickle_filename)
         output.append(o)
     return output
 
