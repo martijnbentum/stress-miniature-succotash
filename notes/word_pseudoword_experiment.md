@@ -1,7 +1,7 @@
 ## Stress assignment comparison with wav2vec 2 based stress classifiers on vowels in words and pseudowords
 
-We used word and pseudoword recording from the Baldey [dataset](https://www.mpi.nl/publications/item1950056/baldey-database-auditory-lexical-decisions)
-This is a dataset created for a lexical decision experiment and the recordings contain Dutch words and pseudowords.
+We used word and pseudoword recordings from the Baldey [dataset](https://www.mpi.nl/publications/item1950056/baldey-database-auditory-lexical-decisions)
+This dataset was created for a lexical decision experiment and the recordings contain Dutch words and pseudowords.
 The items are spoken in isolation by a single female speaker of Dutch. 
 
 We selected 300 words and 300 pseudowords from the Baldey dataset. All items were bisyllabic and the stressed syllable was manually annotated.
