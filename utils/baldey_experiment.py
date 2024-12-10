@@ -17,9 +17,10 @@ recording_directory = baldey_directory / 'recordings'
 classifier_directory = baldey_directory / 'classifiers'
 dataset_directory = baldey_directory / 'datasets'
 
-def layerwise_correct_words_non_words():
-    for layer in ['cnn', 5, 11, 17, 23]:
-        words, non_words = split_word_non_words(layer)
+def layerwise_correct_words_non_words(model = 'pre-trained', 
+    layers = ['cnn', 5, 11, 17, 23]):
+    for layer in layers:
+        words, non_words = split_word_non_words(layer, model = model)
         correct, total, percentage = vowel_infos_to_correct_count(words)
         print('words',layer, percentage)
         correct, total, percentage = vowel_infos_to_correct_count(non_words)
@@ -32,8 +33,8 @@ def vowel_infos_to_correct_count(vowel_infos):
             correct += 1
     return correct, len(vowel_infos), round(correct / len(vowel_infos) * 100,2)
 
-def split_word_non_words(layer = 'cnn'):
-    vowel_infos = load_vowel_infos(layer)
+def split_word_non_words(layer = 'cnn', model = 'pre-trained'):
+    vowel_infos = load_vowel_infos(layer, model = model)
     word_vowels = []
     non_word_vowels = []
     for vowel_info in vowel_infos:
@@ -43,16 +44,16 @@ def split_word_non_words(layer = 'cnn'):
             non_word_vowels.append(vowel_info)
     return word_vowels, non_word_vowels
 
-def load_hypothesis(layer = 'cnn'):
-    f = dataset_directory / f'prediction_{layer}.npy'
+def load_hypothesis(layer = 'cnn', model = 'pre-trained'):
+    f = dataset_directory / model / f'prediction_{layer}.npy'
     return np.load(f)
 
-def make_predictions(layer = 'cnn', save = False):
-    clf = load_classifier(layer)
+def make_predictions(layer = 'cnn', save = False, model = 'pre-trained'):
+    clf = load_classifier(layer, model = model)
     gt = load_or_make_ground_truth()
-    x = load_x(layer)
+    x = load_x(layer, model = model)
     hyp = clf.predict(x)
-    f = dataset_directory / f'prediction_{layer}.npy'
+    f = dataset_directory / model / f'prediction_{layer}.npy'
     np.save(f, hyp)
     print(layer)
     print('matthews', matthews_corrcoef(gt, hyp))
@@ -60,20 +61,24 @@ def make_predictions(layer = 'cnn', save = False):
     print(classification_report(gt, hyp))
     return hyp
     
-def make_predictions_all_layers():
-    for layer in ['cnn', 5, 11, 17, 23]:
-        make_predictions(layer, save = True)
+def make_predictions_all_layers(model = 'pre-trained', 
+    layers = ['cnn', 5, 11, 17, 23]):
+    for layer in layers:
+        make_predictions(layer, save = True, model = model)
 
-def load_classifier(layer = 'cnn'):
-    name = f'clf_dutch_stress_{layer}_vowel___9.pickle'
-    f = classifier_directory / name
+def load_classifier(layer = 'cnn', model = 'pre-trained'):
+    if model == 'pre-trained':
+        name = f'clf_dutch_stress_{layer}_vowel___9.pickle'
+    else:
+        name = f'clf_dutch_stress_{layer}_vowel__{model}_9.pickle'
+    f = classifier_directory / model / name
+    print('laoding', f)
     with open(f, 'rb') as fin:
         clf = pickle.load(fin)
     return clf
 
-def get_pickle_filenames(directory = ''):
-    if not directory: directory = recording_directory
-    else: directory = Path(directory)
+def get_pickle_filenames(model = 'pre-trained'):
+    directory = recording_directory / model
     return list(directory.glob('*.pickle'))
 
 def load_pickle_file(filename):
@@ -91,8 +96,8 @@ def transformer(hidden_states, layer = 1, mean = True):
     if mean: return np.mean(transformer_features, axis = 0)
     return transformer_features
 
-def word_to_hidden_states(word):
-    pickle_filenames = get_pickle_filenames()
+def word_to_hidden_states(word, model = 'pre-trained'):
+    pickle_filenames = get_pickle_filenames(model)
     for filename in pickle_filenames:
         if word == filename.stem:
             return load_pickle_file(filename)
@@ -119,9 +124,9 @@ def vowel_to_x(layer, hidden_states, vowel_info, syllable_number,
     vowel_info['x'] = x
     return vowel_info
 
-def word_to_x(layer, word_info):
+def word_to_x(layer, word_info, model = 'pre-trained'):
     word = word_info[0]
-    hidden_states = word_to_hidden_states(word)
+    hidden_states = word_to_hidden_states(word, model = model)
     annotation = word_to_annotation(word)
     vowel1 = vowel_to_x(layer, hidden_states, word_info[-2], 1, annotation, 
         word_info)
@@ -129,14 +134,15 @@ def word_to_x(layer, word_info):
         word_info)
     return [vowel1, vowel2]
 
-def layer_to_x(layer, save_vowel_infos = False, save_x = False):
+def layer_to_x(layer, save_vowel_infos = False, save_x = False, 
+    model = 'pre-trained'):
     word_list = load_or_make_word_list()
     dataset_info = load_dataset_info()
     x = []
     vowel_infos = []
     for i,word in enumerate(word_list):
         word_info = word_to_word_info(word, dataset_info)
-        vowel1, vowel2 = word_to_x(layer, word_info)
+        vowel1, vowel2 = word_to_x(layer, word_info, model = model)
         for vowel in [vowel1, vowel2]:
             x.append(vowel['x'])
             del vowel['x']
@@ -144,20 +150,21 @@ def layer_to_x(layer, save_vowel_infos = False, save_x = False):
             vowel_infos.append(vowel)
     x = np.array(x)
     if save_vowel_infos:
-        f = dataset_directory / f'vowel_infos_{layer}.json'
+        f = dataset_directory / model / f'vowel_infos_{layer}.json'
         with open(f, 'w') as fout:
             json.dump(vowel_infos, fout)
     if save_x:
-        f = dataset_directory / f'x_{layer}.npy'
+        f = dataset_directory / model / f'x_{layer}.npy'
         np.save(f, x)
     return x, vowel_infos
 
-def load_vowel_infos(layer = 'cnn', add_predictions = True):
-    f = dataset_directory / f'vowel_infos_{layer}.json'
+def load_vowel_infos(layer = 'cnn', add_predictions = True, 
+    model = 'pre-trained'):
+    f = dataset_directory / model / f'vowel_infos_{layer}.json'
     with open(f, 'r') as fin:
         vowel_infos = json.load(fin)
     if add_predictions:
-        hyp = load_hypothesis(layer)
+        hyp = load_hypothesis(layer, model = model)
         for i,vowel_info in enumerate(vowel_infos):
             stress = int(vowel_info['stressed_syllable_number'] ==
                 vowel_info['syllable_number'])
@@ -168,13 +175,15 @@ def load_vowel_infos(layer = 'cnn', add_predictions = True):
             vowel_info['correct'] = stress == hyp[i]
     return vowel_infos
 
-def layers_to_x():
-    for layer in ['cnn', 5, 11, 17, 23]:
+def layers_to_x(model = 'pre-trained', layers = ['cnn', 5, 11, 17, 23]):
+    print('handling model', model, 'layers', layers)
+    for layer in layers:
         print('processing', layer)
-        layer_to_x(layer, save_vowel_infos = True, save_x = True)
+        layer_to_x(layer, save_vowel_infos = True, save_x = True, model = model)
 
-def load_x(layer = 'cnn'):
-    f = dataset_directory / f'x_{layer}.npy'
+def load_x(layer = 'cnn', model = 'pre-trained'):
+    f = dataset_directory / model / f'x_{layer}.npy'
+    print('loading', f)
     return np.load(f)
 
 def word_to_annotation(word, annotations = None):
@@ -218,7 +227,7 @@ def load_or_make_word_list():
             word_list = fin.read().split('\n')
         return word_list
     word_list = []
-    for filename in get_pickle_filenames():
+    for filename in get_pickle_filenames('pre-trained'):
         word = filename.stem
         word_list.append(word)
     with open(f, 'w') as fout:
