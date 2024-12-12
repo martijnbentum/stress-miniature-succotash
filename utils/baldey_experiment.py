@@ -19,6 +19,7 @@ dataset_directory = baldey_directory / 'datasets'
 
 def layerwise_correct_words_non_words(model = 'pre-trained', 
     layers = ['cnn', 5, 11, 17, 23]):
+    '''create output of correct words and non words per layer'''
     for layer in layers:
         words, non_words = split_word_non_words(layer, model = model)
         correct, total, percentage = vowel_infos_to_correct_count(words)
@@ -27,6 +28,7 @@ def layerwise_correct_words_non_words(model = 'pre-trained',
         print('non words',layer, percentage)
 
 def vowel_infos_to_correct_count(vowel_infos):
+    '''count correct predictions in vowel_infos'''
     correct = 0
     for vowel_info in vowel_infos:
         if vowel_info['correct']:
@@ -34,6 +36,7 @@ def vowel_infos_to_correct_count(vowel_infos):
     return correct, len(vowel_infos), round(correct / len(vowel_infos) * 100,2)
 
 def split_word_non_words(layer = 'cnn', model = 'pre-trained'):
+    '''split vowel_infos in words and non words'''
     vowel_infos = load_vowel_infos(layer, model = model)
     word_vowels = []
     non_word_vowels = []
@@ -45,10 +48,12 @@ def split_word_non_words(layer = 'cnn', model = 'pre-trained'):
     return word_vowels, non_word_vowels
 
 def load_hypothesis(layer = 'cnn', model = 'pre-trained'):
+    '''load stress status predictions for a model layer'''
     f = dataset_directory / model / f'prediction_{layer}.npy'
     return np.load(f)
 
 def make_predictions(layer = 'cnn', save = False, model = 'pre-trained'):
+    '''make stress status predictions for a model layer'''
     clf = load_classifier(layer, model = model)
     gt = load_or_make_ground_truth()
     x = load_x(layer, model = model)
@@ -63,10 +68,18 @@ def make_predictions(layer = 'cnn', save = False, model = 'pre-trained'):
     
 def make_predictions_all_layers(model = 'pre-trained', 
     layers = ['cnn', 5, 11, 17, 23]):
+    '''make predictions for all specified layers of a model.
+    model: 'pre-trained' or 'fine-tuned'
+    layers: list of layers to make predictions for
+    '''
     for layer in layers:
         make_predictions(layer, save = True, model = model)
 
 def load_classifier(layer = 'cnn', model = 'pre-trained'):
+    '''load stress classifier for a model layer
+    layer: 'cnn' or int (for transformer layer)
+    model: 'pre-trained' or 'fine-tuned' 
+    '''
     if model == 'pre-trained':
         name = f'clf_dutch_stress_{layer}_vowel___9.pickle'
     else:
@@ -78,20 +91,29 @@ def load_classifier(layer = 'cnn', model = 'pre-trained'):
     return clf
 
 def get_pickle_filenames(model = 'pre-trained'):
+    '''get all filenames for hidden states pickle files for a model'''
     directory = recording_directory / model
     return list(directory.glob('*.pickle'))
 
 def load_pickle_file(filename):
+    '''load hidden states from a pickle file'''
     with open(filename,'rb') as fin:
         hidden_states = pickle.load(fin)
     return hidden_states
 
 def cnn(hidden_states, mean = True):
+    '''extract cnn features from hidden states object
+    compute mean if mean is True, mean is over the time dimension
+    '''
     cnn_features = hidden_states.extract_features[0]
     if mean: return np.mean(cnn_features, axis = 0)
     return cnn_features
 
 def transformer(hidden_states, layer = 1, mean = True):
+    '''extract transformer features from hidden states object
+    layer: int, layer number of the transformer
+    mean: bool, mean is over the time dimension
+    '''
     transformer_features = hidden_states.hidden_states[layer][0]
     if mean: return np.mean(transformer_features, axis = 0)
     return transformer_features
@@ -125,6 +147,8 @@ def vowel_to_x(layer, hidden_states, vowel_info, syllable_number,
     return vowel_info
 
 def word_to_x(layer, word_info, model = 'pre-trained'):
+    '''load embeddings for the vowels (corresponding to syllables) in a word.
+    '''
     word = word_info[0]
     hidden_states = word_to_hidden_states(word, model = model)
     annotation = word_to_annotation(word)
@@ -136,6 +160,13 @@ def word_to_x(layer, word_info, model = 'pre-trained'):
 
 def layer_to_x(layer, save_vowel_infos = False, save_x = False, 
     model = 'pre-trained'):
+    '''load embeddings for all items (ie vowels) in the dataset 
+    for a model layer
+    layer: 'cnn' or int (for transformer layer)
+    save_vowel_infos: bool, save vowel_infos to json
+    save_x: bool, save x to numpy array
+    model: 'pre-trained' or 'fine-tuned'
+    '''
     word_list = load_or_make_word_list()
     dataset_info = load_dataset_info()
     x = []
@@ -160,6 +191,11 @@ def layer_to_x(layer, save_vowel_infos = False, save_x = False,
 
 def load_vowel_infos(layer = 'cnn', add_predictions = True, 
     model = 'pre-trained'):
+    '''load vowel information with prediction (hyp) for a model layer
+    layer: 'cnn' or int (for transformer layer)
+    add_predictions: bool, add classifier predictions to vowel_infos
+    model: 'pre-trained' or 'fine-tuned'
+    '''
     f = dataset_directory / model / f'vowel_infos_{layer}.json'
     with open(f, 'r') as fin:
         vowel_infos = json.load(fin)
@@ -176,17 +212,26 @@ def load_vowel_infos(layer = 'cnn', add_predictions = True,
     return vowel_infos
 
 def layers_to_x(model = 'pre-trained', layers = ['cnn', 5, 11, 17, 23]):
+    '''load embeddings for all items (ie vowels) in the dataset
+    for all layers of a model
+    model: 'pre-trained' or 'fine-tuned'
+    layers: list of model layers to process
+    '''
     print('handling model', model, 'layers', layers)
     for layer in layers:
         print('processing', layer)
-        layer_to_x(layer, save_vowel_infos = True, save_x = True, model = model)
+        layer_to_x(layer, save_vowel_infos = True, save_x = True,model = model)
 
 def load_x(layer = 'cnn', model = 'pre-trained'):
+    '''load embeddings for all items (ie vowels) in the dataset 
+    for a model layer
+    '''
     f = dataset_directory / model / f'x_{layer}.npy'
     print('loading', f)
     return np.load(f)
 
 def word_to_annotation(word, annotations = None):
+    '''get stress annotation for a word'''
     if annotations is None: annotations = load_annotations()
     for annotation in annotations:
         if word == annotation[1]:
@@ -194,6 +239,9 @@ def word_to_annotation(word, annotations = None):
     raise ValueError(f'no annotation found for {word}')
 
 def load_or_make_ground_truth():
+    '''load or make ground truth for the baldey dataset
+    indicating the stress status of the vowels in the dataset
+    '''
     f = dataset_directory / 'ground_truth.npy'
     if f.exists():return np.load(f)
     output = []
@@ -209,18 +257,23 @@ def load_or_make_ground_truth():
     return output
 
 def load_dataset_info():
+    '''load information about the words in the baldey dataset'''
     f = baldey_directory / 'baldey_syl-2_word-combined_vowels.txt'
     with open(f, 'r') as fin:
         dataset_info = [line.split('\t') for line in fin.read().split('\n')]
     return dataset_info
     
 def load_annotations(annotator = 'martijn'):
+    '''load stress annotations for a specific annotator of the words in the
+    baldey dataset.
+    '''
     f = baldey_directory / f'{annotator}_annotations.json'
     with open(f, 'r') as fin:
         annotations = json.load(fin)
     return annotations
 
 def load_or_make_word_list():
+    '''load or make a list of words in the baldey dataset'''
     f = baldey_directory / 'word_list.txt'
     if f.exists():
         with open(f, 'r') as fin:
