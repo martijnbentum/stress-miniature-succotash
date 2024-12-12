@@ -1,5 +1,7 @@
 from pathlib import Path
 import json
+from praatio import textgrid
+import shutil
 from text.models import Word
 from utils import select
 import random
@@ -59,14 +61,57 @@ def make_all_metadata(language_name= 'dutch', words = None, save = False,
             json.dump(metadata, f)
     return metadata
 
-def load_metadata(language_name = 'dutch', n = 100):
+def load_metadata(language_name = 'dutch', n = 300):
     filename = make_check_dataset_filename(language_name, n)
     with open(filename,'r') as f:
         metadata = json.load(f)
     return metadata
 
 
+def copy_audio_files(language_name = 'dutch', n = 300, metadata = None):
+    if not metadata:
+        metadata = load_metadata(language_name, n)
+    directory = Path(f'../check_dataset/{language_name}/audio/')
+    if not directory.exists():
+        directory.mkdir(exist_ok=True, parents=True)
+    for item in metadata:
+        source = Path(item['audio_filename'])
+        destination = directory / source.name
+        shutil.copy(source, destination)
 
+
+def make_textgrids(language_name = 'dutch', n = 300, metadata = None):
+    if not metadata:
+        metadata = load_metadata(language_name, n)
+    for item in metadata:
+        make_textgrid(item)
+
+def make_textgrid(word_metadata):
+    pk = word_metadata['pk']
+    language = word_metadata['language']
+    word = Word.objects.get(pk=pk)
+    word_tier = textgrid.IntervalTier(
+        'word', 
+        [(word.start_time, word.end_time, word.word)],
+        0, word.audio.duration)
+    annotation_tier = textgrid.IntervalTier(
+        'stress',
+        [(word.start_time, word.end_time, '')],
+        0, word.audio.duration)
+    f = Path(word.audio.filename).stem + '.TextGrid'
+    directory = Path(f'../check_dataset/{language}/audio/')
+    if not directory.exists():
+        directory.mkdir(exist_ok=True, parents=True)
+    filename = directory / f
+    tg = textgrid.Textgrid()
+    tg.addTier(word_tier)
+    tg.addTier(annotation_tier)
+    tg.save(filename, format = 'long_textgrid', includeBlankSpaces=True)
+    
+    
+
+    
+    
     
     
     
