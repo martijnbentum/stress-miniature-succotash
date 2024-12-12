@@ -8,6 +8,22 @@ import random
 
 random.seed(42)
 
+
+def handle_languages(languages = None, n = 300):
+    if not languages: 
+        languages = ['dutch','english','german','polish','hungarian']
+    output ={} 
+    for language in languages:
+        print('handling', language)
+        o = handle_language(language, n = n)
+        output[language] = o
+    return output
+        
+
+def handle_language(language_name = 'dutch', n = 300):
+    metadata = make_all_metadata(language_name, n = n, save = True)
+    return metadata
+
 def exclude_words_without_stressed_syllable(words):
     words_with_stress = []
     for word in words:
