@@ -90,7 +90,7 @@ if sys.platform == 'linux':
 
 language_naudios_dict = Path('../language_naudios_dict.json')
 
-classifier_dir = Path('../classifiers/')
+classifier_dir = Path('/vol/mlusers/mbentum/indeep/classifiers/')
 dataset_dir = Path('../dataset/')
 
 finetuned_dir = Path('/vol/tensusers3/mbentum/finetune/')
