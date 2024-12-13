@@ -90,8 +90,12 @@ if sys.platform == 'linux':
 
 language_naudios_dict = Path('../language_naudios_dict.json')
 
-classifier_dir = Path('/vol/mlusers/mbentum/indeep/classifiers/')
+classifier_dir = Path('../classifiers/')
 dataset_dir = Path('../dataset/')
+if sys.platform == 'linux':
+    classifier_dir = Path('/vol/mlusers/mbentum/indeep/classifiers/')
+    dataset_dir = Path('/vol/mlusers/mbentum/indeep/dataset/')
+        
 
 finetuned_dir = Path('/vol/tensusers3/mbentum/finetune/')
 dutch_sampa_xlsr_dir = finetuned_dir / 'sampa_xlsr_300m/checkpoint-15300/'
