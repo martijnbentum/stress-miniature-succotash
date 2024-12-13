@@ -24,33 +24,33 @@ Stressed syllables are typically louder (higher intensity), have a longer durati
 
 ### Classifier performance based on acoustic correlates of stress and wav2vec 2 embeddings
 
-<img width="629" alt="Screenshot 2024-12-09 at 10 04 58" src="https://github.com/user-attachments/assets/2131d02b-af00-4dd9-9a9d-a21770b69012">
+<img width="627" alt="Screenshot 2024-12-13 at 16 28 06" src="https://github.com/user-attachments/assets/16d253ae-1ce9-4434-87b2-83a1c6ef0b4f" />
 
 ### Classifier performance on other language
 
 #### Dutch classifiers on other languages
 
-<img width="631" alt="Screenshot 2024-12-09 at 10 04 46" src="https://github.com/user-attachments/assets/4170350a-6007-41d4-a3b4-1b0435e9e84d">
+<img width="633" alt="Screenshot 2024-12-13 at 16 29 24" src="https://github.com/user-attachments/assets/b304ef5f-2b1f-49ee-9629-df2761729177" />
 
 #### English classifiers on other languages
 
-<img width="629" alt="Screenshot 2024-12-09 at 10 04 33" src="https://github.com/user-attachments/assets/c3a574e8-ba54-4abd-a302-03d2b5488d72">
+<img width="631" alt="Screenshot 2024-12-13 at 16 30 42" src="https://github.com/user-attachments/assets/0f80406a-1dcd-4665-8889-2aaa4ccdf305" />
 
 #### German classifiers on other languages
 
-<img width="630" alt="Screenshot 2024-12-09 at 10 04 17" src="https://github.com/user-attachments/assets/37ebbb10-af27-48a9-a5d3-f952046fded0">
+<img width="630" alt="Screenshot 2024-12-13 at 16 31 59" src="https://github.com/user-attachments/assets/005efe26-c277-48f9-952d-08e016aaf51a" />
 
 #### Polish classifiers on other languages
 
-<img width="631" alt="Screenshot 2024-12-09 at 10 04 04" src="https://github.com/user-attachments/assets/22e6916f-9390-49e3-95e6-41a847a1e48f">
+<img width="630" alt="Screenshot 2024-12-13 at 16 32 43" src="https://github.com/user-attachments/assets/6f555d6e-1112-439b-ba07-f99b99012e23" />
 
 #### Hungarian classifiers on other languages
 
-<img width="632" alt="Screenshot 2024-12-09 at 10 03 50" src="https://github.com/user-attachments/assets/e171e4ca-3e38-43d0-a1fe-cc05fc095215">
+<img width="631" alt="Screenshot 2024-12-13 at 16 33 18" src="https://github.com/user-attachments/assets/bbd466da-e3fb-4a2d-a250-bf7c8b2c62aa" />
 
 ### Pretrained dutch Finetuned Dutch and test results on all other languages combined
 
-<img width="630" alt="Screenshot 2024-12-09 at 11 34 03" src="https://github.com/user-attachments/assets/a0ac4f0f-912a-4a83-bde5-19facdb2dcfd">
+<img width="628" alt="Screenshot 2024-12-13 at 16 35 12" src="https://github.com/user-attachments/assets/9e2f8dbe-bf07-4aa0-ab0d-cd9995a5c7c8" />
 
 
 
