@@ -33,7 +33,7 @@ def tsne(hidden_states, perplexity = 30, n_iter = 1000, random_state = 0,
 
 def plot_tsne(tsne_hidden_states, labels = None, label_dict = None,
     marker_dict = None, title = '', add_legend = True, legend_outside = False,
-    ax = None):
+    ax = None, marker_size = 10, alpha = 1):
     '''plot t-distributed stochastic neighbor embedding
     '''
     title = 't-SNE ' + title
@@ -42,10 +42,10 @@ def plot_tsne(tsne_hidden_states, labels = None, label_dict = None,
     y = tsne_hidden_states[:,1]
     colors = plt.cm.tab20.colors
     print('n tokens', len(y), 'n labels', len(set(labels)))
-    if len(label_dict) > len(colors):
+    if label_dict and len(label_dict) > len(colors):
         colors = np.vstack((colors, plt.cm.tab20b.colors, plt.cm.tab20c.colors))
     n = np.array(labels)
-    for label in label_dict.keys():
+    for i,label in enumerate(label_dict.keys()):
         if label_dict:
             label_name = label_dict[label]
         else:
@@ -54,11 +54,14 @@ def plot_tsne(tsne_hidden_states, labels = None, label_dict = None,
             marker = marker_dict[label]
         else:
             marker = 'o'
-        color = colors[label]
+        if label in colors:
+            color = colors[label]
+        else:
+            color = colors[i]
         print(label, label_name, color, marker)
         index = np.where(n == label)
         scatter = ax.scatter(x[index], y[index], label = label_name, 
-            color = color, marker = marker)
+            color = color, marker = marker, s=marker_size, alpha = alpha)
     if add_legend:
         if legend_outside:
             ax.legend(title = 'Classes', bbox_to_anchor=(1.05, 1), 
