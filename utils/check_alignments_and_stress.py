@@ -22,6 +22,8 @@ def handle_languages(languages = None, n = 300):
 
 def handle_language(language_name = 'dutch', n = 300):
     metadata = make_all_metadata(language_name, n = n, save = True)
+    copy_audio_files(language_name, n = n, metadata = metadata)
+    make_textgrids(language_name, n = n, metadata = metadata)
     return metadata
 
 def exclude_words_without_stressed_syllable(words):
@@ -104,7 +106,7 @@ def make_textgrids(language_name = 'dutch', n = 300, metadata = None):
 
 def make_textgrid(word_metadata):
     pk = word_metadata['pk']
-    language = word_metadata['language']
+    language = word_metadata['language'].lower()
     word = Word.objects.get(pk=pk)
     word_tier = textgrid.IntervalTier(
         'word', 
@@ -119,6 +121,7 @@ def make_textgrid(word_metadata):
     if not directory.exists():
         directory.mkdir(exist_ok=True, parents=True)
     filename = directory / f
+    print('saving', filename)
     tg = textgrid.Textgrid()
     tg.addTier(word_tier)
     tg.addTier(annotation_tier)
