@@ -21,6 +21,7 @@ And trained and tested the classifiers on the following language materials:
 4. polish
 5. hungarian
 
-Collected MCC performance metric and applied LDA on resulting matrix
+Collected MCC performance metric and applied LDA on resulting matrix.
+Ploted the first LDs for each classifier input type.
 
-
+<img width="634" alt="Screenshot 2024-12-17 at 18 48 37" src="https://github.com/user-attachments/assets/67207cc0-cc86-4054-bd23-447d0c146dca" />
