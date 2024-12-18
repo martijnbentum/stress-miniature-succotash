@@ -2,6 +2,7 @@ import json
 from matplotlib import pyplot as plt
 import numpy as np
 from pathlib import Path
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from utils import stats
 
 language_names = ['dutch', 'english', 'german', 'polish', 'hungarian']
@@ -12,6 +13,8 @@ classifier_order = ['duration', 'intensity', 'pitch', 'formant',
 def load_results(return_stats = True, focus_language = None):
     with open('../results.json') as f:
         d = json.load(f)
+    for result in d:
+        result['identifier'] = _result_to_identifier(result)
     if return_stats: return results_to_stats(d, focus_language = focus_language)
     return d
 
@@ -205,32 +208,56 @@ def compare_pretrained_finetuned_other(language_name = 'dutch',
     
 
 def matrix_cell(clf_language, data_language, layer_name = 'duration', 
-    results = None):
-    if not results: results = load_results(return_stats = True)
+    results = None, stats = True):
+    if not results: results = load_results(return_stats = stats)
     if data_language == clf_language: 
         identifier = f'{clf_language}-{layer_name}'
     else:
         identifier=f'{clf_language}-{layer_name}-other-language-{data_language}'
+    o = []
+    print(identifier)
+    random_states = []
     for result in results:
+        random_state = result['random_state']
+        if random_state == 42: continue
         if result['identifier'] == identifier:
-            print(identifier, round(result['mean'],5))
-            return result['mean']
+            if stats:
+                print(identifier, round(result['mean'],5))
+                return result['mean']
+            elif random_state not in random_states:
+                o.append(result['mcc'])
+                random_states.append(random_state)
+    if not stats: return np.array(o)
     return 0
         
 
-def mcc_matrix(layer_name = 'duration', plot = False):
+def mcc_matrix(layer_name = 'duration', plot = False, stats = False):
     languages = language_names
     n_languages = len(languages)
     columns, rows = languages,languages 
-    results = load_results()
-    matrix = np.zeros((n_languages, n_languages))
-    for i,data_language in enumerate(rows):
-        for j,clf_language in enumerate(columns):
-            matrix[i,j] = matrix_cell(clf_language, data_language, layer_name, 
-                results)
-    if plot: plot_matrix(matrix, columns, rows, ylabel = 'Data language',
-        xlabel = 'Classifier language')
-    return matrix
+    results = load_results(return_stats = stats)
+    if stats:
+        matrix = np.zeros((n_languages, n_languages))
+    else:
+        matrix = np.zeros((n_languages * 20, n_languages))
+        y = np.zeros(n_languages * 20, dtype = int)
+    for i,clf_language in enumerate(rows):
+        for j,data_language in enumerate(columns):
+            if stats: 
+                start = i
+                end = i + 1
+            else:
+                start = i * 20
+                end = i * 20 + 20
+            matrix[start:end,j] = matrix_cell(clf_language, data_language, 
+                layer_name, 
+                results, stats)
+        if not stats: y[start:end] = i
+    if plot: plot_matrix(matrix, columns, rows, xlabel = 'Data language',
+        ylabel = 'Classifier language')
+    if stats:
+        return matrix
+    return matrix, y
 
 def plot_matrix(matrix, columns, rows, ylabel = '', xlabel = ''):
     plt.figure()
@@ -242,3 +269,47 @@ def plot_matrix(matrix, columns, rows, ylabel = '', xlabel = ''):
     plt.colorbar()
     plt.tight_layout()
         
+
+def scatter_plot_lda(layer_name = 17, add_legend = True, add_sup_title = True,
+    new_figure = True, ax = None, add_axis_labels = True):
+    plt.ion()
+    if new_figure:
+        plt.figure()
+    lda = LinearDiscriminantAnalysis(n_components=2)
+    colors = ['red', 'green', 'blue','purple','orange']
+    X, y = mcc_matrix(layer_name,stats = False)
+    X_lda = lda.fit_transform(X, y)
+    if ax: p = ax
+    else: p = plt
+    for color, i, language_name in zip(colors, np.unique(y), language_names):
+        p.scatter(X_lda[y == i, 0], X_lda[y == i, 1], alpha = .6, c = color,
+            label = language_name)
+    if add_sup_title:
+        p.suptitle('LDA of cross lingual classifier performance output')
+    if ax:
+        if layer_name == 'combined-features': layer_name = 'combined'
+        p.set_title(f'Layer: {layer_name}')
+    else: plt.title(f'Layer: {layer_name}')
+    if add_axis_labels:
+        if ax:
+            p.set_xlabel('LD1', labelpad = -5)
+            p.set_ylabel('LD2')
+        else:
+            p.xlabel('LD1')
+            p.ylabel('LD2')
+    if add_legend:
+        p.legend()
+    p.grid(alpha = .5)
+
+def scatter_plot_lda_all_classifiers():
+    fig, axs = plt.subplots(4, 3)
+    axes = list(axs.flat)
+    for i,layer_name in enumerate(classifier_order):
+        add_legend = False
+        add_axis_labels = False
+        if i == 0: 
+            add_legend = True
+            # add_axis_labels = True
+        scatter_plot_lda(layer_name, add_legend = add_legend,
+            add_sup_title = False, new_figure = False, 
+            add_axis_labels = add_axis_labels, ax = axes[i])
