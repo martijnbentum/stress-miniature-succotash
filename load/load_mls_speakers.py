@@ -2,21 +2,41 @@ import json
 from load import load_mls_audio
 from pathlib import Path
 from progressbar import progressbar
+import re
 from utils import locations
+
+def _split_line(line):
+    # parts = re.split(r'\s*\|\s*|\s+',line)
+    parts = line.split('|')
+    return [part.strip() for part in parts if part.strip()]
 
 def load_meta_data(language):
     directory = locations.get_language_mls_root_folder(language)
     filename = directory / 'metadata.txt'
     with open(filename, 'r') as f:
         text = f.read().split('\n')
-    header = text[0].split('\t')
-    data = [line.split('\t') for line in text[1:]]
+    header = [x.lower() for x in _split_line(text[0])]
+    data = [_split_line(line) for line in text[1:]]
     output = []
     for line in data:
         if not line or line == ['']: continue
         d = dict(zip(header, line))
         output.append(d)
     return output
+
+def speaker_id_to_gender_dict(language):
+    md = load_meta_data(language)
+    d = {}
+    speaker_ids = list(set([x['speaker'] for x in md]))
+    for line in md:
+        for speaker_id in speaker_ids:
+            if speaker_id in d.keys(): continue
+            if speaker_id == line['speaker']:
+                d[speaker_id] = line['gender']
+                break
+    return d
+            
+        
 
 def audio_filename_to_speaker_id(filename):
     path = Path(filename)
