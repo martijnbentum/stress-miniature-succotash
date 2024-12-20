@@ -1,8 +1,6 @@
 from django.db import models
 import json
 import numpy as np
-# from utils import load_hidden_states as lhs
-# from utils import load_codevectors as lc
 
 # Create your models here.
 required = {'blank':False,'null':False}
