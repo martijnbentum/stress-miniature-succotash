@@ -19,6 +19,21 @@ common_voice_root = ld_root
 baldey_root = ld_root / 'BALDEY'
 mald_root = ld_root / 'MALD'
 coolest_root = ld_root / 'MALD'
+mls_root = Path('/vol/mlusers/mbentum/mls/')
+
+mls_dutch = mls_root / 'dutch'
+
+mls_root_folders = [mls_dutch]
+
+def get_language_mls_root_folder(language):
+    if language.lower() == 'dutch':
+        return mls_dutch
+
+def get_mls_path(mls_root_folder, folder_name):
+    if mls_root_folder not in mls_root_folders: return None
+    if folder_name not in ['audio','textgrid','txt']:
+        return None
+    return mls_root_folder / folder_name
 
 cv_dutch = common_voice_root / 'COMMON_VOICE_DUTCH'
 cv_german = common_voice_root / 'COMMON_VOICE_GERMAN'
