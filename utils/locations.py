@@ -22,12 +22,21 @@ coolest_root = ld_root / 'MALD'
 mls_root = Path('/vol/mlusers/mbentum/mls/')
 
 mls_dutch = mls_root / 'dutch'
+mls_polish = mls_root / 'polish'
+mls_german = mls_root / 'german'
+mls_english = mls_root / 'english'
 
-mls_root_folders = [mls_dutch]
+mls_root_folders = [mls_dutch, mls_polish, mls_german, mls_english]
 
 def get_language_mls_root_folder(language):
     if language.lower() == 'dutch':
         return mls_dutch
+    if language.lower() == 'polish':
+        return mls_polish
+    if language.lower() == 'german':
+        return mls_german
+    if language.lower() == 'english':
+        return mls_english
 
 def get_mls_path(mls_root_folder, folder_name):
     if mls_root_folder not in mls_root_folders: return None
