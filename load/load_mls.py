@@ -25,9 +25,7 @@ def handle_language(language_name):
     load_mls_words.load_all_words_language(language_name)
     print('handling phonemes')
     load_mls_phonemes.handle_language(language_name)
-    '''
     print('handling syllables')
     load_mls_syllables.handle_language(language_name)
     print('handling stress')
     load_mls_stress.handle_language(language_name)
-    '''
