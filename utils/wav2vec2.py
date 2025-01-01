@@ -21,12 +21,15 @@ def audio_to_vector(audio, model = None, gpu = False):
     return outputs
     
 def handle_audio(audio, model = None, gpu = False, save_words = True, 
-    model_name = 'pretrained-xlsr'):
+    model_name = 'pretrained-xlsr',
+    only_bisyllabic_words = False):
     outputs = audio_to_vector(audio, model, gpu)
     words = audio.word_set.all()
     language_name = audio.language.language
     output = []
     for word in words:
+        if only_bisyllabic_words and word.n_syllables != 2:
+            continue
         start_time, end_time, identifier, name = word_to_info(word)
         word_output= frame.extract_outputs_times(outputs, start_time, 
             end_time)
@@ -37,6 +40,12 @@ def handle_audio(audio, model = None, gpu = False, save_words = True,
                 model_name = model_name)
         output.append(word_output)
     return output
+
+def handle_mls_audio(audio, model = None, gpu = False, save_words = True,
+    model_name = 'pretrained-xlsr'):
+    model_name += '-mls'
+    print('handling', audio, 'with model_name', model_name)
+    return handle_audio(audio, model, gpu, save_words, model_name)
 
 def word_to_info(word):
     start_time = word.start_time
