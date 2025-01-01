@@ -11,12 +11,15 @@ from load import load_datasets
 from utils import locations
 
 
-def handle_language(language_name):
+def handle_language(language_name, 
+    splits=['train', 'dev', 'test']):
     print("Loading CV for language: " + language_name)
+    print('loading splits', splits)
     print('handling bpcs')
     load_bpc.handle_bpcs()
     print('handling audio')
-    load_mls_audio.handle_language(language_name)
+    load_mls_audio.handle_language(language_name,
+        splits=splits)
     print('handling speakers')
     load_mls_speakers.handle_language(language_name)
     print('handling textgrids')
