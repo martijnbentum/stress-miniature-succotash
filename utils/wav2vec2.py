@@ -30,6 +30,8 @@ def handle_audio(audio, model = None, gpu = False, save_words = True,
     model_name = 'pretrained-xlsr',
     only_bisyllabic_words = False):
     words = audio.word_set.all()
+    if only_bisyllabic_words and not check_any_bi_syllabic_words(words):
+        return []
     outputs = audio_to_vector(audio, model, gpu)
     language_name = audio.language.language
     output = []
@@ -52,6 +54,7 @@ def handle_mls_audio(audio, model = None, gpu = False, save_words = True,
     only_bisyllabic_words = False):
     model_name += '-mls'
     print('handling', audio, 'with model_name', model_name)
+    print('only_bisyllabic_words', only_bisyllabic_words)
     return handle_audio(audio, model, gpu, save_words, model_name, 
         only_bisyllabic_words)
 
