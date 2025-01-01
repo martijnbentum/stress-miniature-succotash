@@ -3,17 +3,19 @@ from utils import maus_phoneme_mapper
 from progressbar import progressbar
 
 
-def handle_language(language_name):
+def handle_language(language_name, start_index = 0):
     from text.models import Language, Dataset
     language = Language.objects.get(language__iexact=language_name)
     dataset = Dataset.objects.get(name = 'MLS')
-    handle_words(language, dataset)
+    handle_words(language, dataset, start_index)
 
-def handle_words(language, dataset):
+def handle_words(language, dataset, start_index = 0):
     from text.models import Word
     words = Word.objects.filter(language=language, dataset=dataset)
     n_created = 0
-    for word in progressbar(words):
+    print('Creating syllables for', language.language)
+    print('Starting at index', start_index)
+    for word in progressbar(words[start_index:]):
         n_created += handle_word(word, language, dataset)
     print('Created', n_created, 'syllables for', language.language)
 
