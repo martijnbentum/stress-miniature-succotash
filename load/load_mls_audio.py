@@ -31,8 +31,8 @@ def handle_audio_file(file_info, language, dataset):
     return created
 
 
-def get_audio_files(language_name):
-    splits = ['train','dev','test']
+def get_audio_files(language_name, 
+    splits=['train','dev','test']):
     mls_root_folder = locations.get_language_mls_root_folder(language_name)
     audio_folder = locations.get_mls_path(mls_root_folder, 'audio')
     audio_files = []
@@ -45,12 +45,14 @@ def get_audio_files(language_name):
         for f in audio_files]
     return audio_files
 
-def handle_language(language_name):
-    print('handling',language_name,'of the multilingual librispeech dataset')
+def handle_language(language_name, 
+    splits = ['train','dev','test']):
+    print('handling',language_name,'of the multilingual librispeech dataset',
+    'splits',splits)
     language = load_language(language_name)
     dataset = load_dataset('MLS')
     print(f'handling {language}, {dataset}')
-    audio_files = get_audio_files(language_name)
+    audio_files = get_audio_files(language_name, splits)
     n_created = 0
     for f in progressbar(audio_files):
         created = handle_audio_file(f, language, dataset)
