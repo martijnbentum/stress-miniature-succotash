@@ -13,6 +13,7 @@ language_names = ['dutch', 'german', 'english', 'polish', 'hungarian']
 
 language_pairs = list(product(language_names, repeat = 2))
 language_pairs = [x for x in language_pairs if x[0] != x[1]]
+all_language_pairs = list(product(language_names, repeat = 2))
 
 
 def load_classifier(language_name, data_type = 'stress', layer = 'cnn', 
@@ -90,7 +91,7 @@ def test_all_mls_language_pairs(overwrite = False):
     layers = ['cnn',5,11,17,23]
     for layer in layers:
         for random_state in range(20):
-            for classifier_language_name, test_language_name in language_pairs:
+            for classifier_language_name, test_language_name in all_language_pairs:
                 print(f'testing classifier {classifier_language_name}',
                     f'on {test_language_name}')
                 if test_language_name in ['dutch','hungarian']:
