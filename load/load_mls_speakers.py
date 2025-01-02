@@ -71,6 +71,7 @@ def add_speaker(audio, dataset):
     return created
 
 def handle_hungarian():
+    from text.models import Speaker
     # not part of mls instead used css10, only one female speaker
     print('handling hungarian of the css10 dataset')
     d ={'identifier':1,'gender':'female'}
@@ -79,13 +80,13 @@ def handle_hungarian():
         Speaker.objects.create(**d)
 
 def handle_language(language):
+    if language == 'hungarian':
+        return handle_hungarian()
     from text.models import Audio
     dataset = load_mls_audio.load_dataset('MLS')
     language = load_mls_audio.load_language(language)
     audios = Audio.objects.filter(language=language, dataset=dataset)
     n_created = 0
-    if language == 'hungarian':
-        return handle_hungarian()
     for audio in progressbar(audios):
         created = add_speaker(audio, dataset)
         if created: n_created += 1
