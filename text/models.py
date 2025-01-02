@@ -463,8 +463,8 @@ class Phoneme(models.Model):
 
     def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
         hidden_states = self.hidden_states(model_name = model_name)
-        if self.hidden_states is None: return None
-        cnn_features = self.hidden_states().extract_features[0]
+        if hidden_states is None: return None
+        cnn_features = hidden_states().extract_features[0]
         if mean: return np.mean(cnn_features, axis = 0)
         return cnn_features
 
