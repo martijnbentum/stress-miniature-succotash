@@ -243,7 +243,7 @@ def syllable_to_vowel(syllable, skip_multiple_vowels = False):
 
 def handle_language_stress_info(language_name, si = None, sections = [],
     layers = [], name = '', model_name = 'pretrained-xlsr',
-    dataset_name = 'COMMON VOICE'):
+    dataset_name = 'COMMON VOICE', max_words = None):
     if not sections: sections = ['vowel']
     if not layers: layers = ['codevector','cnn', 5,11,17,23]
     if si is None: 
@@ -254,6 +254,7 @@ def handle_language_stress_info(language_name, si = None, sections = [],
             no_diphtongs = True,
             one_vowel_per_syllable = True,
             has_stress = True)
+        if max_words: words = words[:max_words]
         syllables = select.words_to_syllables(words)
         print('creating StressInfo object')
         si = StressInfo(syllables, model_name = model_name)
