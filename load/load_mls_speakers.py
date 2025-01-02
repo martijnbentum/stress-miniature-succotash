@@ -70,7 +70,18 @@ def add_speaker(audio, dataset):
         if change: speaker.save()
     return created
 
+def handle_hungarian():
+    from text.models import Speaker
+    # not part of mls instead used css10, only one female speaker
+    print('handling hungarian of the css10 dataset')
+    d ={'identifier':1,'gender':'female'}
+    try: speaker = Speaker.objects.get(identifier=d['identifier'])
+    except Speaker.DoesNotExist: 
+        Speaker.objects.create(**d)
+
 def handle_language(language):
+    if language == 'hungarian':
+        return handle_hungarian()
     from text.models import Audio
     dataset = load_mls_audio.load_dataset('MLS')
     language = load_mls_audio.load_language(language)

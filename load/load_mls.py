@@ -4,8 +4,8 @@ from load import load_mls_speakers
 from load import load_mls_textgrids
 from load import load_mls_words
 from load import load_mls_phonemes
-# from load import load_mls_syllables
-# from load import load_mls_stress
+from load import load_mls_syllables
+from load import load_mls_stress
 from load import load_languages
 from load import load_datasets
 from utils import locations
