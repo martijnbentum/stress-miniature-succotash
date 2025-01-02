@@ -242,13 +242,14 @@ def syllable_to_vowel(syllable, skip_multiple_vowels = False):
     return syllable.vowel[0]
 
 def handle_language_stress_info(language_name, si = None, sections = [],
-    layers = [], name = '', model_name = 'pretrained-xlsr'):
+    layers = [], name = '', model_name = 'pretrained-xlsr',
+    dataset_name = 'COMMON VOICE'):
     if not sections: sections = ['vowel']
     if not layers: layers = ['codevector','cnn', 5,11,17,23]
     if si is None: 
         print('selecting syllables')
         words = select.select_words(language_name = language_name,
-            dataset_name = 'COMMON VOICE', 
+            dataset_name = dataset_name, 
             number_of_syllables = 2,
             no_diphtongs = True,
             one_vowel_per_syllable = True,
