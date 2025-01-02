@@ -17,6 +17,8 @@ def get_maus_textgrid_filename(filename, mls_root_folder ):
 
 def load_speaker(audio):
     from text.models import Speaker
+    if audio.language.language == 'Hungarian':
+        return Speaker.objects.get(identifier=1)
     audio_filename = Path(audio.filename).name
     speaker_id = load_mls_speakers.audio_filename_to_speaker_id(audio_filename)
     speaker = Speaker.objects.get(identifier=speaker_id)
