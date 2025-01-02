@@ -41,17 +41,20 @@ def make_result_filename(language_name, result_type, layer, section,
     
 def test_classifier_on_other_language(classifier_language_name, 
     test_language_name, data_type = 'stress', layer = 'cnn', section = 'vowel', 
-    random_state = 1, overwrite = False):
+    random_state = 1, overwrite = False, name = '', n = ''):
     name = make_name(test_language_name)
     result_filename = make_result_filename(classifier_language_name,
-        data_type, layer, section, name, random_state = random_state)
-        
+        data_type, layer, section, name, n, random_state = random_state)
+    print(f'testing classifier {classifier_language_name} on',
+        f'{test_language_name}')
+    print('saving results to', result_filename)
     if os.path.exists(result_filename) and not overwrite:
         print(f'result file {result_filename} exists. skipping')
         return results.Result(result_filename = result_filename)
     clf, clf_filename = load_classifier(classifier_language_name, data_type, 
         layer, section, random_state =  random_state)
-    d, d_filename = load_dataset(test_language_name, data_type, layer, section)
+    d, d_filename = load_dataset(test_language_name, data_type, layer, section,
+         n=n)
     y_test = d['y']
     hyp = clf.predict(d['X'])
     name = make_name(test_language_name)
@@ -60,7 +63,7 @@ def test_classifier_on_other_language(classifier_language_name,
         layer = layer, section = section, name = name,  
         random_state = random_state, result_type = data_type,
         dataset_filename = d_filename, 
-        classifier_filename = clf_filename)
+        classifier_filename = clf_filename, result_filename = result_filename)
     result.save()
     return result
 
@@ -82,3 +85,21 @@ def test_all_language_pairs(overwrite = False):
     return output
 
 
+def test_all_mls_language_pairs(overwrite = False):
+    output = []
+    layers = ['cnn',5,11,17,23]
+    for layer in layers:
+        for random_state in range(20):
+            for classifier_language_name, test_language_name in language_pairs:
+                print(f'testing classifier {classifier_language_name}',
+                    f'on {test_language_name}')
+                if test_language_name in ['dutch','hungarian']:
+                    continue
+                result = test_classifier_on_other_language(
+                    classifier_language_name, 
+                    test_language_name, layer = layer,
+                    random_state = random_state,
+                    overwrite = overwrite, n = 'pretrained-xlsr-mls')
+                print(result)
+                output.append(result)
+    return output
