@@ -459,7 +459,7 @@ class Phoneme(models.Model):
     def hidden_states(self, model_name = 'pretrained-xlsr'):
         from utils import load_hidden_states as lhs
         return lhs.load_phoneme_hidden_states(self, 
-            self.word.hidden_states(model_name))
+            self.word.hidden_states(model_name), model_name = model_name)
 
     def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
         hidden_states = self.hidden_states(model_name = model_name)
