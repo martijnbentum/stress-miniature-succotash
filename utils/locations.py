@@ -108,6 +108,7 @@ coolest_textgrids = coolest_root / 'mauser_textgrids'
 
 ifadv_audio = ifadv_root / 'TURNS'
 ifadv_textgrids = ifadv_root / 'MAUSER_TURN_TEXTGRIDS'
+ifadv_speaker_info = ifadv_root / 'speaker_id_to_speaker_info_dict.json'
     
     
 
