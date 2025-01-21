@@ -10,8 +10,9 @@ classifier_order = ['duration', 'intensity', 'pitch', 'formant',
     'spectral-tilt', 'combined-features', 'codevector', 'cnn', 5, 11, 
     17, 23]
         
-def load_results(return_stats = True, focus_language = None):
-    with open('../results.json') as f:
+def load_results(return_stats = True, focus_language = None, 
+    filename = '../results.json'):
+    with open(filename) as f:
         d = json.load(f)
     for result in d:
         result['identifier'] = _result_to_identifier(result)
@@ -208,7 +209,7 @@ def compare_pretrained_finetuned_other(language_name = 'dutch',
     
 
 def matrix_cell(clf_language, data_language, layer_name = 'duration', 
-    results = None, stats = True):
+    results = None, stats = True, allow_empty = False):
     if not results: results = load_results(return_stats = stats)
     if data_language == clf_language: 
         identifier = f'{clf_language}-{layer_name}'
@@ -218,8 +219,9 @@ def matrix_cell(clf_language, data_language, layer_name = 'duration',
     print(identifier)
     random_states = []
     for result in results:
-        random_state = result['random_state']
-        if random_state == 42: continue
+        if not stats:
+            random_state = result['random_state']
+            if random_state == 42: continue
         if result['identifier'] == identifier:
             if stats:
                 print(identifier, round(result['mean'],5))
@@ -227,15 +229,19 @@ def matrix_cell(clf_language, data_language, layer_name = 'duration',
             elif random_state not in random_states:
                 o.append(result['mcc'])
                 random_states.append(random_state)
-    if not stats: return np.array(o)
+    if not stats: 
+        if not o: 
+            if allow_empty: return np.zeros(20)
+        return np.array(o)
     return 0
         
 
-def mcc_matrix(layer_name = 'duration', plot = False, stats = False):
+def mcc_matrix(layer_name = 'duration', plot = False, stats = False,
+    result_filename = '../results.json', allow_empty = False):
     languages = language_names
     n_languages = len(languages)
     columns, rows = languages,languages 
-    results = load_results(return_stats = stats)
+    results = load_results(return_stats = stats, filename = result_filename)
     if stats:
         matrix = np.zeros((n_languages, n_languages))
     else:
@@ -251,7 +257,7 @@ def mcc_matrix(layer_name = 'duration', plot = False, stats = False):
                 end = i * 20 + 20
             matrix[start:end,j] = matrix_cell(clf_language, data_language, 
                 layer_name, 
-                results, stats)
+                results, stats, allow_empty = allow_empty)
         if not stats: y[start:end] = i
     if plot: plot_matrix(matrix, columns, rows, xlabel = 'Data language',
         ylabel = 'Classifier language')
@@ -271,13 +277,15 @@ def plot_matrix(matrix, columns, rows, ylabel = '', xlabel = ''):
         
 
 def scatter_plot_lda(layer_name = 17, add_legend = True, add_sup_title = True,
-    new_figure = True, ax = None, add_axis_labels = True):
+    new_figure = True, ax = None, add_axis_labels = True, 
+    result_filename = '../results.json'):
     plt.ion()
     if new_figure:
         plt.figure()
     lda = LinearDiscriminantAnalysis(n_components=2)
     colors = ['red', 'green', 'blue','purple','orange']
-    X, y = mcc_matrix(layer_name,stats = False)
+    X, y = mcc_matrix(layer_name,stats = False, 
+        result_filename = result_filename)
     X_lda = lda.fit_transform(X, y)
     if ax: p = ax
     else: p = plt
