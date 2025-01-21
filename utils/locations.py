@@ -8,12 +8,14 @@ ld_root = Path('')
 if sys.platform == 'linux':
     ld_root = Path('/vol/tensusers/mbentum/INDEEP/LD')
     cgn_root = Path('/vol/bigdata/corpora2/CGN2')
+    ifadv_root = Path('/vol/tensusers/mbentum/IFADV')
     if not ld_root.exists():
         ld_root = Path('/mnt/storage/LD')
         cgn_root = Path('/mnt/storage/CGN/CGN_2.0.3')
 elif sys.platform == 'darwin':
     ld_root = Path('/Users/martijn.bentum/Documents/indeep/LD')
     common_voice_root = ld_root
+    ifadv_root = Path('/Users/martijn.bentum/IFADV')
 
 common_voice_root = ld_root
 baldey_root = ld_root / 'BALDEY'
@@ -103,6 +105,11 @@ coolest_root = ld_root / 'COOLEST'
 coolest_audio = coolest_root / 'Recordings'
 #coolest_textgrids = coolest_root / 'TextGrids corrected'
 coolest_textgrids = coolest_root / 'mauser_textgrids'
+
+ifadv_audio = ifadv_root / 'TURNS'
+ifadv_textgrids = ifadv_root / 'MAUSER_TURN_TEXTGRIDS'
+    
+    
 
 celex_directory = '../CELEX/'
 celex_english_phonology_file = celex_directory+ 'EPW.CD'
