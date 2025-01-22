@@ -1,5 +1,11 @@
 import unittest
 
+def word_overlap(word1, word2):
+    s1, e1 = word1.start_time, word1.end_time
+    s2, e2 = word2.start_time, word2.end_time
+    print(s1,e1,s2,e2)
+    return overlap(s1,e1,s2,e2)
+
 def overlap(s1,e1,s2,e2, strict = False):
     if not strict:
         if s1 < s2 and e1 < s2: return False
