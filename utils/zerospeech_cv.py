@@ -1,10 +1,12 @@
+import json
 from progressbar import progressbar
-from text.models import Textgrid, Language
+from text.models import Textgrid, Language, Dataset, Speaker
 from utils import locations
 
-def handle_language(language_name):
+def handle_language(language_name = 'dutch'):
     print('making sentences')
     sentences = make_sentences(language_name)
+    save_sentences(language_name, sentences)
     print('making words')
     words = make_words(sentences, language_name)
     save_words(language_name, words)
@@ -12,47 +14,19 @@ def handle_language(language_name):
     phonemes = make_phonemes(sentences, language_name)
     save_phonemes(language_name, phonemes)
 
-def read_manifest(language_name):
+def read_manifest(language_name = 'dutch'):
     directory = locations.get_language_cv_root_folder(language_name)
     with open(directory / 'cv_train_manifest.tsv','r') as f:
         t = [x.split('\t')[0].split('/')[-1] for x in f.read().split('\n') if x]
     return t
 
-def read_meta_data(language_name):
-    directory = locations.get_language_mls_root_folder(language_name)
-    with open(directory / 'metainfo.txt','r') as f:
-        t = f.read().split('\n')
-    output = []
-    for line in t:
-        if not line: continue
-        temp = line.split('|')
-        items = [x.strip() for x in temp]
-        if items[1] == 'M': items[1] = 'male'
-        elif items[1] == 'F': items[1] = 'female'
-        elif items[1] == 'GENDER': 
-            output.append(items)
-            continue
-        else: raise ValueError('unknown value', items[1])
-        items[0] = int(items[0])
-        items[3] = float(items[3])
-        items[4] = int(items[4])
-        output.append(items)
-    header, data = output[0], output[1:]
-    return header, data
-
-def gender_dict(language_name):
-    header, data = read_meta_data(language_name)
-    d = {}
-    for line in data:
-        d[line[0]] = line[1]
-    return d
-
-
-def get_textgrids(language_name):
+def get_textgrids(language_name = 'dutch'):
     language= Language.objects.get(language__iexact=language_name)
-    return Textgrid.objects.filter(audio__language=language)
+    dataset = Dataset.objects.get(name='COMMON VOICE')
+    return Textgrid.objects.filter(audio__language=language, 
+        audio__dataset=dataset)
 
-def make_sentences(language_name): 
+def make_sentences(language_name = 'dutch'): 
     manifest = read_manifest(language_name)
     textgrids = get_textgrids(language_name)
     sentences = []
@@ -91,7 +65,7 @@ def save_phonemes(language_name, phonemes = None):
     if not phonemes: phonemes = make_phonemes(language_name = language_name)
     for phoneme in phonemes:
         o.append(phoneme.line)
-    with open(f'../{language_name}_mls_phonemes_zs.tsv','w') as f:
+    with open(f'../{language_name}_cv_phonemes_zs.tsv','w') as f:
         f.write('\n'.join(o))
 
 def save_words(language_name, words = None):
@@ -101,7 +75,7 @@ def save_words(language_name, words = None):
     if not words: words = make_words(language_name = language_name)
     for word in words:
         o.append(word.line)
-    with open(f'../{language_name}_mls_words_zs.tsv','w') as f:
+    with open(f'../{language_name}_cv_words_zs.tsv','w') as f:
         f.write('\n'.join(o))
 
 def save_sentences(language_name, sentences = None):
@@ -111,7 +85,7 @@ def save_sentences(language_name, sentences = None):
     if not sentences: sentences = make_sentences(language_name = language_name)
     for sentence in sentences:
         o.append(sentence.line)
-    with open(f'../{language_name}_mls_sentences_zs.tsv','w') as f:
+    with open(f'../{language_name}_cv_sentences_zs.tsv','w') as f:
         f.write('\n'.join(o))
     
 
@@ -128,6 +102,7 @@ def check_sentence_in_pretraining(sentence, manifest):
     filename = sentence.audio_filename.split('/')[-1]
     return filename in manifest
 
+
 class Sentence:
     def __init__(self, words, textgrid, index, manifest):
         self.words = words
@@ -136,7 +111,7 @@ class Sentence:
         self.textgrid = textgrid
         self.index = index
         self.audio = textgrid.audio
-        self.audio_filename = self.audio.filename.split('CGN2/')[-1]
+        self.audio_filename = self.audio.filename.split('/')[-1]
         self.identifier = self.audio_filename
         self.duration = self.end_time - self.start_time
         speakers = textgrid.speakers.all()
@@ -145,9 +120,7 @@ class Sentence:
             print(f'No speakers for {self.textgrid.identifier}')
             raise ValueError('No speakers')
         self.speaker = speakers[0]
-        self.gender = self.speaker.gender
-        speaker_id = self.speaker.identifier
-        self.speaker_id = f'{speaker_id}_{self.gender}' 
+        self.speaker_id = speaker_to_short_id(self.speaker)
         self.sentence = ' '.join([w.word for w in words])
         self.in_pretraining = check_sentence_in_pretraining(self, manifest)
 
@@ -249,12 +222,39 @@ class IPA:
         m = f'{self.phoneme} {self.duration:.3f}'
         return m
 
+def get_speakers(language_name = 'dutch'):
+    language = Language.objects.get(language__iexact=language_name)
+    dataset = Dataset.objects.get(name='COMMON VOICE')
+    temp = Speaker.objects.filter(dataset=dataset)
+    speakers = []
+    for speaker in temp:
+        word = speaker.word_set.first()
+        if word.language == language:
+            speakers.append(speaker)
+    return speakers
+
+def speaker_to_short_id(speaker):
+    identifier = speaker.identifier[:9]
+    gender = speaker.gender if speaker.gender else ''
+    age = speaker.age if speaker.age else ''
+    speaker_id = f'{identifier}_{gender}_{age}'
+    return speaker_id
         
+def load_or_make_common_voice_speaker_dict(language_name = 'dutch'):
+    directory = locations.get_language_cv_root_folder(language_name)
+    filename = directory / f'zerospeech_{language_name}_speaker_dict.json'
+    if filename.exists():
+        print('loading speaker dict')
+        with open(filename,'r') as f:
+            speaker_dict = json.load(f)
+        return speaker_dict
+    print('making speaker dict')
+    speakers = get_speakers(language_name)
+    speaker_dict = {}
+    for i,speaker in enumerate(speakers):
+        speaker_dict[speaker.identifier] = speaker_to_short_id(speaker)
+    with open(filename,'w') as f:
+        json.dump(speaker_dict,f)
+    return speaker_dict
         
 
-def get_k_words():
-    textgrids = get_k_textgrids()
-    words = []
-    for textgrid in textgrids:
-        words.extend(textgrid.word_set.all())
-    return words
