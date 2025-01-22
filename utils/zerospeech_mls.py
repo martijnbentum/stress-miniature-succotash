@@ -47,7 +47,6 @@ def gender_dict(language_name):
         d[line[0]] = line[1]
     return d
 
-    
 
 def get_textgrids(language_name):
     language= Language.objects.get(language__iexact=language_name)
