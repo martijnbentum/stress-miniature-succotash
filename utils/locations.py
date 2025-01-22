@@ -107,8 +107,16 @@ coolest_audio = coolest_root / 'Recordings'
 coolest_textgrids = coolest_root / 'mauser_textgrids'
 
 ifadv_audio = ifadv_root / 'TURNS'
-ifadv_textgrids = ifadv_root / 'MAUSER_TURN_TEXTGRIDS'
+ifadv_textgrids = ifadv_root / 'MAUSER_TURNS_TEXTGRIDS'
 ifadv_speaker_info = ifadv_root / 'speaker_id_to_speaker_info_dict.json'
+filename =  ifadv_root / 'turn_wav_filename_to_speaker_id.json'
+ifadv_audio_file_to_speaker_id = filename
+filename = ifadv_root / 'turn_wav_filename_to_start_time_dict.json'
+ifadv_audio_file_to_start_time = filename
+filename = ifadv_root / 'turn_wav_filename_to_overlap_dict.json'
+ifadv_audio_file_to_overlap = filename
+    
+    
     
     
 
