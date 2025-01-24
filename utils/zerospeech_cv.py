@@ -99,7 +99,7 @@ def textgrid_to_sentence(textgrid, manifest):
 
 
 def check_sentence_in_pretraining(sentence, manifest):
-    filename = sentence.audio_filename.split('/')[-1]
+    filename = sentence.audio_filename.split('/')[-1].replace('.mp3','.wav')
     return filename in manifest
 
 
