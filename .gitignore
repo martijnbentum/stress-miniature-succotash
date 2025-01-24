@@ -5,3 +5,4 @@ stress_env/
 *.pyc
 *.swp
 *-journal
+*.pdf
