@@ -136,13 +136,13 @@ def handle_spanish():
             else:
                 handle_syllable(syllable, False)
 
-def handle_celex_languages(language_name):
+def handle_celex_languages(language_name, start_index = 0):
     if language_name not in  ['dutch', 'english', 'german']:
         raise ValueError('Language not a celex language',
             language_name)
     c = celex.Celex(language_name.lower())
     words = load_language_words(language_name)
-    for word in progressbar(words):
+    for word in progressbar(words[start_index:]):
         handle_word_celex(word, c)
 
 def handle_word_celex(word, celex):
