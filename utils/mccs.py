@@ -28,6 +28,16 @@ def _result_to_identifier(result):
     if n: return f'{language_name}-{layer}-{n}'
     return f'{language_name}-{layer}'
 
+def _comput_stats(output):
+    o = []
+    for key, item in output.items():
+        item['mean'], item['sem'], item['ci'] = stats.compute_mean_sem_ci(
+            item['mccs'])
+        item['mccs'] = [round(x, 3) for x in item['mccs']]
+        item['identifier'] = key
+        o.append(item)
+    return o
+
 def results_to_stats(results, focus_language = None):
     output = {}
     for result in results:
@@ -46,14 +56,29 @@ def results_to_stats(results, focus_language = None):
                 'layer': layer, 'name': name, 'mccs': [mcc]}
         else:
             output[identifier]['mccs'].append(mcc)
-    o = []
-    for key, item in output.items():
-        item['mean'], item['sem'], item['ci'] = stats.compute_mean_sem_ci(
-            item['mccs'])
-        item['mccs'] = [round(x, 3) for x in item['mccs']]
-        item['identifier'] = key
-        o.append(item)
+    o = _comput_stats(output)
     return o 
+
+def make_stats_language_specific_versus_other(results):
+    output = {}
+    for result in results:
+        identifier = _result_to_identifier(result)
+        if 'finetuned' in identifier: continue
+        layer = result['layer']
+        mcc = result['mcc']
+        d = {'mccs': [mcc], 'layer': layer}
+        if 'other-language-' in identifier:key = 'other-' + str(layer)
+        else: key = 'specific-' + str(layer)
+        if key not in output:
+            output[key] = d
+        else: output[key]['mccs'].append(mcc)
+    o = _comput_stats(output)
+    other = [x for x in o if 'other' in x['identifier']]
+    other= sorted(other, key = lambda x: classifier_order.index(x['layer']))
+    specific = [x for x in o if 'specific' in x['identifier']]
+    specific= sorted(specific, key = lambda x: classifier_order.index(x['layer']))
+    return specific, other
+        
 
 def filter_cross_lingual(results = None, cross_lingual = True):
     if not results: results = load_results()
@@ -128,7 +153,7 @@ def plot_language_mccs(language_name = 'dutch', new_figure = True,
         capthick = 1.5, alpha = error_alpha)
     if abs(x[0]) < 0.01:
         plt.xticks(x, x_tick_names, rotation = 90)
-    plt.ylabel('Matthews correlation coefficient')
+    plt.ylabel('MCC')
     if plot_grid: plt.grid(alpha = .5) 
     plt.tight_layout()
 
@@ -153,6 +178,32 @@ def plot_mccs(new_figure = True, languages= []):
         print('plotting', language)
         plot_language_mccs(language, new_figure = False, 
             offset = offset, color = colors[i], plot_grid = False)
+        offset += delta_offset
+    n_categories = len(classifier_order)
+    _plot_vertical_lines(n_categories)
+    plt.legend()
+    plt.grid(alpha = .5, axis = 'y')
+
+def plot_specific_versus_other(new_figure = True):
+    plt.ion()
+    if new_figure: plt.figure()
+    plt.ylim(0,1)
+    names = ['language specific', 'cross lingual']
+    n_names = len(names)
+    results = load_results(False)
+    specific, other = make_stats_language_specific_versus_other(results)
+    results = [specific,  other]
+    delta_offset = 1 / n_names
+    offset = 0 - delta_offset 
+    print('offset', offset)
+    # colors = plt.get_cmap('tab10').colors
+    colors = ['red', 'black']
+    for i,name in enumerate(names):
+        result = results[i]
+        print('plotting', name)
+        plot_language_mccs(name, new_figure = False, 
+            offset = 0, color = colors[i], plot_grid = False,
+            results = result)
         offset += delta_offset
     n_categories = len(classifier_order)
     _plot_vertical_lines(n_categories)
