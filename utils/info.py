@@ -1,5 +1,6 @@
 from collections import Counter
 import json
+import numpy as np
 from utils import locations
 from utils import select
 from pathlib import Path
@@ -89,3 +90,24 @@ def language_n_audio_dict():
         with open(locations.language_naudios_dict, 'w') as fout:
             json.dump(d,fout)
     return d
+
+def article_table_info_count():
+    from text.models import Dataset, Language, Audio
+
+    languages = ['Dutch','English','German','Polish','Hungarian']
+    d = Dataset.objects.get(name = 'COMMON VOICE')
+    for language in languages:
+        print(language)
+        a = Audio.objects.filter(dataset = d, language__language = language)
+        audio_durations = [x.duration for x in a]
+        audio_word_counts = [x.word_set.count() for x in a]
+        l =  Language.objects.get(language = language)
+        w = Word.objects.filter(language = l, dataset = d, n_syllables = 2)
+        duration = [x.duration for x in w]
+        print('audio median word count:',np.median(audio_word_counts), 
+            'duration median duration:',np.median(audio_durations))
+        print('words:',w.count(), 'duration:',sum(duration)/3600)
+        print('-'*50)
+
+        
+
