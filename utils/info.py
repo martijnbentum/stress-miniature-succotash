@@ -92,8 +92,7 @@ def language_n_audio_dict():
     return d
 
 def article_table_info_count():
-    from text.models import Dataset, Language, Audio
-
+    from text.models import Dataset, Language, Audio, Word
     languages = ['Dutch','English','German','Polish','Hungarian']
     d = Dataset.objects.get(name = 'COMMON VOICE')
     for language in languages:
