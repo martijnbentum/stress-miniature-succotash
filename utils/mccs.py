@@ -1,14 +1,18 @@
 import json
 from matplotlib import pyplot as plt
+from matplotlib import patches as mpatches
 import numpy as np
 from pathlib import Path
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from utils import stats
+from scipy.cluster.hierarchy import dendrogram, linkage
+import matplotlib.patches as patches
 
 language_names = ['dutch', 'english', 'german', 'polish', 'hungarian']
 classifier_order = ['duration', 'intensity', 'pitch', 'formant',
     'spectral-tilt', 'combined-features', 'codevector', 'cnn', 5, 11, 
     17, 23]
+co_short = ['dur', 'int', 'pit', 'for', 'st', 'cf', 'cv', 'cnn', 5, 11, 17, 23]
         
 def load_results(return_stats = True, focus_language = None, 
     filename = '../results.json'):
@@ -127,7 +131,7 @@ def filter_other_language(language_name, other_language_name):
 def plot_language_mccs(language_name = 'dutch', new_figure = True, 
     offset =0, color = 'black', plot_grid = True, results = None, 
     error_alpha = 1, prepend_label = '', append_label = '', finetuned = False, 
-    focus_language = None):
+    focus_language = None, short_xlabels = False):
     if not results: results = filter_language(language_name, 
         finetuned = finetuned, focus_language = focus_language) 
     plt.ion()
@@ -136,8 +140,9 @@ def plot_language_mccs(language_name = 'dutch', new_figure = True,
     x_temp = np.arange(len(classifier_order)) + offset
     temp = [result['layer'] for result in results]
     x, x_tick_names = [], []
-    for i, co in enumerate(classifier_order):
-        if co in temp:
+    con = classifier_order if not short_xlabels else co_short
+    for i, co in enumerate(con):
+        if co in temp or short_xlabels:
             x.append(x_temp[i])
             x_tick_names.append(co)
     # x_tick_names = [co for co in classifier_order if co in temp]
@@ -146,6 +151,7 @@ def plot_language_mccs(language_name = 'dutch', new_figure = True,
     print(x,x_tick_names)
     means = [result['mean'] for result in results]
     cis = [result['ci'] for result in results]
+    language_name = language_name.capitalize()
     plt.errorbar(x, means, yerr = cis, 
         label = prepend_label + language_name + append_label, 
         markersize = 12,
@@ -165,7 +171,7 @@ def _plot_vertical_lines(n_categories, width = 1):
             plt.axvspan(x[i] - offset, x[i] + offset, color = 'grey', 
                 alpha = .1) 
     
-def plot_mccs(new_figure = True, languages= []):
+def plot_mccs(new_figure = True, languages= [], short_xlabels = False):
     plt.ion()
     if new_figure: plt.figure()
     if not languages: languages = language_names
@@ -177,18 +183,20 @@ def plot_mccs(new_figure = True, languages= []):
     for i,language in enumerate(language_names):
         print('plotting', language)
         plot_language_mccs(language, new_figure = False, 
-            offset = offset, color = colors[i], plot_grid = False)
+            offset = offset, color = colors[i], plot_grid = False,
+            short_xlabels = short_xlabels)
         offset += delta_offset
     n_categories = len(classifier_order)
     _plot_vertical_lines(n_categories)
     plt.legend()
     plt.grid(alpha = .5, axis = 'y')
 
-def plot_specific_versus_other(new_figure = True):
+def plot_specific_versus_other(new_figure = True, 
+    short_xlabels = False):
     plt.ion()
     if new_figure: plt.figure()
     plt.ylim(0,1)
-    names = ['language specific', 'cross lingual']
+    names = ['language specific', 'cross-lingual']
     n_names = len(names)
     results = load_results(False)
     specific, other = make_stats_language_specific_versus_other(results)
@@ -203,7 +211,7 @@ def plot_specific_versus_other(new_figure = True):
         print('plotting', name)
         plot_language_mccs(name, new_figure = False, 
             offset = 0, color = colors[i], plot_grid = False,
-            results = result)
+            results = result, short_xlabels = short_xlabels)
         offset += delta_offset
     n_categories = len(classifier_order)
     _plot_vertical_lines(n_categories)
@@ -334,7 +342,8 @@ def scatter_plot_lda(layer_name = 17, add_legend = True, add_sup_title = True,
     if new_figure:
         plt.figure()
     lda = LinearDiscriminantAnalysis(n_components=2)
-    colors = ['red', 'green', 'blue','purple','orange']
+    colors = plt.get_cmap('tab10').colors
+    # colors = ['red', 'green', 'blue','purple','orange']
     X, y = mcc_matrix(layer_name,stats = False, 
         result_filename = result_filename)
     X_lda = lda.fit_transform(X, y)
@@ -342,13 +351,13 @@ def scatter_plot_lda(layer_name = 17, add_legend = True, add_sup_title = True,
     else: p = plt
     for color, i, language_name in zip(colors, np.unique(y), language_names):
         p.scatter(X_lda[y == i, 0], X_lda[y == i, 1], alpha = .6, c = color,
-            label = language_name)
+            label = language_name.capitalize())
     if add_sup_title:
         p.suptitle('LDA of cross lingual classifier performance output')
     if ax:
         if layer_name == 'combined-features': layer_name = 'combined'
-        p.set_title(f'Layer: {layer_name}')
-    else: plt.title(f'Layer: {layer_name}')
+        p.set_title(f'{layer_name}')
+    else: plt.title(f'{layer_name}')
     if add_axis_labels:
         if ax:
             p.set_xlabel('LD1', labelpad = -5)
@@ -357,7 +366,9 @@ def scatter_plot_lda(layer_name = 17, add_legend = True, add_sup_title = True,
             p.xlabel('LD1')
             p.ylabel('LD2')
     if add_legend:
-        p.legend()
+        legend = p.legend(borderpad =0.1)
+        for handle in legend.legendHandles:
+            handle.set_alpha(1)
     p.grid(alpha = .5)
 
 def scatter_plot_lda_all_classifiers():
@@ -372,3 +383,56 @@ def scatter_plot_lda_all_classifiers():
         scatter_plot_lda(layer_name, add_legend = add_legend,
             add_sup_title = False, new_figure = False, 
             add_axis_labels = add_axis_labels, ax = axes[i])
+
+def ahc_dendrogram(layer = 11, result_filename = '../results.json', ax = None,
+    ylim = (0,3), ylabel = 'Ward distance', show_legend = True, show = False,
+        minimalist= False):
+    X, y = mcc_matrix(layer,stats = False, 
+        result_filename = result_filename)
+    labels = y # [language_names[i][0] for i in y]
+    Z = linkage(X, 'ward')
+    if not ax:
+        fig, ax = plt.subplots()
+    plt.ion()
+    dendro = dendrogram(Z, labels = labels, above_threshold_color = 'black',
+        link_color_func = lambda x: 'black', ax = ax)
+    leaf_order = dendro['leaves']
+    x_labels = ax.get_xticklabels()
+    colors = plt.get_cmap('tab10').colors
+    mp = [mpatches.Patch(color =colors[i], label=language_names[i]) 
+        for i in range(len(language_names))]
+    height = (ylim[1] - ylim[0]) / 3 * -1
+    for i, lbl in enumerate(x_labels):
+        x_pos = lbl.get_position()[0]
+        color = colors[y[leaf_order[i]]]
+        rect = patches.Rectangle((x_pos - 2, 0 ), 9, height, 
+            color=color, clip_on=False)
+        ax.add_patch(rect)
+        ax.set_xticks([])
+    ax.set_title(f'{layer}')
+    ax.set_ylabel(ylabel)
+    ax.set_ylim(ylim)
+    if minimalist:
+        ax.set_yticks([])
+        ax.set_yticklabels([])
+        [spine.set_visible(False) for spine in ax.spines.values()]
+    if show_legend:
+        ax.legend(handles = mp, labelspacing=0.3, framealpha = 1) 
+    # plt.tight_layout()
+    if show:
+        plt.show()
+
+def plot_ahc_dendrograms_article():
+    layers = ['combined-features', 17]
+    fig, axs = plt.subplots(1, 2, figsize = (12, 2))
+    i = 0
+    for ax, layer in zip(axs, layers):
+        if i == 0: show_legend = True
+        else: show_legend = False
+        print(i)
+        ahc_dendrogram(layer, ax = ax, ylim = (0,4), ylabel = '',
+            show_legend = show_legend, show = False, minimalist = True)
+        i += 1
+    plt.tight_layout()
+    plt.show()
+
