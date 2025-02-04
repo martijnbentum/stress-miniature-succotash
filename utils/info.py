@@ -104,7 +104,8 @@ def article_table_info_count():
         w = Word.objects.filter(language = l, dataset = d, n_syllables = 2)
         duration = [x.duration for x in w]
         print('audio median word count:',np.median(audio_word_counts), 
-            'duration median duration:',np.median(audio_durations))
+            'duration median duration:',np.median(audio_durations),
+            'duration total duration:',sum(audio_durations)/3600)
         print('words:',w.count(), 'duration:',sum(duration)/3600)
         print('-'*50)
 
