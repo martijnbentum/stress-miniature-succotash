@@ -16,7 +16,13 @@ def read_manifest(language_name):
     directory = locations.get_language_mls_root_folder(language_name)
     with open(directory / 'train.tsv','r') as f:
         t = [x.split('\t')[0].split('/')[-1] for x in f.read().split('\n') if x]
-    return t
+    output = []
+    for line in t:
+        if 'fn' in line:continue
+        if 'fv' in line:continue
+        if 'common voice' in line:continue
+        output.append(line)
+    return output
 
 def read_meta_data(language_name):
     directory = locations.get_language_mls_root_folder(language_name)
@@ -46,6 +52,12 @@ def gender_dict(language_name):
     for line in data:
         d[line[0]] = line[1]
     return d
+
+def audiofilename_to_split(audio_filename):
+    if 'train' in audio_filename: return 'train'
+    if 'dev' in audio_filename: return 'dev'
+    if 'test' in audio_filename: return 'test'
+    raise ValueError('unknown split', audio_filename)
 
 
 def get_textgrids(language_name):
@@ -83,32 +95,27 @@ def make_phonemes(sentences = None,language_name = ''):
             phonemes.append(Phoneme(phoneme, sentence, i))
     return phonemes 
 
+
 def save_phonemes(language_name, phonemes = None):
-    header = 'audio_filename\tstart_time\tend_time\tduration\tphoneme'
-    header += '\tprevious_phoneme\tnext_phoneme\tspeaker_id\toverlap'
-    header += '\tin_pretraining'
-    o = [header]
     if not phonemes: phonemes = make_phonemes(language_name = language_name)
+    o = [phonemes[0].header]
     for phoneme in phonemes:
         o.append(phoneme.line)
     with open(f'../{language_name}_mls_phonemes_zs.tsv','w') as f:
         f.write('\n'.join(o))
 
+
 def save_words(language_name, words = None):
-    header = 'audio_filename\tstart_time\tend_time\tduration\ttext\tspeaker_id'
-    header += '\toverlap\tin_pretraining'
-    o = [header]
     if not words: words = make_words(language_name = language_name)
+    o = [words[0].header]
     for word in words:
         o.append(word.line)
     with open(f'../{language_name}_mls_words_zs.tsv','w') as f:
         f.write('\n'.join(o))
 
 def save_sentences(language_name, sentences = None):
-    header = 'audio_filename\tstart_time\tend_time\tduration\ttext\tidentifier'
-    header += '\tspeaker_id\tin_pretraining'
-    o = [header]
     if not sentences: sentences = make_sentences(language_name = language_name)
+    o = [sentences[0].header]
     for sentence in sentences:
         o.append(sentence.line)
     with open(f'../{language_name}_mls_sentences_zs.tsv','w') as f:
@@ -125,19 +132,21 @@ def textgrid_to_sentence(textgrid, manifest):
 
 
 def check_sentence_in_pretraining(sentence, manifest):
-    filename = sentence.audio_filename.split('/')[-1]
+    filename = sentence.audio_filename
     return filename in manifest
 
 class Sentence:
     def __init__(self, words, textgrid, index, manifest):
         self.words = words
+        self.nwords = len(words)
         self.start_time = 0 # words[0].start_time
         self.end_time = textgrid.audio.duration # words[-1].end_time
         self.textgrid = textgrid
         self.index = index
         self.audio = textgrid.audio
-        self.audio_filename = self.audio.filename.split('CGN2/')[-1]
-        self.identifier = self.audio_filename
+        self.split = audiofilename_to_split(self.audio.filename)
+        self.audio_filename = self.audio.filename.split('/')[-1]
+        self.identifier = textgrid.identifier
         self.duration = self.end_time - self.start_time
         speakers = textgrid.speakers.all()
         if len(speakers) > 1: raise ValueError('More than one speaker')
@@ -149,6 +158,7 @@ class Sentence:
         speaker_id = self.speaker.identifier
         self.speaker_id = f'{speaker_id}_{self.gender}' 
         self.sentence = ' '.join([w.word for w in words])
+        self.phon_sentence = ' '.join([p.ipa for p in self.phonemes])
         self.in_pretraining = check_sentence_in_pretraining(self, manifest)
 
     @property
@@ -167,23 +177,38 @@ class Sentence:
         return m
 
     @property
+    def header(self):
+        h= 'audio_filename\tidentifier\tstart_time\tend_time'
+        h+= '\tduration\ttext\tsplit\tn_words\tspeaker_id'
+        h+= '\tin_pretraining'
+        return h
+
+    @property
     def line(self):
-        m = f'{self.audio_filename}'
+        m = f'{self.audio_filename}\t{self.identifier}'
         m += f'\t{self.start_time:.3f}\t{self.end_time:.3f}'
-        m += f'\t{self.duration:.3f}\t"{self.sentence}"' 
-        m += f'\t{self.identifier}\t{self.speaker_id}\t{self.in_pretraining}' 
+        m += f'\t{self.duration:.3f}\t"{self.sentence}"'
+        m += f'\t{self.split}' 
+        m += f'\t{self.nwords}\t{self.speaker_id}\t{self.in_pretraining}' 
         return m
+
+    @property
+    def show(self):
+        show(self.header, self.line)
 
 class Word:
     def __init__(self, word, sentence, index):
         self.word = word
         self.sentence = sentence
         self.index = index
-        self.filename = sentence.identifier
+        self.audio_filename = sentence.audio_filename
+        self.identifier = word.identifier
         self.start_time = word.start_time - sentence.start_time
         self.end_time = word.end_time - sentence.start_time
         self.duration = self.end_time - self.start_time
         self.speaker_id = sentence.speaker_id
+        self.phones = ' '.join([p.ipa for p in word.phonemes])
+        self.n_phones = len(word.phonemes)
 
     def __repr__(self):
         m = f'{self.filename} {self.speaker_id} {self.duration:.3f}' 
@@ -191,24 +216,41 @@ class Word:
         return m
 
     @property
+    def header(self):
+        h= 'audio_filename\tidentifier\tstart_time\tend_time\tduration'
+        h+= '\ttext\tphones\tn_phones\tsplit\tword_index\tsentence_identifier'
+        h+= '\tspeaker_id\tin_pretraining'
+        return h
+
+    @property
     def line(self):
-        m = f'{self.filename}'
+        m = f'{self.audio_filename}\t{self.identifier}'
         m += f'\t{self.start_time:.3f}\t{self.end_time:.3f}'
         m += f'\t{self.duration:.3f}\t{self.word.word}'
-        m += f'\t{self.speaker_id}\t{self.word.overlap}'
+        m += f'\t{self.phones}\t{self.n_phones}\t{self.sentence.split}'
+        m += f'\t{self.index}\t{self.sentence.identifier}'
+        m += f'\t{self.speaker_id}'
         m += f'\t{self.sentence.in_pretraining}'
         return m
+
+    @property
+    def show(self):
+        show(self.header, self.line)
 
 class Phoneme:
     def __init__(self, phoneme, sentence, index):
         self.IPA = phoneme
+        self.word = phoneme.word
+        self.phones = ' '.join([p.ipa for p in self.word.phonemes])
+        self.phone_index = self.word.phonemes.index(phoneme.phoneme)
         self.phoneme_char = phoneme.ipa
         self.start_time = phoneme.start_time - sentence.start_time
         self.end_time = phoneme.end_time - sentence.start_time
         self.duration = self.end_time - self.start_time
         self.sentence = sentence
         self.index = index
-        self.filename = sentence.identifier
+        self.audio_filename = sentence.audio_filename
+        self.identifier = phoneme.phoneme.identifier
         self.start_time = phoneme.start_time - sentence.start_time
         self.end_time = phoneme.end_time - sentence.start_time
         self.duration = self.end_time - self.start_time
@@ -226,14 +268,28 @@ class Phoneme:
         return self.sentence.phonemes[self.index + 1].phoneme.ipa
 
     @property
+    def header(self):
+        h= 'audio_filename\tidentifier\tstart_time\tend_time'
+        h+= '\tduration\tphone\tprevious_phone\tnext_phone'
+        h+= '\tphone_index\tword_index\tword_identifier\tsentence_identifier'
+        h+= '\tspeaker_id\tin_pretraining'
+        return h
+
+    @property
     def line(self):
-        m = f'{self.filename}'
+        m = f'{self.audio_filename}\t{self.identifier}'
         m += f'\t{self.start_time:.3f}\t{self.end_time:.3f}'
         m += f'\t{self.duration:.3f}\t{self.phoneme_char}'
         m += f'\t{self.previous_phoneme}\t{self.next_phoneme}'
-        m += f'\t{self.speaker_id}\t{self.overlap}'
+        m += f'\t{self.phone_index}\t{self.word.index}'
+        m += f'\t{self.word.identifier}\t{self.sentence.identifier}'
+        m += f'\t{self.speaker_id}'
         m += f'\t{self.sentence.in_pretraining}'
         return m
+
+    @property
+    def show(self):
+        show(self.header, self.line)
 
 
 class IPA:
@@ -258,3 +314,9 @@ def get_k_words():
     for textgrid in textgrids:
         words.extend(textgrid.word_set.all())
     return words
+
+def show(header,line):
+    for h,l in zip(header.split('\t'),line.split('\t')):
+        print(f'{h}: {l}')
+    print('header:',len(header.split('\t')), '\nline:',len(line.split('\t')))
+        
