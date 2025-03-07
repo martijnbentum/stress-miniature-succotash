@@ -40,10 +40,10 @@ def handle_word(word, language):
     return n_created
         
     
-def handle_words(words = None, start_index = 0, skip_if_ipa = True):
+def load_all_phonemes(start_index = 0, skip_if_ipa = True):
     from text.models import Language, Word
     dutch = Language.objects.get(language='Dutch')
-    if not words: words = Word.objects.all()
+    words = Word.objects.filter(dataset__name='CGN', language=dutch)
     n_created = 0
     for word in progressbar(words[start_index:]):
         if skip_if_ipa and word.ipa: continue
