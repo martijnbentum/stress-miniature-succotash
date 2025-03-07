@@ -64,6 +64,7 @@ def handle_phoneme(phoneme_interval, phoneme_index, word, audio, speaker,
     d['audio'] = audio
     d['speaker'] = speaker
     d['language'] = language
+    d['dataset'] = audio.dataset
     bpcs = ipa_to_bpc[d['ipa']]
     d['bpcs_str'] = ','.join([bpc.bpc for bpc in bpcs])
     phoneme, created = Phoneme.objects.get_or_create(**d)

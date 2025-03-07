@@ -12,7 +12,7 @@ def handle_cgn():
     print('handling bpcs')
     load_bpc.handle_bpcs()
     print('handling audio')
-    load_cgn_audio.handle_component('b', ['nl'])
+    load_cgn_audio.handle_component('o', ['nl'])
     print('handling speakers')
     load_cgn_speakers.add_all_speakers()
     print('handling textgrids')

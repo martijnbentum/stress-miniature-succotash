@@ -33,6 +33,6 @@ def handle_audio_files(files = None):
     print('created',sum(created),'new audio instance')
 
 
-def handle_component(comp = 'b', languages = ['nl']):
+def handle_component(comp = 'o', languages = ['nl']):
     files = cgn_audio_files(comps = comp, languages = languages)
     handle_audio_files(files)

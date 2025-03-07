@@ -92,6 +92,7 @@ def handle_word(word_interval, word_index, speaker, textgrid, interval_index):
     d['start_time'] = word_interval.xmin
     d['end_time'] = word_interval.xmax
     d['info'] = get_word_info(word_interval,phoneme_interval, interval_index)
-    d['language'] = Language.objects.get(language='Dutch')
+    d['language'] = textgrid.audio.language
+    d['dataset'] = textgrid.audio.dataset
     word, created = Word.objects.get_or_create(**d)
     return created, True

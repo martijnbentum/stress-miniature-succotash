@@ -27,6 +27,7 @@ def load_in_awd_textgrid(audio):
     d['audio'] = audio
     d['filename'] = filename
     d['phoneme_set_name'] = 'cgn'
+    d['dataset'] = cgn
     textgrid, created = Textgrid.objects.get_or_create(**d)
     linked_speakers = textgrid.speakers.all()
     for speaker in speakers:
