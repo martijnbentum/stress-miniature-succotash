@@ -9,8 +9,9 @@ def make_word_identifier(textgrid_id,speaker_id,word_index):
 
 def load_all_words(start_index = 0):
     from text.models import Textgrid
+    tg = Textgrid.objects.filter(dataset__name='CGN')
     n_created = 0
-    for textgrid in progressbar(Textgrid.objects.all()[start_index:]):
+    for textgrid in progressbar(tg[start_index:]):
         n = handle_textgrid(textgrid)
         n_created += n
     print(f'Created {n_created} words in total')
