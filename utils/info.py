@@ -109,5 +109,24 @@ def article_table_info_count():
         print('words:',w.count(), 'duration:',sum(duration)/3600)
         print('-'*50)
 
+def stress_position():
+    languages = ['Dutch','English','German','Polish','Hungarian']
+    for language in languages:
+        print(language)
+        words = select.select_words(language_name = language,
+            dataset_name = 'COMMON VOICE', 
+            number_of_syllables = 2,
+            no_diphtongs = True,
+            one_vowel_per_syllable = True,
+            has_stress = True)
+        stress_positions = []
+        for word in words:
+            sp = tuple([int(s.stress) for s in word.syllables])
+            stress_positions.append(sp)
+        counter = Counter(stress_positions)
+        print(counter)
+        print('-'*50)
+    
+    
         
 
