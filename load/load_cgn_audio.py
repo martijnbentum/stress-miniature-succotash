@@ -20,8 +20,8 @@ def handle_audio_file(file_info):
     d['language'] = dutch
     d['info'] = json.dumps(info)
     d['dataset'] = dataset
-    audio, created = Audio.objects.get_or_create(**d)
-    return audio, created
+    a, created = Audio.objects.get_or_create(**d)
+    return a, created
 
 def handle_audio_files(files = None):
     if not files: files = cgn_audio_files()
@@ -32,3 +32,7 @@ def handle_audio_files(files = None):
         created.append(c)
     print('created',sum(created),'new audio instance')
 
+
+def handle_component(comp = 'b', languages = ['nl']):
+    files = cgn_audio_files(comps = comp, languages = languages)
+    handle_audio_files(files)
