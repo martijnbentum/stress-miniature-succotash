@@ -15,8 +15,9 @@ def get_awd_textgrid_filename(filename):
             return f
 
 def load_in_awd_textgrid(audio):
-    from text.models import Textgrid, Speaker
+    from text.models import Textgrid, Speaker, Dataset
     filename = get_awd_textgrid_filename(audio.filename)
+    cgn = Dataset.objects.get(name='CGN')
     tg = textgrids.TextGrid(filename)
     speaker_ids = [k for k in tg.keys() if '_' not in k]
     speakers = Speaker.objects.filter(identifier__in=speaker_ids)
