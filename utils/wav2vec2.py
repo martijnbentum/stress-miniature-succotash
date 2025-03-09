@@ -58,6 +58,15 @@ def handle_mls_audio(audio, model = None, gpu = False, save_words = True,
     return handle_audio(audio, model, gpu, save_words, model_name, 
         only_bisyllabic_words)
 
+def handle_cgn_audio(audio, model = None, gpu = False, save_words = True,
+    model_name = 'pretrained-xlsr', 
+    only_bisyllabic_words = False):
+    model_name += '-cgn'
+    print('handling', audio, 'with model_name', model_name)
+    print('only_bisyllabic_words', only_bisyllabic_words)
+    return handle_audio(audio, model, gpu, save_words, model_name, 
+        only_bisyllabic_words)
+
 def word_to_info(word):
     start_time = word.start_time
     end_time = word.end_time
