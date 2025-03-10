@@ -7,6 +7,9 @@ from w2v2_hidden_states import load
 from w2v2_hidden_states import to_vector
 from utils import locations
 from utils import save_hidden_states as shs
+from utils import st_phonetic_map_cnn_to_ci as sc
+import torch
+import gc
 
 def load_model(gpu = False):
     '''load the pretrained wav2vec2 model'''
@@ -28,7 +31,7 @@ def check_any_bi_syllabic_words(words):
     
 def handle_audio(audio, model = None, gpu = False, save_words = True, 
     model_name = 'pretrained-xlsr',
-    only_bisyllabic_words = False):
+    only_bisyllabic_words = False, remove_layer_list = None):
     words = audio.word_set.all()
     if only_bisyllabic_words and not check_any_bi_syllabic_words(words):
         return []
@@ -45,8 +48,11 @@ def handle_audio(audio, model = None, gpu = False, save_words = True,
         word_output.name = name
         if save_words:
             shs.save_word_hidden_states(word, word_output, 
-                model_name = model_name)
+                model_name = model_name, remove_layer_list = remove_layer_list)
         output.append(word_output)
+    del outputs
+    gc.collect()
+    torch.cuda.empty_cache()
     return output
 
 def handle_mls_audio(audio, model = None, gpu = False, save_words = True,
@@ -60,12 +66,37 @@ def handle_mls_audio(audio, model = None, gpu = False, save_words = True,
 
 def handle_cgn_audio(audio, model = None, gpu = False, save_words = True,
     model_name = 'pretrained-xlsr', 
-    only_bisyllabic_words = False):
+    only_bisyllabic_words = False, remove_layer_list = None):
     model_name += '-cgn'
     print('handling', audio, 'with model_name', model_name)
     print('only_bisyllabic_words', only_bisyllabic_words)
     return handle_audio(audio, model, gpu, save_words, model_name, 
-        only_bisyllabic_words)
+        only_bisyllabic_words, remove_layer_list)
+
+def handle_st_phonetics_language(audios, language = 'nl', gpu = False, 
+    save_words = True, only_bisyllabic_words = False,
+    remove_layer_list = [0,2,4,6,8,10], steps = None):
+    if not steps: steps = sc.steps
+    o =sc.link_models_and_embeds(language)
+    mf = [sc.step_to_model(s,linked_models_and_embeds = o) for s in steps]
+    for m in mf:
+        model_checkpoint = m['model']
+        name = f'{m["language"]}-{m["step"]}'
+        print('handling', name, 'with model_checkpoint', model_checkpoint)
+        model = load.load_pretrained_model(model_checkpoint, gpu = gpu)
+        index = 0
+        n_audios = len(audios)
+        for audio in progressbar(audios):
+            o = handle_cgn_audio(audio, model, gpu, save_words, name, 
+                only_bisyllabic_words, remove_layer_list)
+            del o 
+            gc.collect()
+            torch.cuda.empty_cache()
+        del model
+        gc.collect()
+        torch.cuda.empty_cache()
+    
+    
 
 def word_to_info(word):
     start_time = word.start_time
