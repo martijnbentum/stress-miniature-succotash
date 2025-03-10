@@ -112,7 +112,7 @@ def _save_hidden_state_number(audio,number, model_name = 'pretrained-xlsr'):
     audio.save()
 
 def save_word_hidden_states(word, hidden_states, language_name = None, 
-    model_name = 'pretrained-xlsr'):
+    model_name = 'pretrained-xlsr', remove_layer_list = None):
     '''save hidden states for a specific word.'''
     check_model_name(model_name)
     filename = word_to_hdf5_filename(word, language_name, model_name)
@@ -121,7 +121,10 @@ def save_word_hidden_states(word, hidden_states, language_name = None,
         print('word hidden states already saved, skipping')
         return
     remove_last_hidden_state(hidden_states)
-    remove_layers(hidden_states)
+    if remove_last_hidden_state is None:
+        remove_layers(hidden_states)
+    else: 
+        remove_layers(hidden_states, layers = remove_layer_list)
     save_hidden_states(filename, name, hidden_states)
 
 def check_word_hidden_states_exists(word, filename = None):
