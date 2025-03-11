@@ -4,6 +4,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import patches as mpatches
+import matplotlib.patches as patches
 from progressbar import progressbar
 from scipy.spatial.distance import jensenshannon
 from scipy.spatial.distance import squareform
@@ -21,7 +22,7 @@ from sklearn.preprocessing import LabelEncoder
 base = '/vol/mlusers/mbentum/st_phonetics/'
 codebook_dir = base + 'codebooks/'
 
-def plot_dendrogram(js_distances):
+def plot_dendrogram(js_distances, step = '', language = ''):
     # Extract unique phones
     phones = sorted(set(i for i, j in js_distances.keys()))
 
@@ -40,11 +41,37 @@ def plot_dendrogram(js_distances):
     linkage_matrix = linkage(condensed_distances, method="ward")
 
     # Plot the dendrogram
-    plt.figure(figsize=(6, 5))
-    dendrogram(linkage_matrix, labels=phones, leaf_rotation=45, leaf_font_size=10)
-    plt.title("Dendrogram of Phones (JS Distance)")
+    figure = plt.figure(figsize=(11, 2.1))
+    ax = figure.add_subplot(111)
+    dendro = dendrogram(linkage_matrix, labels=phones, leaf_rotation=0, 
+        leaf_font_size=10)
+    leaf_order = dendro['leaves']
+    x_labels = ax.get_xticklabels()
+    cm = plt.get_cmap('tab10').colors
+    colors = [cm[i] for i in [1, 2, 6, 0, 9]]
+    bpcs = list(set(bpc_dict.values()))
+    mp = [mpatches.Patch(color =colors[i], label=bpcs[i]) 
+        for i in range(len(bpcs))]
+    height = -0.5#(ylim[1] - ylim[0]) / 3 * -1
+    for i, lbl in enumerate(x_labels):
+        x_pos = lbl.get_position()[0]
+        phone = phones[leaf_order[i]]
+        bpc = bpc_dict[phone]
+        index = bpcs.index(bpc)
+        color = colors[index]
+        rect = patches.Rectangle((x_pos - 5, 0 ), 9, height, 
+            color=color, clip_on=False, alpha=0.8)
+        ax.add_patch(rect)
+    plt.legend(handles=mp)
+    title="Dendrogram of Phones (JS Distance)"
+    if step:
+        title += f" (training step {step})"
+    if language:
+        title += f" ({language})"
+    plt.title(title)
     plt.ylabel("Cluster Distance")
     plt.show()
+
 
 def compute_adjusted_rand_score(count_dict, language = 'nl'):
     fine_labels = list(phone_to_fine_phonetic_class_dict().values())
@@ -255,3 +282,40 @@ def phones_to_cbi_counts(phones):
             o[phone.ipa] += cbi_to_counts(phone)
     return o
 '''
+bpc_dict = {'yː': 'vowel',
+     'øː': 'vowel',
+     'v': 'fricative',
+     'aː': 'vowel',
+     'ɪ': 'vowel',
+     'j': 'approximant',
+     's': 'fricative',
+     'p': 'plosive',
+     'oː': 'vowel',
+     'ŋ': 'nasal',
+     'z': 'fricative',
+     'b': 'plosive',
+     'k': 'plosive',
+     'ʃ': 'fricative',
+     'h': 'fricative',
+     'ɛi': 'vowel',
+     'l': 'approximant',
+     'd': 'plosive',
+     'ɑ': 'vowel',
+     'ʋ': 'approximant',
+     'eː': 'vowel',
+     'g': 'plosive',
+     'ɣ': 'fricative',
+     'iː': 'vowel',
+     'uː': 'vowel',
+     'n': 'nasal',
+     'œy': 'vowel',
+     'ɛ': 'vowel',
+     'ɔ': 'vowel',
+     'x': 'fricative',
+     'm': 'nasal',
+     'ɑu': 'vowel',
+     't': 'plosive',
+     'r': 'approximant',
+     'f': 'fricative',
+     'ə': 'vowel',
+     'ʉ': 'vowel'}
