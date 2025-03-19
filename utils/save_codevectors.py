@@ -58,27 +58,29 @@ def remove_word_codebook_indices(word):
         print(f'word codebook_indices does not exist, skipping {word}')
     remove_codebook_indices(hdf5_filename, name)
 
-def load_word_codebook_indices(word):
+def load_word_codebook_indices(word, model_name = 'pretrained-xlsr'):
     '''load hidden states for a specific word.'''
-    hdf5_filename = shs.word_to_hdf5_filename(word)
+    hdf5_filename = shs.word_to_hdf5_filename(word, 
+        model_name = model_name)
     name = make_codebook_indices_name(word)
     ci = load_codebook_indices(hdf5_filename, name)
     return ci
 
-def _word_to_codebook_indices(word, model_pt):
-    outputs = lhs.load_word_hidden_states(word)
+def _word_to_codebook_indices(word, model_pt, model_name = 'pretrained-xlsr'):
+    outputs = lhs.load_word_hidden_states(word, model_name = model_name)
     if outputs is None: return None
     codebook_indices = codebook.outputs_to_codebook_indices(outputs, model_pt)
     return codebook_indices
 
-def save_word_codebook_indices(word, model_pt):
+def save_word_codebook_indices(word, model_pt, model_name = 'pretrained-xlsr'):
     '''save hidden states for a specific word.'''
-    filename = shs.word_to_hdf5_filename(word)
+    filename = shs.word_to_hdf5_filename(word, model_name = model_name)
     name = make_codebook_indices_name(word)
     if check_codebook_indices_exists(filename, name):
         print('word codebook_indices already saved, skipping')
         return
-    codebook_indices = _word_to_codebook_indices(word, model_pt)
+    codebook_indices = _word_to_codebook_indices(word, model_pt, 
+        model_name = model_name)
     if codebook_indices is None: 
         print(f'codebook indices not found, skipping {word}')
         return
