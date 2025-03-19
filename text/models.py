@@ -227,11 +227,11 @@ class Word(models.Model):
 
     def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
-        return lc.load_word_codebook_indices(self)
+        return lc.load_word_codebook_indices(self, model_name = model_name)
 
     def codevectors(self, mean = False, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
-        return lc.load_word_codevectors(self)
+        return lc.load_word_codevectors(self, model_name = model_name)
 
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
