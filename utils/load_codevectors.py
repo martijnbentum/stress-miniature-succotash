@@ -15,12 +15,15 @@ def load_codebook(model = None, f ='../data/codebook_wav2vec2-xls-r-300m.npy'):
 
 cb = load_codebook()
 
-def load_word_codebook_indices(x):
-    return save_codevectors.load_word_codebook_indices(x)
+def load_word_codebook_indices(x, model_name = 'pretrained-xlsr'):
+    return save_codevectors.load_word_codebook_indices(x, 
+        model_name = model_name)
 
-def load_word_codevectors(x, _codebook = None):
+def load_word_codevectors(x, _codebook = None, model_name = 'pretrained-xlsr'):
     if _codebook is None: _codebook = cb
-    ci = load_word_codebook_indices(x)
+    ci = load_word_codebook_indices(x, model_name = model_name)
+    if model_name != 'pretrained-xlsr':
+        raise NotImplementedError
     cv = codebook.multiple_codebook_indices_to_codevectors(ci, _codebook)
     return cv
 
