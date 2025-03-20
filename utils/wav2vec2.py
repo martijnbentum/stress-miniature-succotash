@@ -7,7 +7,7 @@ from w2v2_hidden_states import load
 from w2v2_hidden_states import to_vector
 from utils import locations
 from utils import save_hidden_states as shs
-from utils import st_phonetic_map_cnn_to_ci as sc
+from tt import st_phonetic_map_cnn_to_ci as sc
 import torch
 import gc
 
@@ -73,6 +73,27 @@ def handle_cgn_audio(audio, model = None, gpu = False, save_words = True,
     return handle_audio(audio, model, gpu, save_words, model_name, 
         only_bisyllabic_words, remove_layer_list)
 
+def handle_st_phonetics_checkpoint(audios, model_checkpoint,
+    gpu = False, save_words = True,
+    only_bisyllabic_words = False, remove_layer_list = [0,2,4,6,8,10]):
+    model = load.load_pretrained_model(model_checkpoint, gpu = gpu)
+    step = sc.model_to_step(model_checkpoint)
+    language = sc.model_to_language(model_checkpoint)
+    name = f'{language}-{step}'
+    print('handling', name, 'with model_checkpoint', model_checkpoint)
+    index = 0
+    n_audios = len(audios)
+    for audio in progressbar(audios):
+        o = handle_cgn_audio(audio, model, gpu, save_words, name, 
+            only_bisyllabic_words, remove_layer_list)
+        del o 
+        gc.collect()
+        torch.cuda.empty_cache()
+    del model
+    gc.collect()
+    torch.cuda.empty_cache()
+    
+
 def handle_st_phonetics_language(audios, language = 'nl', gpu = False, 
     save_words = True, only_bisyllabic_words = False,
     remove_layer_list = [0,2,4,6,8,10], steps = None):
@@ -83,18 +104,8 @@ def handle_st_phonetics_language(audios, language = 'nl', gpu = False,
         model_checkpoint = m['model']
         name = f'{m["language"]}-{m["step"]}'
         print('handling', name, 'with model_checkpoint', model_checkpoint)
-        model = load.load_pretrained_model(model_checkpoint, gpu = gpu)
-        index = 0
-        n_audios = len(audios)
-        for audio in progressbar(audios):
-            o = handle_cgn_audio(audio, model, gpu, save_words, name, 
-                only_bisyllabic_words, remove_layer_list)
-            del o 
-            gc.collect()
-            torch.cuda.empty_cache()
-        del model
-        gc.collect()
-        torch.cuda.empty_cache()
+        handle_st_phonetics_checkpoint(audios, model_checkpoint, gpu, 
+            save_words, only_bisyllabic_words, remove_layer_list)
     
     
 
