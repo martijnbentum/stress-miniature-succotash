@@ -3,6 +3,7 @@ import glob
 from w2v2_hidden_states import load
 import pickle
 import torch
+from . import link_audio_to_model
 
 base_path = '/vol/mlusers/mbentum/st_phonetics/'
 model_path = base_path + 'w2v2_models/'
@@ -18,9 +19,24 @@ emb_ns = embed_path + 'w2v2-ns/'
 codebook_path = base_path + 'codebooks/'
 
 steps = [1,1000,2000,3000,4000,5000,6000,7000,8000,9000,
-    10000,20000,30000,40000,50000,60000,70000,80000,90000,
+    10000,11000,12000,13000,14000,15000,16000,17000,18000,19000,
+    20000,30000,40000,50000,60000,70000,80000,90000,
     100000]
 
+def audio_language_model_checkpoints_of_missing_steps(audio, language = 'nl'):
+    missing_steps = audio_language_to_missing_steps(audio, language)
+    linked_models_and_embeds = link_models_and_embeds(language)
+    lme = linked_models_and_embeds
+    model_infos = [step_to_model(s, language, lme) for s in missing_steps]
+    checkpoints = [x['model'] for x in model_infos]
+    return checkpoints
+
+def audio_language_to_missing_steps(audio, language = 'nl'):
+    d = link_audio_to_model.make_audio_hidden_state_model_field_dict(audio)
+    finished_steps = d[language]
+    missing_steps = list(set(steps) - set(finished_steps))
+    return missing_steps
+    
 def step_to_model(step, language='nl', linked_models_and_embeds = None):
     if not linked_models_and_embeds:
         linked_models_and_embeds = link_models_and_embeds(language)
