@@ -229,9 +229,11 @@ class Word(models.Model):
         from utils import load_codevectors as lc
         return lc.load_word_codebook_indices(self, model_name = model_name)
 
-    def codevectors(self, mean = False, model_name = 'pretrained-xlsr'):
+    def codevectors(self, mean = False, model_name = 'pretrained-xlsr',
+        codebook = None):
         from utils import load_codevectors as lc
-        return lc.load_word_codevectors(self, model_name = model_name)
+        return lc.load_word_codevectors(self, model_name = model_name,
+            codebook = codebook)
 
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
@@ -347,14 +349,16 @@ class Syllable(models.Model):
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
 
-    def codebook_indices(self):
+    def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
         return lc.load_syllable_codevectors(self, 
-            return_codebook_indices = True)
+            return_codebook_indices = True, model_name = model_name)
 
-    def codevectors(self, mean = False):
+    def codevectors(self, mean = False, model_name = 'pretrained-xlsr',
+        codebook = None):
         from utils import load_codevectors as lc
-        cv = lc.load_syllable_codevectors(self)
+        cv = lc.load_syllable_codevectors(self, codebook = codebook,
+            model_name = model_name)
         if cv is None: return None
         if mean: return np.mean(cv, axis = 0)
         return cv
@@ -476,14 +480,16 @@ class Phoneme(models.Model):
         if mean: return np.mean(transformer_features, axis = 0)
         return transformer_features
 
-    def codebook_indices(self):
+    def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
         return lc.load_phoneme_codevectors(self, 
-            return_codebook_indices = True)
+            return_codebook_indices = True, model_name = model_name)
 
-    def codevector(self, mean = False):
+    def codevectors(self, mean = False, model_name = 'pretrained-xlsr',
+        codebook = None):
         from utils import load_codevectors as lc
-        cv = lc.load_phoneme_codevectors(self)
+        cv = lc.load_phoneme_codevectors(self, codebook = codebook,
+            model_name = model_name)
         if cv is None: return None
         if mean: return np.mean(cv, axis = 0)
         return cv
