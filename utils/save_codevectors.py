@@ -8,6 +8,7 @@ import random
 from . import save_hidden_states as shs
 from . import load_hidden_states as lhs
 from w2v2_hidden_states import codebook
+from w2v2_hidden_states import load
 
 def load_codebook_indices(hdf5_filename, name):
     '''
@@ -89,7 +90,8 @@ def save_word_codebook_indices(word, model_pt, model_name = 'pretrained-xlsr'):
 def make_codebook_indices_name(word):
     return word.identifier + '_codebook_indices'
 
-def load_model_pt():
+def load_model_pt(checkpoint = None):
     '''load the pretrained wav2vec2 model with the codebook'''
-    return codebook.load_model_pt()
+    # return codebook.load_model_pt()
+    return load.load_model_pt(checkpoint = checkpoint)
 
