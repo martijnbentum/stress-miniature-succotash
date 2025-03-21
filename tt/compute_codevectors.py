@@ -12,6 +12,13 @@ def load_words(audios = None):
         words.extend(list(audio.word_set.all()))
     return words
 
+def load_phonemes(audios = None, words = None):
+    if words is None: words = load_words(audios)
+    phonemes = []
+    for word in words:
+        phonemes.extend(word.phonemes)
+    return phonemes
+
 def get_checkpoints():
     checkpoints = link_audio_to_model.get_model_folders()
     return checkpoints
