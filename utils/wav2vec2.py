@@ -176,6 +176,7 @@ def directory_to_vectors(directory, model, gpu = False, output_directory = ''):
 
 hubert_multilingual = 'utter-project/mHuBERT-147'
 hubert_base = 'facebook/hubert-base-ls960'
+wavlm_base = "microsoft/wavlm-base-plus"
 
 '''
 no speed up
