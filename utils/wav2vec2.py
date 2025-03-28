@@ -73,6 +73,24 @@ def handle_cgn_audio(audio, model = None, gpu = False, save_words = True,
     return handle_audio(audio, model, gpu, save_words, model_name, 
         only_bisyllabic_words, remove_layer_list)
 
+def handle_checkpoint(audios, model_checkpoint, gpu = False, save_words = True,
+    only_bisyllabic_words = False, remove_layer_list = [0,2,4,6,8,10],
+    name = ''):
+    model = load.load_pretrained_model(model_checkpoint, gpu = gpu)
+    if not name:
+        name = model_checkpoint.split('/')[-1]
+    print('handling', name, 'with model_checkpoint', model_checkpoint)
+    for audio in progressbar(audios):
+        o = handle_cgn_audio(audio, model, gpu, save_words, name, 
+            only_bisyllabic_words, remove_layer_list)
+        del o 
+        gc.collect()
+        torch.cuda.empty_cache()
+    del model
+    gc.collect()
+    torch.cuda.empty_cache()
+
+
 def handle_st_phonetics_checkpoint(audios, model_checkpoint,
     gpu = False, save_words = True,
     only_bisyllabic_words = False, remove_layer_list = [0,2,4,6,8,10]):
@@ -154,6 +172,10 @@ def directory_to_vectors(directory, model, gpu = False, output_directory = ''):
             output_filename = pickle_filename)
         output.append(o)
     return output
+
+
+hubert_multilingual = 'utter-project/mHuBERT-147'
+hubert_base = 'facebook/hubert-base-ls960'
 
 '''
 no speed up
