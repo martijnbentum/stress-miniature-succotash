@@ -2,8 +2,21 @@
 
 import glob
 import json
+from tt import step_list
 from utils import locations
 from text.models import Audio
+
+extra_model_names = 'hubert-base-ls960-cgn,mHuBERT-147-cgn,'
+extra_model_names += 'wavlm-base-plus-cgn,wav2vec2-xls-r-300m-cgn'
+
+steps = step_list.steps
+languages = ['nl','ns','en']
+
+def all_model_names():
+    o =hidden_state_number_dict_to_hidden_state_model_names_dict()
+    temp = list(o.values())[0]
+    model_names = [x.split('_')[1] for x in temp]
+    return model_names
 
 def audio_language_step_to_hidden_state_model_name(audio, language, step):
     number = audio_to_hidden_state_number(audio)
@@ -15,12 +28,10 @@ def load_audios():
     return audios
 
 def hidden_state_number_dict_to_hidden_state_model_names_dict(d = None, 
-    audio = None,languages = ['nl','ns','en']):
+    languages = ['nl','ns','en']):
     if d is None:
         d = make_or_load_audio_to_hidden_state_number_dict()
-    if audio is None:
-        audio = load_audios()[0]
-    steps = audio_to_steps(audio)
+    steps = step_list.steps
     output = {}
     for audio_id, number in d.items():
         output[audio_id] = []
@@ -28,6 +39,8 @@ def hidden_state_number_dict_to_hidden_state_model_names_dict(d = None,
             for step in steps:
                 item = make_hidden_state_model_item(number, language, step)
                 output[audio_id].append(item)
+        for model_name in extra_model_names.split(','):
+            output[audio_id].append(f'{number}_{model_name}')
     return output
     
 
@@ -59,6 +72,14 @@ def audio_to_hidden_state_number(audio):
     number = number[0]
     return number
     
+def audios_to_current_hidden_state_model_names(audios, filename = ''):
+    d = {}
+    for x in audios:
+        d[x.identifier] = x.hidden_state_model
+    if filename:
+        with open(filename, 'w') as f:
+            json.dump(d,f)
+    return d
 
 def get_model_folders():
     dirs = glob.glob(str(locations.hidden_states_dir) + '/*cgn*')
