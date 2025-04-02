@@ -4,6 +4,11 @@ import glob
 from utils import locations
 from text.models import Audio
 
+def audio_to_hidden_state_number(audio):
+    infos = audio_hidden_state_model_to_infos(audio)
+    return infos
+    
+
 def get_model_folders():
     dirs = glob.glob(str(locations.hidden_states_dir) + '/*cgn*')
     return dirs
