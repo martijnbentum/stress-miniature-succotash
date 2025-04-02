@@ -1,12 +1,63 @@
 # applied different models to cgn some links got overwritten
 
 import glob
+import json
 from utils import locations
 from text.models import Audio
 
+def audio_language_step_to_hidden_state_model_name(audio, language, step):
+    number = audio_to_hidden_state_number(audio)
+    return make_hidden_state_model_item(number, language, step)
+
+def load_audios():
+    a = Audio.objects.filter(duration__lt = 300)
+    audios = list(a[:100])
+    return audios
+
+def hidden_state_number_dict_to_hidden_state_model_names_dict(d = None, 
+    audio = None,languages = ['nl','ns','en']):
+    if d is None:
+        d = make_or_load_audio_to_hidden_state_number_dict()
+    if audio is None:
+        audio = load_audios()[0]
+    steps = audio_to_steps(audio)
+    output = {}
+    for audio_id, number in d.items():
+        output[audio_id] = []
+        for language in languages:
+            for step in steps:
+                item = make_hidden_state_model_item(number, language, step)
+                output[audio_id].append(item)
+    return output
+    
+
+def audio_to_steps(audio):
+    infos = audio_hidden_state_model_to_infos(audio)
+    steps = sorted([info['step'] for info in infos])
+    return steps
+
+def make_or_load_audio_to_hidden_state_number_dict(audios=None):
+    dict_path = locations.st_phonetics_audio_to_hidden_state_number_dict
+    if dict_path.exists() and audios is None:
+        with dict_path.open() as f:
+            d = json.load(f)
+        return d
+    if not audios: load_audios
+    d = {}
+    for x in audios:
+        d[x.identifier] = audio_to_hidden_state_number(x)
+    with dict_path.open('w') as f:
+        json.dump(d,f)
+    return d
+
 def audio_to_hidden_state_number(audio):
     infos = audio_hidden_state_model_to_infos(audio)
-    return infos
+    numbers = [info['data_filenumber'] for info in infos]
+    number = list(set(numbers))
+    if len(number) > 1:
+        raise ValueError('audio has multiple data_filenumbers', number)
+    number = number[0]
+    return number
     
 
 def get_model_folders():
