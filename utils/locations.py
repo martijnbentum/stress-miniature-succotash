@@ -144,3 +144,8 @@ finetuned_dir = Path('/vol/tensusers3/mbentum/finetune/')
 dutch_sampa_xlsr_dir = finetuned_dir / 'sampa_xlsr_300m/checkpoint-15300/'
 fd = finetuned_dir
 dutch_orthographic_xlsr_dir = fd / 'orthographic_xlsr_300m/checkpoint-13671/'
+
+st_phonetics_base = Path('/vol/mlusers/mbentum/st_phonetics/')
+st_phonetics_codebooks = st_phonetics_base / 'codebooks'
+name = 'audio_to_hidden_state_number_dict.json'
+st_phonetics_audio_to_hidden_state_number_dict = st_phonetics_base / name
