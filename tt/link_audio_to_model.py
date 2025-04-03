@@ -22,11 +22,6 @@ def audio_language_step_to_hidden_state_model_name(audio, language, step):
     number = audio_to_hidden_state_number(audio)
     return make_hidden_state_model_item(number, language, step)
 
-def load_audios():
-    a = Audio.objects.filter(duration__lt = 300)
-    audios = list(a[:100])
-    return audios
-
 def hidden_state_number_dict_to_hidden_state_model_names_dict(d = None, 
     languages = ['nl','ns','en']):
     if d is None:
@@ -55,7 +50,7 @@ def make_or_load_audio_to_hidden_state_number_dict(audios=None):
         with dict_path.open() as f:
             d = json.load(f)
         return d
-    if not audios: load_audios
+    if not audios: audios = select_materials.load_audios()
     d = {}
     for x in audios:
         d[x.identifier] = audio_to_hidden_state_number(x)
