@@ -3,6 +3,7 @@ from w2v2_hidden_states import codebook, load
 from utils import save_codevectors 
 from progressbar import progressbar
 from . import select_materials
+from . import model_names
 
 
 def get_checkpoints():
@@ -13,6 +14,8 @@ def language_step_to_checkpoint(language, step):
     checkpoints = get_checkpoints()
     for checkpoint in checkpoints:
         l = link_audio_to_model.dir_to_language(checkpoint)
+        if l not in ['nl', 'en', 'ns']:
+            continue
         s = link_audio_to_model.dir_to_step(checkpoint)
         if l == language and s == step:
             return checkpoint
@@ -29,6 +32,22 @@ def language_step_to_model_name(language, step):
 
 def save_word_codevectors(word, model_pt, model_name):
     save_codevectors.save_word_codebook_indices(word, model_pt, model_name)
+
+def handle_all_languages(words = None):
+    if words is None:
+        words = select_materials.load_words()
+    for language in ['nl', 'en', 'ns']:
+        print(f'language: {language}')
+        handle_language(language, words)
+
+def handle_language(language = 'nl', words = None):
+    if words is None:
+        words = select_materials.load_words()
+    steps = model_names.steps
+    for step in steps:
+        checkpoint = language_step_to_checkpoint(language, step)
+        print(f'checkpoint: {checkpoint}')
+        handle_checkpoint(checkpoint, words)
 
 def handle_checkpoint(checkpoint, words = None):
     if words is None:
