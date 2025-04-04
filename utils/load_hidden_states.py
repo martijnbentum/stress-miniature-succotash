@@ -47,7 +47,7 @@ def _replace_none_hidden_states(hidden_states):
             hidden_states.hidden_states[i] = np.zeros((0,0,0))
 
 def load_syllable_hidden_states(syllable, word_hidden_states = None, 
-    model_name = 'pretrained-xlsr'):
+    model_name = 'pretrained-xlsr', percentage_overlap = None):
     '''load syllable hidden states from word hidden states'''
     if not word_hidden_states:
         word_hidden_states = load_word_hidden_states(syllable.word,
@@ -56,7 +56,8 @@ def load_syllable_hidden_states(syllable, word_hidden_states = None,
     start_time = syllable.start_time
     end_time = syllable.end_time
     try:
-        o = frame.extract_outputs_times(word_hidden_states,start_time,end_time)
+        o = frame.extract_outputs_times(word_hidden_states,start_time,end_time,
+            percentage_overlap = percentage_overlap)
     except IndexError:
         s = syllable
         print(f'syllable {s.ipa} {s.index} to short to extract hidden states')
@@ -66,7 +67,7 @@ def load_syllable_hidden_states(syllable, word_hidden_states = None,
     return syllable_hidden_states
 
 def load_phoneme_hidden_states(phoneme, word_hidden_states = None, 
-    model_name = 'pretrained-xlsr'):
+    model_name = 'pretrained-xlsr', percentage_overlap = None):
     '''load phoneme hidden states from word hidden states'''
     if not word_hidden_states:
         word = phoneme.word
@@ -77,7 +78,8 @@ def load_phoneme_hidden_states(phoneme, word_hidden_states = None,
     start_time = phoneme.start_time
     end_time = phoneme.end_time
     try:
-        o = frame.extract_outputs_times(word_hidden_states,start_time,end_time)
+        o = frame.extract_outputs_times(word_hidden_states,start_time,end_time,
+            percentage_overlap = percentage_overlap)
     except IndexError:
         p = phoneme
         m = f'phoneme {p.ipa}, index {p.word_index}, to short '
