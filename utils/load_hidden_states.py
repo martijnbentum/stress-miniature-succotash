@@ -114,6 +114,7 @@ def word_to_transformer(word, layer, model_name = 'pretrained-xlsr',
         start_time = word.start_time, end_time = word.end_time,
         mean = mean, percentage_overlap = percentage_overlap,
         middle_frame = middle_frame)
+    return transformer
 
     
 
