@@ -68,7 +68,8 @@ def load_word_codebook_indices(word, model_name = 'pretrained-xlsr'):
     return ci
 
 def _word_to_codebook_indices(word, model_pt, model_name = 'pretrained-xlsr'):
-    outputs = lhs.load_word_hidden_states(word, model_name = model_name)
+    frames= lhs.load_word_hidden_states(word, model_name = model_name)
+    outputs = frames.outputs
     if outputs is None: return None
     codebook_indices = codebook.outputs_to_codebook_indices(outputs, model_pt)
     return codebook_indices
