@@ -206,24 +206,38 @@ class Word(models.Model):
         signal = item_to_samples(self, signal, sr)
         return signal, sr
 
-    def hidden_states(self, model_name = 'pretrained-xlsr'):
+    def hidden_state_frames(self, model_name = 'pretrained-xlsr'):
         from utils import load_hidden_states as lhs
-        return lhs.load_word_hidden_states(self, model_name = model_name)
+        frames = lhs.load_word_hidden_state_frames(self, 
+            model_name = model_name)
+        return frames
 
-    def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
-        hidden_states = self.hidden_states(model_name = model_name)
-        if hidden_states is None: return None
-        cnn_features = hidden_states.extract_features[0]
-        if mean: return np.mean(cnn_features, axis = 0)
-        return cnn_features
+    def hidden_states(self, model_name = 'pretrained-xlsr'):
+        frames = self.hidden_state_frames(model_name = model_name)
+        if frames is None: return None
+        if not hasattr(frames,'outputs'): return None
+        hidden_states = frames.outputs
+        return hidden_states
+
+    def cnn(self, mean = False, model_name = 'pretrained-xlsr',
+        percentage_overlap = None, middle_frame = False):
+        frames = self.hidden_state_frames(model_name = model_name)
+        if frames is None: return None
+        cnn = frames.cnn(start_time = self.start_time, end_time = self.end_time,
+            percentage_overlap = percentage_overlap, 
+            middle_frame = middle_frame,
+            average = mean)
+        return cnn
 
     def transformer(self, layer = 1, mean = False, 
         model_name = 'pretrained-xlsr'):
-        hidden_states = self.hidden_states(model_name = model_name)
-        if hidden_states is None: return None
-        transformer_features = hidden_states.hidden_states[layer][0]
-        if mean: return np.mean(transformer_features, axis = 0)
-        return transformer_features
+        frames = self.hidden_state_frames(model_name = model_name)
+        if frames is None: return None
+        transformer = frames.transformer(layer, start_time = start_time,
+            end_time = end_time, average = mean, 
+            percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame)
+        return transforme
 
     def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
@@ -329,25 +343,26 @@ class Syllable(models.Model):
         signal = item_to_samples(self, signal, sr)
         return signal, sr
 
-    def hidden_states(self, model_name = 'pretrained-xlsr'):
-        from utils import load_hidden_states as lhs
-        return lhs.load_syllable_hidden_states(self, 
-            self.word.hidden_states(model_name))
 
-    def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
-        hidden_states = self.hidden_states(model_name = model_name)
-        if hidden_states is None: return None
-        cnn_features = hidden_states.extract_features[0]
-        if mean: return np.mean(cnn_features, axis = 0)
-        return cnn_features
+    def cnn(self, mean = False, model_name = 'pretrained-xlsr',
+        percentage_overlap = None, middle_frame = False):
+        frames = self.word.hidden_state_frames(model_name = model_name)
+        if frames is None: return None
+        cnn = frames.cnn(start_time = self.start_time, end_time = self.end_time,
+            percentage_overlap = percentage_overlap, 
+            middle_frame = middle_frame,
+            average = mean)
+        return cnn
 
     def transformer(self, layer = 1, mean = False, 
         model_name = 'pretrained-xlsr'):
-        hidden_states = self.hidden_states(model_name = model_name)
-        if self.hidden_states is None: return None
-        transformer_features = hidden_states.hidden_states[layer][0]
-        if mean: return np.mean(transformer_features, axis = 0)
-        return transformer_features
+        frames = self.word.hidden_state_frames(model_name = model_name)
+        if frames is None: return None
+        transformer = frames.transformer(layer, start_time = start_time,
+            end_time = end_time, average = mean, 
+            percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame)
+        return transforme
 
     def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
@@ -460,25 +475,25 @@ class Phoneme(models.Model):
         signal = item_to_samples(self, signal, sr)
         return signal, sr
 
-    def hidden_states(self, model_name = 'pretrained-xlsr'):
-        from utils import load_hidden_states as lhs
-        return lhs.load_phoneme_hidden_states(self, 
-            self.word.hidden_states(model_name), model_name = model_name)
-
-    def cnn(self, mean = False, model_name = 'pretrained-xlsr'):
-        hidden_states = self.hidden_states(model_name = model_name)
-        if hidden_states is None: return None
-        cnn_features = hidden_states.extract_features[0]
-        if mean: return np.mean(cnn_features, axis = 0)
-        return cnn_features
+    def cnn(self, mean = False, model_name = 'pretrained-xlsr',
+        percentage_overlap = None, middle_frame = False):
+        frames = self.word.hidden_state_frames(model_name = model_name)
+        if frames is None: return None
+        cnn = frames.cnn(start_time = self.start_time, end_time = self.end_time,
+            percentage_overlap = percentage_overlap, 
+            middle_frame = middle_frame,
+            average = mean)
+        return cnn
 
     def transformer(self, layer = 1, mean = False, 
         model_name = 'pretrained-xlsr'):
-        hidden_states = self.hidden_states(model_name = model_name)
-        if hidden_states is None: return None
-        transformer_features = hidden_states.hidden_states[layer][0]
-        if mean: return np.mean(transformer_features, axis = 0)
-        return transformer_features
+        frames = self.word.hidden_state_frames(model_name = model_name)
+        if frames is None: return None
+        transformer = frames.transformer(layer, start_time = start_time,
+            end_time = end_time, average = mean, 
+            percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame)
+        return transforme
 
     def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
