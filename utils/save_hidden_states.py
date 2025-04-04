@@ -74,14 +74,13 @@ def pickled_array_to_data(pickled_array):
     return data
 
 
-def load_word_hidden_states(word, model_name = 'pretrained-xlsr'):
+def load_word_hidden_state_frames(word, model_name = 'pretrained-xlsr'):
     '''load hidden states for a specific word.'''
     hdf5_filename = word_to_hdf5_filename(word, model_name = model_name)
     name = word.identifier
     hidden_states = load_hidden_states(hdf5_filename, name)
     frames = frame.make_frames(hidden_states, start_time = word.start_time)
-    hidden_states.frames = frames
-    return hidden_states
+    return frames
 
 def audio_hidden_state_model_field_to_dict(hidden_state_model):
     if not hidden_state_model: return {}
