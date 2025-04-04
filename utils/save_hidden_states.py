@@ -6,6 +6,7 @@ import pickle
 from pathlib import Path
 from progressbar import progressbar
 import random
+from w2v2_hidden_states import frame
 
 n_hdf5_files = 500
 
@@ -78,6 +79,8 @@ def load_word_hidden_states(word, model_name = 'pretrained-xlsr'):
     hdf5_filename = word_to_hdf5_filename(word, model_name = model_name)
     name = word.identifier
     hidden_states = load_hidden_states(hdf5_filename, name)
+    frames = frame.make_frames(hidden_states, start_time = word.start_time)
+    hidden_states.frames = frames
     return hidden_states
 
 def audio_hidden_state_model_field_to_dict(hidden_state_model):
