@@ -417,12 +417,12 @@ class Phoneme(models.Model):
     @property
     def previous_phoneme(self):
         if self.index == 0: return None
-        return self.word_phonemes[self.index - 1]
+        return self.word_phonemes[self.word_index - 1]
 
     @property
     def next_phoneme(self):
         if self.index == self.n_phonemes - 1: return None
-        return self.word_phonemes[self.index + 1]
+        return self.word_phonemes[self.word_index + 1]
 
     @property
     def f0(self):
