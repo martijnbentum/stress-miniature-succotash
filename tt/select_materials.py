@@ -1,6 +1,7 @@
 from collections import Counter
 import matplotlib.pyplot as plt
 import numpy as np
+from progressbar import progressbar
 from scipy.stats import gaussian_kde
 
 def load_audios():
@@ -12,16 +13,48 @@ def load_audios():
 def load_words(audios = None):
     if audios is None: audios = load_audios()
     words = []
-    for audio in audios:
+    for audio in progressbar(audios):
         words.extend(list(audio.word_set.all()))
     return words
 
-def load_phonemes(audios = None, words = None):
+def load_phonemes(words = None, audios = None,):
     if words is None: words = load_words(audios)
     phonemes = []
-    for word in words:
+    for word in progressbar(words):
         phonemes.extend(word.phonemes)
     return phonemes
+
+def load_audio_words_phonemes(audios = None, words = None):
+    if audios is None: 
+        print('Loading audios')
+        audios = load_audios()
+    if words is None: 
+        print('Loading words')
+        words = load_words(audios)
+    print('Loading phonemes')
+    phonemes = load_phonemes(words = words)
+    return audios, words, phonemes
+
+def ipa_to_phoneme_dict(phonemes = None):
+    if phonemes is None: phonemes = load_phonemes()
+    ipas = [x.ipa for x in phonemes]
+    ipa = Counter(ipas)
+    phoneme_dict = {}
+    for k, _ in progressbar(ipa.most_common()):
+        phoneme_dict[k] = []
+        for i, x in enumerate(ipas):
+            if x == k:
+                phoneme_dict[k].append(phonemes[i])
+    return phoneme_dict
+
+def speaker_to_phoneme_dict(phonemes):
+    speaker_dict = {}
+    for p in progressbar(phonemes):
+        if p.speaker not in speaker_dict:
+            speaker_dict[p.speaker] = []
+        speaker_dict[p.speaker].append(p)
+    return speaker_dict
+    
 
 def density_plot(data, min_value = None, max_value = None, n_samples = 1000,
     title = 'Density Plot', xlabel = 'Value', ylabel = 'Density'):
