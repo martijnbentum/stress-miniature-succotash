@@ -15,7 +15,7 @@ wavlm_base = 'wavlm-base-plus-cgn'
 wav2vec2_multilingual = 'wav2vec2-xls-r-300m-cgn'
 
 def get_model_name(language, step):
-    model_name = f'{filenumber}_{language}-{step}-cgn'
+    model_name = f'{language}-{step}-cgn'
     if model_name not in model_names:
         m = f'Model name {model_name} not found in model names'
         if language not in languages:
