@@ -233,11 +233,11 @@ class Word(models.Model):
         model_name = 'pretrained-xlsr'):
         frames = self.hidden_state_frames(model_name = model_name)
         if frames is None: return None
-        transformer = frames.transformer(layer, start_time = start_time,
-            end_time = end_time, average = mean, 
+        transformer = frames.transformer(layer, start_time = self.start_time,
+            end_time = self.end_time, average = mean, 
             percentage_overlap = percentage_overlap,
             middle_frame = middle_frame)
-        return transforme
+        return transformer
 
     def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
@@ -358,11 +358,11 @@ class Syllable(models.Model):
         model_name = 'pretrained-xlsr'):
         frames = self.word.hidden_state_frames(model_name = model_name)
         if frames is None: return None
-        transformer = frames.transformer(layer, start_time = start_time,
-            end_time = end_time, average = mean, 
+        transformer = frames.transformer(layer, start_time = self.start_time,
+            end_time = self.end_time, average = mean, 
             percentage_overlap = percentage_overlap,
             middle_frame = middle_frame)
-        return transforme
+        return transformer
 
     def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
@@ -489,11 +489,11 @@ class Phoneme(models.Model):
         model_name = 'pretrained-xlsr'):
         frames = self.word.hidden_state_frames(model_name = model_name)
         if frames is None: return None
-        transformer = frames.transformer(layer, start_time = start_time,
-            end_time = end_time, average = mean, 
+        transformer = frames.transformer(layer, start_time = self.start_time,
+            end_time = self.end_time, average = mean, 
             percentage_overlap = percentage_overlap,
             middle_frame = middle_frame)
-        return transforme
+        return transformer
 
     def codebook_indices(self, model_name = 'pretrained-xlsr'):
         from utils import load_codevectors as lc
