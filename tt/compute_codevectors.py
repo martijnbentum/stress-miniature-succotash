@@ -4,6 +4,7 @@ from utils import save_codevectors
 from progressbar import progressbar
 from . import select_materials
 from . import model_names
+from . import step_list
 
 
 def get_checkpoints():
@@ -27,11 +28,25 @@ def language_step_to_model_pt(language, step, gpu = False):
         return None
     return load.load_model_pt(checkpoint, gpu = gpu)
 
+def language_step_to_codebook(language, step, gpu = False):
+    model_pt = language_step_to_model_pt(language, step, gpu = gpu)
+    return codebook.load_codebook(model_pt)
+
+def language_codebooks(language, gpu = False):
+    steps = step_list.steps
+    d = {}
+    for step in steps:
+        codebook = language_step_to_codebook(language, step, gpu = gpu)
+        d[step] = codebook
+    return d
+
+
 def language_step_to_model_name(language, step):
     return f'{language}-{step}-cgn'
 
-def save_word_codevectors(word, model_pt, model_name):
-    save_codevectors.save_word_codebook_indices(word, model_pt, model_name)
+def save_word_codevectors(word, model_pt, model_name, overwrite = False):
+    save_codevectors.save_word_codebook_indices(word, model_pt, model_name,
+        overwrite = overwrite)
 
 def handle_all_languages(words = None):
     if words is None:
