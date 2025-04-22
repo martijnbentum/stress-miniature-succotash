@@ -74,13 +74,17 @@ def _word_to_codebook_indices(word, model_pt, model_name = 'pretrained-xlsr'):
     codebook_indices = codebook.outputs_to_codebook_indices(outputs, model_pt)
     return codebook_indices
 
-def save_word_codebook_indices(word, model_pt, model_name = 'pretrained-xlsr'):
+def save_word_codebook_indices(word, model_pt, model_name = 'pretrained-xlsr',
+    overwrite = False):
     '''save hidden states for a specific word.'''
     filename = shs.word_to_hdf5_filename(word, model_name = model_name)
     name = make_codebook_indices_name(word)
-    if check_codebook_indices_exists(filename, name):
-        print('word codebook_indices already saved, skipping')
-        return
+    if check_codebook_indices_exists(filename, name): 
+        if not overwrite:
+            print('word codebook_indices already saved, skipping')
+            return
+        else:
+            remove_codebook_indices(filename, name)
     codebook_indices = _word_to_codebook_indices(word, model_pt, 
         model_name = model_name)
     if codebook_indices is None: 
