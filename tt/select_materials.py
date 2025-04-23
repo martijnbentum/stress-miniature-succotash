@@ -143,7 +143,8 @@ def phonemes_to_codevector_indices_model_set(phoneme_list, model_set):
     return d
 
 def collect_phoneme_codevector_indices(phonemes = None, language = 'nl', 
-    phoneme_set = None, limit = 1000, filename = None, overwrite = False,):
+    phoneme_set = None, limit = 100000, filename = None, overwrite = False,
+    percentage_overlap = 100):
 
     if filename is None:
         filename = f'../{language}_phoneme_codevector_indices_{limit}.json'
@@ -164,17 +165,22 @@ def collect_phoneme_codevector_indices(phonemes = None, language = 'nl',
         if len(phoneme_list) > limit:
             phoneme_list = phoneme_list[:limit]
         d[phoneme] = {}
+        o = []
+        print('handling phoneme', phoneme, 'with', len(phoneme_list), 'instances')
         for model_name in progressbar(model_set):
             print('handling model', model_name, 'phoneme', phoneme)
-            o, flat_o, not_found = phonemes_to_codevector_indices(phoneme_list, 
-                model_name)
-            if phoneme not in itp:
-                itp[phoneme] = {}
-            d[phoneme][model_name] = {
-                'o': o,
-                'flat_o': flat_o,
-                'not_found': not_found
-            }
+            o = []
+            for p in phoneme_list:
+                ci = p.codebook_indices(model_name, 
+                    percentage_overlap = percentage_overlap)
+                if len(ci) == 0:
+                    continue
+                if type(ci) == tuple:
+                    ci = list(map(int, ci))
+                else:
+                    ci = [list(map(int,x)) for x in ci]
+                o.append(ci)
+            d[phoneme][model_name] = o
     with open(filename, 'w') as f:
         json.dump(d, f)
     return d
