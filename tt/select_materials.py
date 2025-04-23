@@ -142,14 +142,14 @@ def phonemes_to_codevector_indices_model_set(phoneme_list, model_set):
         }
     return d
 
-def collect_codevector_indices(phonemes = None, language = 'nl', 
+def collect_phoneme_codevector_indices(phonemes = None, language = 'nl', 
     phoneme_set = None, limit = 1000, filename = None, overwrite = False,):
 
     if filename is None:
         filename = f'../{language}_phoneme_codevector_indices_{limit}.json'
     if Path(filename).exists() and not overwrite:
         print('loaded phoneme codevector indices from', filename)
-        print('this is only based on filename not on other parameters')
+        print('if filename provided it is not based on other parameters')
         with open(filename, 'r') as f:
             d = json.load(f)
         return d
@@ -179,9 +179,35 @@ def collect_codevector_indices(phonemes = None, language = 'nl',
         json.dump(d, f)
     return d
 
-def combine_codevector_indices_per_model(d = None):
+def collect_word_codevector_indices(words = None, language = 'nl',
+    filename = None, overwrite = False):
+    if filename is None:
+        filename = f'../{language}_word_codevector_indices.json'
+    if Path(filename).exists() and not overwrite:
+        print('loaded word codevector indices from', filename)
+        print('if filename provided it is not based on other parameters')
+        with open(filename, 'r') as f:
+            d = json.load(f)
+        return d
+    if words is None: words = load_words()
+    dmn = model_names.select_model_set_by_language(language)
+    d = {}
+    for word in progressbar(words):
+        if word.word not in d:
+            d[word.word] = {}
+        for model_name in dmn:
+            if model_name not in d[word.word]:
+                d[word.word][model_name] = []
+            ci = word.codebook_indices(model_name)
+            ci = [list(map(int,x)) for x in ci]
+            d[word.word][model_name].extend(ci)
+    with open(filename, 'w') as f:
+        json.dump(d, f)
+    return d
+
+def combine_phoneme_codevector_indices_per_model(d = None):
     if d is None:
-        d = collect_codevector_indices()
+        d = collect_phoneme_codevector_indices()
     output = {}
     for phoneme, model_dict in d.items():
         for model_name, outputs in model_dict.items():
@@ -193,8 +219,8 @@ def combine_codevector_indices_per_model(d = None):
 
 def plot_codevector_indices_distribution_per_model(d = None, name = ''):
     if d is None:
-        d = collect_codevector_indices()
-    output = combine_codevector_indices_per_model(d)
+        d = collect_phoneme_codevector_indices()
+    output = combine_phoneme_codevector_indices_per_model(d)
     x, entropies, nmaxs, nmins, ns = [], [], [], [], []
     for model_name, indices in output.items():
         c = Counter(indices)
