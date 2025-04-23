@@ -9,17 +9,19 @@ import numpy as np
 from pathlib import Path
 
 def load_codebook(model = None, f = None,checkpoint = None, 
-    model_name = None):
+    model_name = None, verbose = False,):
     if f is None:
         if model_name == 'pretrained-xlsr':
             f = '../data/codebook_wav2vec2-xls-r-300m.npy'
-    elif model_name:
+    if model_name:
         if not '-cgn' in model_name:
             raise NotImplementedError
         checkpoint = model_name_to_checkpoint(model_name)
     if f and model is None:
         p = Path(f)
         if p.exists(): return np.load(p)
+    if verbose:
+        print('Loading codebook from checkpoint', checkpoint)
     model = save_codevectors.load_model_pt(checkpoint)
     cb = codebook.load_codebook(model)
     return cb
@@ -28,9 +30,10 @@ def load_word_codebook_indices(x, model_name = 'pretrained-xlsr'):
     return save_codevectors.load_word_codebook_indices(x, 
         model_name = model_name)
 
-def load_word_codevectors(x, codebook = None, model_name = 'pretrained-xlsr'):
+def load_word_codevectors(x, codebook = None, model_name = 'pretrained-xlsr',
+    verbose = False):
     if codebook is None: 
-        codebook = load_codebook(model_name = model_name)
+        codebook = load_codebook(model_name = model_name, verbose = verbose)
     ci = load_word_codebook_indices(x, model_name = model_name)
     cv = codebook.multiple_codebook_indices_to_codevectors(ci, codebook)
     return cv
@@ -44,11 +47,14 @@ def combine_codevectors(codevectors_list, mean = False):
     '''combine codevectors from list of codevectors'''
     return lhs.combine_hidden_states(codevectors_list, mean = mean)
 
-def load_word_frames(word, word_codebook_indices = None, 
-        model_name = 'pretrained-xlsr', codebook = None):
+def load_word_codebook_indices_frames(word, word_codebook_indices = None, 
+        model_name = 'pretrained-xlsr', codebook = None,
+        do_load_codebook = True, verbose = False):
     if not word_codebook_indices:
         word_codebook_indices= load_word_codebook_indices(word, 
             model_name = model_name)
+    if codebook is None and do_load_codebook: 
+        codebook = load_codebook(model_name = model_name, verbose = verbose)
     frames = frame.make_frames(codebook_indices = word_codebook_indices,
         codebook = codebook, start_time = word.start_time)
     return frames
