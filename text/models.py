@@ -206,6 +206,14 @@ class Word(models.Model):
         signal = item_to_samples(self, signal, sr)
         return signal, sr
 
+    def codebook_indices_frames(self, model_name = 'pretrained-xlsr',
+        codebook = None, do_load_codebook = True, verbose = False):
+        from utils import load_codevectors as lc
+        frames = lc.load_word_codebook_indices_frames(self, 
+            model_name = model_name, codebook = codebook, 
+            do_load_codebook = do_load_codebook, verbose = verbose)
+        return frames
+
     def hidden_state_frames(self, model_name = 'pretrained-xlsr'):
         from utils import load_hidden_states as lhs
         frames = lhs.load_word_hidden_state_frames(self, 
@@ -230,7 +238,8 @@ class Word(models.Model):
         return cnn
 
     def transformer(self, layer = 1, mean = False, 
-        model_name = 'pretrained-xlsr'):
+        model_name = 'pretrained-xlsr', percentage_overlap = None,
+        middle_frame = False):
         frames = self.hidden_state_frames(model_name = model_name)
         if frames is None: return None
         transformer = frames.transformer(layer, start_time = self.start_time,
@@ -239,15 +248,24 @@ class Word(models.Model):
             middle_frame = middle_frame)
         return transformer
 
-    def codebook_indices(self, model_name = 'pretrained-xlsr'):
-        from utils import load_codevectors as lc
-        return lc.load_word_codebook_indices(self, model_name = model_name)
+    def codebook_indices(self, model_name = 'pretrained-xlsr', 
+        percentage_overlap = None, middle_frame = False):
+        frames = self.codebook_indices_frames(model_name = model_name, 
+            do_load_codebook = False)
+        codebook_indices = frames.codebook_indices(start_time = self.start_time,
+            end_time = self.end_time, percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame)
+        return codebook_indices
 
     def codevectors(self, mean = False, model_name = 'pretrained-xlsr',
-        codebook = None):
-        from utils import load_codevectors as lc
-        return lc.load_word_codevectors(self, model_name = model_name,
-            codebook = codebook)
+        codebook = None, percentage_overlap = None, middle_frame = False,
+        verbose = False):
+        frames = self.codebook_indices_frames(model_name = model_name, 
+            do_load_codebook = True, codebook = codebook, verbose = verbose)
+        codevectors = frames.codevectors(start_time = self.start_time,
+            end_time = self.end_time, percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame, average = mean)
+        return codevectors
 
 class Syllable(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
@@ -355,7 +373,8 @@ class Syllable(models.Model):
         return cnn
 
     def transformer(self, layer = 1, mean = False, 
-        model_name = 'pretrained-xlsr'):
+        model_name = 'pretrained-xlsr', percentage_overlap = None,
+        middle_frame = False):
         frames = self.word.hidden_state_frames(model_name = model_name)
         if frames is None: return None
         transformer = frames.transformer(layer, start_time = self.start_time,
@@ -364,19 +383,25 @@ class Syllable(models.Model):
             middle_frame = middle_frame)
         return transformer
 
-    def codebook_indices(self, model_name = 'pretrained-xlsr'):
-        from utils import load_codevectors as lc
-        return lc.load_syllable_codevectors(self, 
-            return_codebook_indices = True, model_name = model_name)
+    def codebook_indices(self, model_name = 'pretrained-xlsr', 
+        percentage_overlap = None, middle_frame = False):
+        frames = self.word.codebook_indices_frames(model_name = model_name, 
+            do_load_codebook = False)
+        codebook_indices = frames.codebook_indices(start_time = self.start_time,
+            end_time = self.end_time, percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame)
+        return codebook_indices
 
     def codevectors(self, mean = False, model_name = 'pretrained-xlsr',
-        codebook = None):
-        from utils import load_codevectors as lc
-        cv = lc.load_syllable_codevectors(self, codebook = codebook,
-            model_name = model_name)
-        if cv is None: return None
-        if mean: return np.mean(cv, axis = 0)
-        return cv
+        codebook = None, percentage_overlap = None, middle_frame = False,
+        verbose = False):
+        frames = self.word.codebook_indices_frames(model_name = model_name, 
+            do_load_codebook = True, codebook = codebook, verbose = verbose)
+        codevectors = frames.codevectors(start_time = self.start_time,
+            end_time = self.end_time, percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame, average = mean)
+        return codevectors
+
 
 class Phoneme(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
@@ -486,7 +511,8 @@ class Phoneme(models.Model):
         return cnn
 
     def transformer(self, layer = 1, mean = False, 
-        model_name = 'pretrained-xlsr'):
+        model_name = 'pretrained-xlsr', percentage_overlap = None,
+        middle_frame = False):
         frames = self.word.hidden_state_frames(model_name = model_name)
         if frames is None: return None
         transformer = frames.transformer(layer, start_time = self.start_time,
@@ -495,19 +521,25 @@ class Phoneme(models.Model):
             middle_frame = middle_frame)
         return transformer
 
-    def codebook_indices(self, model_name = 'pretrained-xlsr'):
-        from utils import load_codevectors as lc
-        return lc.load_phoneme_codevectors(self, 
-            return_codebook_indices = True, model_name = model_name)
+    def codebook_indices(self, model_name = 'pretrained-xlsr', 
+        percentage_overlap = None, middle_frame = False):
+        frames = self.word.codebook_indices_frames(model_name = model_name, 
+            do_load_codebook = False)
+        codebook_indices = frames.codebook_indices(start_time = self.start_time,
+            end_time = self.end_time, percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame)
+        return codebook_indices
 
     def codevectors(self, mean = False, model_name = 'pretrained-xlsr',
-        codebook = None):
-        from utils import load_codevectors as lc
-        cv = lc.load_phoneme_codevectors(self, codebook = codebook,
-            model_name = model_name)
-        if cv is None: return None
-        if mean: return np.mean(cv, axis = 0)
-        return cv
+        codebook = None, percentage_overlap = None, middle_frame = False,
+        verbose = False):
+        frames = self.word.codebook_indices_frames(model_name = model_name, 
+            do_load_codebook = True, codebook = codebook, verbose = verbose)
+        codevectors = frames.codevectors(start_time = self.start_time,
+            end_time = self.end_time, percentage_overlap = percentage_overlap,
+            middle_frame = middle_frame, average = mean)
+        return codevectors
+
 
     
 class BPC(models.Model):
