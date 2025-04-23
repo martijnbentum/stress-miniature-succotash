@@ -213,7 +213,10 @@ def combine_phoneme_codevector_indices_per_model(d = None):
         for model_name, outputs in model_dict.items():
             if model_name not in output:
                 output[model_name] = []
-            output[model_name].extend(outputs['flat_o'])
+            if type(outputs) == dict:
+                output[model_name].extend(outputs['flat_o'])
+            else:
+                output[model_name].extend(flatten_list(outputs))
     return output
         
 
