@@ -20,3 +20,27 @@ Checkpoint training Step 50000, range of frequency of use and many adjacent, mid
 
 Checkpoint training Step 100000, range of frequency of use and many adjacent ( but less smooth than at 50K) middle polygons are even smaller
 <img width="788" alt="Screenshot 2025-04-25 at 17 35 08" src="https://github.com/user-attachments/assets/d0dff7ed-952e-4a44-958b-799a9f6f34a8" />
+
+
+
+/ə/
+
+Checkpoint training Step 100
+<img width="786" alt="Screenshot 2025-04-25 at 17 52 29" src="https://github.com/user-attachments/assets/dd7c3227-bd1b-4928-8849-e00d0956dca3" />
+
+Checkpoint training Step 1000
+<img width="784" alt="Screenshot 2025-04-25 at 17 52 23" src="https://github.com/user-attachments/assets/f7c3a1b2-8690-4994-82b0-e6c14b1c2578" />
+
+Checkpoint training Step 5000
+<img width="774" alt="Screenshot 2025-04-25 at 17 52 17" src="https://github.com/user-attachments/assets/4751bb91-4e33-4c20-a28b-35bb9b4faf77" />
+
+Checkpoint training Step 10000
+<img width="780" alt="Screenshot 2025-04-25 at 17 52 11" src="https://github.com/user-attachments/assets/a966b232-ee10-46be-ac98-3a98509de563" />
+
+Checkpoint training Step 50000
+<img width="780" alt="Screenshot 2025-04-25 at 17 52 04" src="https://github.com/user-attachments/assets/60a68266-c22d-4c28-83e0-40eb841b0729" />
+
+Checkpoint training Step 100000
+<img width="782" alt="Screenshot 2025-04-25 at 17 51 58" src="https://github.com/user-attachments/assets/80009bc3-3133-499c-87e6-c73f3821963f" />
+
+
