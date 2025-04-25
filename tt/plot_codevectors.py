@@ -7,6 +7,7 @@ from sklearn.manifold import MDS
 from .step_list import steps
 from .general import flatten_list
 from . import select_materials
+from . import compute_codevectors as cc
 from scipy.spatial import Voronoi, voronoi_plot_2d
 import matplotlib.colors as mcolors
 
@@ -81,7 +82,7 @@ def compute_index_mapper(codebook, n_rows = 32, n_cols = 20,):
     return index_mapper
     
 
-def compute_matrix(d = None, phoneme = 't', limit = 100, alpha = 0.05, 
+def compute_matrix(d = None, phoneme = 't', limit = 1000, alpha = 0.01, 
     cmap_name='viridis', steps = steps, n_rows = 32, n_cols = 20,
     codebook = None, do_load_codebook = None, index_mapper = None, 
     step = None,):
@@ -111,7 +112,21 @@ def plot_matrix(matrix, cmap, norm):
     # cb.set_label('training Step')
     plt.show()
 
-def codevector_index_to_polygon(voronoi, mds_coords):
+def xy_points_to_min_max(xy_points):
+    """Convert a list of xy points to min and max values."""
+    x_min = min(xy_points[:, 0])
+    x_max = max(xy_points[:, 0])
+    y_min = min(xy_points[:, 1])
+    y_max = max(xy_points[:, 1])
+    return x_min, x_max, y_min, y_max
+
+def add_distant_dummy_points(mds_coords, dummy_points=None,):
+    if dummy_points is None:
+        dummy_points=np.array([[999,999], [-999,999], [999,-999], [-999,-999]])
+    mds_coords = np.append(mds_coords, dummy_points, axis=0)
+    return mds_coords
+
+def _old_codevector_index_to_polygon(voronoi, mds_coords):
     d = {}
     for region in voronoi.regions:
         if len(region) == 0:
@@ -119,16 +134,81 @@ def codevector_index_to_polygon(voronoi, mds_coords):
         polygon = [voronoi.vertices[i] for i in region]
         centroid = np.mean(polygon, axis=0)
         i = np.argmin(np.linalg.norm(mds_coords - centroid, axis=1))
-        
+        d[i] = polygon
+    return d
+
+def codevector_index_to_polygon(voronoi, mds_coords):
+    d = {}
+    for i in range(len(mds_coords)):
+        region_index = voronoi.point_region[i]
+        region = voronoi.regions[region_index]
+        polygon = [voronoi.vertices[i] for i in region]
         d[i] = polygon
     return d
             
 
 def codebook_to_voronoi(codebook):
     mds_coords = compute_mds(codebook)
-    voronoi = Voronoi(mds_coords)
-    voronoi_dict = codevector_index_to_polygon(voronoi, mds_coords)
-    return voronoi, voronoi_dict
+    bbox = xy_points_to_min_max(mds_coords)
+    mds_coords_d = add_distant_dummy_points(mds_coords)
+    voronoi = Voronoi(mds_coords_d)
+    return voronoi, mds_coords 
 
+def plot_voronoi(voronoi = None, mds_coords = None, 
+    codevector_index_to_color = None, codebook = None, phoneme = 't',
+    title = 'Voronoi Diagram'):
+    if voronoi is None:
+        if codebook is None:
+            raise ValueError("Either voronoi or codebook must be provided.")
+            voronoi, mds_coords = codebook_to_voronoi(codebook)
+    if codevector_index_to_color is None:
+        d = select_materials.collect_phoneme_codevector_indices(limit = 1000)
+        matrix, cmap, norm = compute_matrix(d=d, phoneme=phoneme, limit=1000) 
+        codevector_index_to_color = matrix[0]  
+    x_min, x_max, y_min, y_max = xy_points_to_min_max(mds_coords)
+    voronoi_dict = codevector_index_to_polygon(voronoi, mds_coords)
+    fig, ax = plt.subplots(figsize=(12, 10))
+    voronoi_plot_2d(voronoi, ax=ax, show_vertices=False, line_colors='black', 
+        line_width=1.5, point_size=0)
+    for i in range(len(mds_coords)):
+        polygon = voronoi_dict[i]
+        plt.fill(*zip(*polygon), color=codevector_index_to_color[i])
+    plt.title(title)
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
+    plt.show()
+
+
+def step_to_voronoi(step, codebook = None):
+    if codebook is None:
+        codebook = cc.language_step_to_codebook('nl', step)
+    voronoi, mds_coords = codebook_to_voronoi(codebook)
+    return voronoi, mds_coords
+
+def step_to_voronoi_dict(steps):
+    voronoi_dict = {}
+    for step in steps:
+        voronoi, mds_coords = step_to_voronoi(step)
+        voronoi_dict[step] = voronoi, mds_coords
+    return voronoi_dict
+
+def plot_voronoi_steps(steps, voronoi_step_dict = None, phoneme = 't',
+    d = None): 
+    if d is None:
+        d = select_materials.collect_phoneme_codevector_indices(limit = 1000)
+    if voronoi_step_dict is None:
+        voronoi_step_dict = step_to_voronoi_dict(steps)
+    output = {}
+    for step in steps:
+        matrix, cmap, norm = compute_matrix(d=d, phoneme=phoneme, n_rows = 1,
+        n_cols = 640, steps = [step], alpha = 0.05, limit = 1000,)
+        voronoi, mds_coords = voronoi_step_dict[step]
+        title = f"Voronoi Diagram for step {step}, phoneme {phoneme}"
+        plot_voronoi(voronoi=voronoi, mds_coords=mds_coords, 
+            codevector_index_to_color=matrix[0],
+            phoneme=phoneme, title=title)
+        output[step] = matrix[0]
+    return output
+    
 
 
