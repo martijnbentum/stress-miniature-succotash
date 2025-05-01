@@ -174,3 +174,8 @@ for d in jasmin_awd_dirs:
     q = d / 'comp-q'
     jasmin_comp_p_awd_files.extend(list(p.glob('*/*.awd')))
     jasmin_comp_q_awd_files.extend(list(q.glob('*/*.awd')))
+
+jasmin_dutch_speaker_file = jasmin_root / 'CDdoc/data/meta/text/nl/speakers.txt'
+jasmin_flemish_speaker_file = jasmin_root / 'CDdoc/data/meta/text/vl/speakers.txt'
+jasmin_countries_file = jasmin_root / 'CDdoc/doc/countries.txt'
+jasmin_languages_file = jasmin_root / 'CDdoc/doc/languages.txt'
