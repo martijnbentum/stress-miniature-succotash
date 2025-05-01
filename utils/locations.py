@@ -149,3 +149,28 @@ st_phonetics_base = Path('/vol/mlusers/mbentum/st_phonetics/')
 st_phonetics_codebooks = st_phonetics_base / 'codebooks'
 name = 'audio_to_hidden_state_number_dict.json'
 st_phonetics_audio_to_hidden_state_number_dict = st_phonetics_base / name
+
+
+# Jasmin
+
+
+jasmin_root = Path('/vol/bigdata/corpora/JASMIN')
+jasmin_audio_dirs = []    
+jasmin_awd_dirs = []
+for i in range(1,7):
+    jasmin_audio_dirs.append( jasmin_root / f'DVD0{i}/data/audio/wav')
+    jasmin_awd_dirs.append( jasmin_root / f'DVD0{i}/data/annot/text/awd')
+jasmin_comp_p_audio_files = []
+jasmin_comp_q_audio_files = []
+for d in jasmin_audio_dirs:
+    p = d / 'comp-p'
+    q = d / 'comp-q'
+    jasmin_comp_p_audio_files.extend(list(p.glob('*/*.wav')))
+    jasmin_comp_q_audio_files.extend(list(q.glob('*/*.wav')))
+jasmin_comp_p_awd_files = []
+jasmin_comp_q_awd_files = []
+for d in jasmin_awd_dirs:
+    p = d / 'comp-p'
+    q = d / 'comp-q'
+    jasmin_comp_p_awd_files.extend(list(p.glob('*/*.awd')))
+    jasmin_comp_q_awd_files.extend(list(q.glob('*/*.awd')))
