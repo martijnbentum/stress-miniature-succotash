@@ -94,7 +94,8 @@ def make_speaker_dict(line, header):
     d['info'] = json.dumps(info)
     d['identifier'] = info['regionspeaker']
     d['gender'] = info['gender']
-    d['birth_year'] = 2007 - info['age']
+    if type(info['age']) == int:d['birth_year'] = 2007 - info['age']
+    else: d['birth_year'] = None
     d['age'] = info['age']
     return d
 
@@ -105,7 +106,7 @@ def add_speaker(line,header):
     return created
 
 def add_all_speakers():
-    header, data = open_file()
+    header, data = load_speaker_files()
     print('reading speaker data', len(data), 'speakers in total.')
     n_created = 0
     for line in progressbar(data):
