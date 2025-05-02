@@ -12,15 +12,25 @@ def get_awd_textgrid_filename(audio_filename):
     if Path(f).exists(): return f
     raise FileNotFoundError(f'{f} not found, audio filename {audio_filename}')
 
-def convert_to_utf8(filename):
-    pass
+def convert_to_utf8(filename, encoding = 'iso-8859-1', goal_dir = '../awd/'):
+    f = Path(filename)
+    with open(str(f), 'r', encoding=encoding) as infile:
+        data = infile.read()
+    d = Path(goal_dir)
+    d.mkdir(parents=True, exist_ok=True)
+    of = d / f.name
+    with open(str(of), 'w', encoding='utf-8') as outfile:
+        outfile.write(data)
+    return str(of)
 
 def load_in_awd_textgrid(audio):
     from text.models import Textgrid, Speaker, Dataset
     filename = get_awd_textgrid_filename(audio.filename)
+    filename = convert_to_utf8(filename)
     jasmin = Dataset.objects.get(name='JASMIN')
     tg = textgrids.TextGrid(filename)
     speaker_ids = [k for k in tg.keys() if '_' not in k]
+    print('sids',speaker_ids)
     speakers = Speaker.objects.filter(identifier__in=speaker_ids)
     if not filename: return None
     d ={}
@@ -38,7 +48,7 @@ def load_in_awd_textgrid(audio):
 
 def load_in_all_awd_textgrids():
     from text.models import Audio
-    audios = Audio.objects.filter(dataset__name='CGN')
+    audios = Audio.objects.filter(dataset__name='JASMIN')
     print('audios',audios.count())
     no_file = []
     ncreated = 0
