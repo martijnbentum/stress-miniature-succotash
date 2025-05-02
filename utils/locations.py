@@ -152,8 +152,6 @@ st_phonetics_audio_to_hidden_state_number_dict = st_phonetics_base / name
 
 
 # Jasmin
-
-
 jasmin_root = Path('/vol/bigdata/corpora/JASMIN')
 jasmin_audio_dirs = []    
 jasmin_awd_dirs = []
@@ -179,3 +177,14 @@ jasmin_dutch_speaker_file = jasmin_root / 'CDdoc/data/meta/text/nl/speakers.txt'
 jasmin_flemish_speaker_file = jasmin_root / 'CDdoc/data/meta/text/vl/speakers.txt'
 jasmin_countries_file = jasmin_root / 'CDdoc/doc/countries.txt'
 jasmin_languages_file = jasmin_root / 'CDdoc/doc/languages.txt'
+
+#chorec
+chorec_root = Path('/vol/bigdata/corpora/CHOREC-1.0')
+chorec_data = chorec_root / 'data'
+chorec_doc = chorec_root / 'doc'
+chorec_meta = chorec_doc / 'Metadata'
+chorec_audio_files = chorec_data.glob('*/*/*AVI*.wav')  
+chorec_textgrid_files = chorec_data.glob('*/*/*AVI*a*.TextGrid')
+speaker_info_files = chorec_meta.glob('SpeakerInfo*.xls')
+
+    
