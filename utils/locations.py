@@ -185,6 +185,6 @@ chorec_doc = chorec_root / 'doc'
 chorec_meta = chorec_doc / 'Metadata'
 chorec_audio_files = chorec_data.glob('*/*/*AVI*.wav')  
 chorec_textgrid_files = chorec_data.glob('*/*/*AVI*a*.TextGrid')
-speaker_info_files = chorec_meta.glob('SpeakerInfo*.xls')
+chorec_speaker_info_files = chorec_meta.glob('SpeakerInfo*.xls')
 
     
