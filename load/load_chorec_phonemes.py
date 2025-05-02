@@ -2,7 +2,6 @@ from load import load_bpc
 from utils import phoneme_mapper
 from progressbar import progressbar
 
-
 cgn_to_ipa = phoneme_mapper.Mapper('dutch').cgn_to_ipa
 ipa_to_bpc = load_bpc.ipa_to_bpc_instances(add_longer=True)
 
@@ -11,7 +10,7 @@ def make_phoneme_identifier(word, phoneme_index):
 
 def word_to_phoneme_intervals(speaker,word,textgrid):
     speaker_id = speaker.identifier
-    all_phoneme_intervals = textgrid.load()[speaker_id + '_SEG']
+    all_phoneme_intervals = textgrid.load()['phone alignment']
     output = []
     for phoneme_interval in all_phoneme_intervals:
         if phoneme_interval.text in ['',' ','sp','[]','#']: continue
@@ -42,7 +41,7 @@ def handle_word(word, language):
 def load_all_phonemes(start_index = 0, skip_if_ipa = True):
     from text.models import Language, Word
     dutch = Language.objects.get(language='Dutch')
-    words = Word.objects.filter(dataset__name='CGN', language=dutch)
+    words = Word.objects.filter(dataset__name='CHOREC', language=dutch)
     n_created = 0
     for word in progressbar(words[start_index:]):
         if skip_if_ipa and word.ipa: continue
