@@ -2,68 +2,6 @@ import json
 from utils import locations 
 from progressbar import progressbar
 
-gender = {'M':'male','F':'female'}
-group = {1: 'native children 7 - 11', 2: 'native children 12 - 16', 
-    3: 'non-native children', 4: 'non-native adults', 
-    5: 'native adults above 65'}
-simple_group = {1: 'native children', 2: 'native children', 
-    3: 'non-native children', 4: 'non-native adults', 
-    5: 'native adults'}
-dialect_codes = {
-    "FL1": "West-Flanders",
-    "FL2": "East-Flanders",
-    "FL3": "Antwerp, Flemish Brabant",
-    "FL4": "Limburg",
-    "N1a": "South-Holland (excl. Goeree Overflakee)",
-    "N1b": "North-Holland (excl. West Friesland)",
-    "N1c": "West Utrecht (incl. the city of Utrecht)",
-    "N2a": "Zeeland (incl. Goeree Overflakee and Zeeland Flanders)",
-    "N2b": "Eastern Utrecht (excl. the city of Utrecht)",
-    "N2c": "Gelders river area (incl. Arnhem and Nijmegen)",
-    "N2d": "Veluwe as far as the IJssel",
-    "N2e": "West Friesland",
-    "N2f": "Polders",
-    "N3a": "Achterkhoek",
-    "N3b": "Overijssel",
-    "N3c": "Drenthe",
-    "N3d": "Groningen",
-    "N3e": "Friesland",
-    "N4a": "Noord-Brabant",
-    "N4b": "Limburg",
-    '1': 'West-Dutch core region',
-    '2': 'Transition region',
-    '3': 'Northern peripheral region',
-    '4': 'Southern peripheral region',
-}
-comment = {'0':'no comment', '1':'Northern Dutch accent dominates', 
-    'N':'Speak french at home, but are very proficient in Dutch'}
-education = {'1':'primary school', '2':'secondary school',
-    '3':'higher education up to 3 years', 
-    '4':'higher education more than 3 years'}
-
-def language_dict():
-    with open(locations.jasmin_languages_file, encoding = 'ISO8859') as f:
-        d = f.read().split('\n')
-    d = dict([x.split('\t') for x in d if x and len(x.split('\t')) == 2])
-    d['dut'] = 'Dutch'
-    return d
-
-def country_dict():
-    with open(locations.jasmin_countries_file, encoding = 'ISO8859') as f:
-        d = f.read().split('\n')
-    d = dict([x.split('\t') for x in d if x and len(x.split('\t')) == 2])
-    d['CG'] = 'Republic of the Congo'
-    d['KR'] = 'South Korea'
-    d['MA'] = 'Morocco'
-    d['CO'] = 'Colombia'
-    d['FR'] = 'France'
-    d['AL'] = 'Albania'
-    d['IR'] = 'Iran'
-    d['UA'] = 'Ukraine'
-    d['DE'] = 'Germany'
-    d['BI'] = 'Burundi'
-    d['TH'] = 'Thailand'
-    return d
 
 
 def open_dutch_file():
@@ -143,18 +81,21 @@ def speaker_info(line, header):
                 d['edulevel'] = ''
             else:
                 d['edulevel'] = education[line[i]]
+        if h == 'comment':
+            if not line[i]:
+                d['comment'] = ''
+            else:
+                d['comment'] = comment[line[i]]
     return d
 
 def make_speaker_dict(line, header):
     d = {}
-    d['info'] = json.dumps(speaker_info(line, header))
-    d['identifier'] = line[4]
-    d['gender'] = gender[line[5]]
-    try:birth_year = int(line[6])
-    except ValueError: birth_year = None
-    d['birth_year'] = birth_year
-    if birth_year: d['age'] = 2000 - birth_year
-    else: d['age'] = None
+    info = speaker_info(line, header)
+    d['info'] = json.dumps(info)
+    d['identifier'] = info['regionspeaker']
+    d['gender'] = info['gender']
+    d['birth_year'] = 2007 - info['age']
+    d['age'] = info['age']
     return d
 
 def add_speaker(line,header):
@@ -171,3 +112,69 @@ def add_all_speakers():
         created = add_speaker(line,header)
         if created: n_created += 1
     print('Added ', n_created, 'speakers.')
+
+
+def language_dict():
+    with open(locations.jasmin_languages_file, encoding = 'ISO8859') as f:
+        d = f.read().split('\n')
+    d = dict([x.split('\t') for x in d if x and len(x.split('\t')) == 2])
+    d['dut'] = 'Dutch'
+    return d
+
+def country_dict():
+    with open(locations.jasmin_countries_file, encoding = 'ISO8859') as f:
+        d = f.read().split('\n')
+    d = dict([x.split('\t') for x in d if x and len(x.split('\t')) == 2])
+    d['CG'] = 'Republic of the Congo'
+    d['KR'] = 'South Korea'
+    d['MA'] = 'Morocco'
+    d['CO'] = 'Colombia'
+    d['FR'] = 'France'
+    d['AL'] = 'Albania'
+    d['IR'] = 'Iran'
+    d['UA'] = 'Ukraine'
+    d['DE'] = 'Germany'
+    d['BI'] = 'Burundi'
+    d['TH'] = 'Thailand'
+    return d
+
+
+
+gender = {'M':'male','F':'female'}
+group = {1: 'native children 7 - 11', 2: 'native children 12 - 16', 
+    3: 'non-native children', 4: 'non-native adults', 
+    5: 'native adults above 65'}
+simple_group = {1: 'native children', 2: 'native children', 
+    3: 'non-native children', 4: 'non-native adults', 
+    5: 'native adults'}
+dialect_codes = {
+    "FL1": "West-Flanders",
+    "FL2": "East-Flanders",
+    "FL3": "Antwerp, Flemish Brabant",
+    "FL4": "Limburg",
+    "N1a": "South-Holland (excl. Goeree Overflakee)",
+    "N1b": "North-Holland (excl. West Friesland)",
+    "N1c": "West Utrecht (incl. the city of Utrecht)",
+    "N2a": "Zeeland (incl. Goeree Overflakee and Zeeland Flanders)",
+    "N2b": "Eastern Utrecht (excl. the city of Utrecht)",
+    "N2c": "Gelders river area (incl. Arnhem and Nijmegen)",
+    "N2d": "Veluwe as far as the IJssel",
+    "N2e": "West Friesland",
+    "N2f": "Polders",
+    "N3a": "Achterkhoek",
+    "N3b": "Overijssel",
+    "N3c": "Drenthe",
+    "N3d": "Groningen",
+    "N3e": "Friesland",
+    "N4a": "Noord-Brabant",
+    "N4b": "Limburg",
+    '1': 'West-Dutch core region',
+    '2': 'Dutch Transition region',
+    '3': 'Dutch Northern peripheral region',
+    '4': 'Dutch Southern peripheral region',
+}
+comment = {'0':'no comment', '1':'Northern Dutch accent dominates', 
+    'N':'Speak french at home, but are very proficient in Dutch'}
+education = {'1':'primary school', '2':'secondary school',
+    '3':'higher education up to 3 years', 
+    '4':'higher education more than 3 years'}
