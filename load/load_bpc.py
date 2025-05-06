@@ -9,7 +9,7 @@ def make_bpcs():
     names += ',back,diphtong,consonant,vowel'
     names = names.split(',')
     bpcs = 'p pʰ t tʰ tːʲ tʲ k kʰ b d dʲ dːʲ g ɡ c pʲ kʲ ɡʲ ʔ' # plosive
-    bpcs += ',n m ŋ ɲ ɱ nʲ ŋ̩ n̩ m̩' # nasal
+    bpcs += ',n m ŋ ɲ ɱ nʲ ŋ̩ n̩ m̩ œ̃' # nasal
     bpcs += ',l r j J w ʋ ʎ ɥ l̩ ɹ' # approximant
     bpcs += ',s ʃ ʒ h f x z v ɣ ð θ β ç zʲ xʲ sʲ ɦ ʍ' # fricative
     bpcs += ',tʃ ʒd ts pf tːʃ tːs dːz dz dːʒ tsʲ dzʲ dʒ'  # affricate
@@ -20,7 +20,7 @@ def make_bpcs():
     bpcs += ',i ɨ ɪ y ʏ u ʉ ʊ' # high
     bpcs += ',ʏ ø e ẽ ɛ ɛ̃ ɔ ɔ̃ o õ ə ɜ œ ɶ̃ ɝ ʌ ə͂' # mid
     bpcs += ',a ɑ ɒ ä ã ɑ̃ ɐ æ̃ æ' # low
-    bpcs += ',y i ɪ e ẽ ɛ ɛ̃ a ɶ̃ æ̃ æ' # front
+    bpcs += ',y i ɪ e ẽ ɛ ɛ̃ a ɶ̃ æ̃ œ̃ æ' # front
     bpcs += ',œ ø ʉ ɨ ə ɜ ä ã ɐ ɝ ə͂' # central
     bpcs += ',u ʊ o õ ɔ ɔ̃ ɑ ɑ̃ ɒ ʌ' # back
     bpcs += ',ɛi œy ɑu ɔi ɔu oːi ɛɪ eːu aːi yu ui əʊ iu ɔɪ' #diphtong 
@@ -32,7 +32,7 @@ def make_bpcs():
     bpcs += ' l̩ ɦ ɾ ɹ ʍ dʒ ʒd' # consonant
     bpcs += ',i ɨ ɪ y ʏ u ʉ ʊ ʏ ø e ẽ ɛ ɛ̃ ɔ ɔ̃ o õ ə ɜ œ a ɑ ɒ ä ã ɑ̃' # vowel
     bpcs += ' ɛi œy ɑu ɔi ɔu oːi ɛɪ eːu aːi yu ui əʊ iu ɔɪ eʊ eɪ aʊ aɪ' # vowel
-    bpcs += ' ɐ ɔʏ ɶ̃ æ̃ ei ʊə ɪə eə ɝ ʌ æ iːə oɪ æɔ æɪ ɑe əʉ ɛə' # vowel
+    bpcs += ' ɐ ɔʏ ɶ̃ æ̃ œ̃ ei ʊə ɪə eə ɝ ʌ æ iːə oɪ æɔ æɪ ɑe əʉ ɛə' # vowel
     bpcs += ' ɪiː ʌʊ ʌi ʊʉ ɒɪ æo ɔe oe ae ʌʉ iə ə͂ ɔɛ ʌə ɛə ɔə oə' # vowel
     bpcs = [x.split() for x in bpcs.split(',')]
     return dict(zip(names,bpcs))
@@ -67,6 +67,7 @@ def handle_bpc(bpc, bpcs):
     d = {}
     d['bpc'] = bpc
     d['ipa'] = bpcs[bpc]
+    print('bpc:', bpc, bpcs[bpc])
     _, created = BPC.objects.get_or_create(**d)
     return created
 
