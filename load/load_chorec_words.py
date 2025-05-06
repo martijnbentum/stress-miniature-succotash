@@ -26,7 +26,14 @@ def handle_textgrid(textgrid):
 
 
 def handle_speaker(speaker, textgrid):
-    word_tier = textgrid.load()['word alignment']
+    tg = textgrid.load()
+    if 'word alignment' in tg:
+        word_tier = tg['word alignment']
+    elif 'WordSegments' in tg:
+        word_tier = tg['WordSegments']
+    else:
+        m = f'No word tier found for {textgrid.identifier} {tg.keys()}'
+        raise ValueError(m)
     word_index = 0
     n_created = 0
     for interval_index, word_interval in enumerate(word_tier):

@@ -10,7 +10,14 @@ def make_phoneme_identifier(word, phoneme_index):
 
 def word_to_phoneme_intervals(speaker,word,textgrid):
     speaker_id = speaker.identifier
-    all_phoneme_intervals = textgrid.load()['phone alignment']
+    tg = textgrid.load()
+    if 'phone alignment' in tg:
+        all_phoneme_intervals = tg['phone alignment']
+    elif 'PhoneSegments' in tg:
+        all_phoneme_intervals = tg['PhoneSegments']
+    else:
+        m = f'No phone tier found for {textgrid.identifier} {tg.keys()}'
+        raise ValueError(m)
     output = []
     for phoneme_interval in all_phoneme_intervals:
         if phoneme_interval.text in ['',' ','sp','[]','#']: continue
