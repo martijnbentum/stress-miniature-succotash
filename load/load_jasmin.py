@@ -1,13 +1,13 @@
 from load import load_bpc
-from load import load_cgn_audio
-from load import load_cgn_speakers
-from load import load_cgn_textgrids
-from load import load_cgn_words
-from load import load_cgn_phonemes
+from load import load_jasmin_audio
+from load import load_jasmin_speakers
+from load import load_jasmin_textgrids
+from load import load_jasmin_words
+from load import load_jasmin_phonemes
 from utils import locations
 
 
-def handle_cgn():
+def handle_jasmin():
     print("Loading JASMIN")
     print('handling bpcs')
     load_bpc.handle_bpcs()
