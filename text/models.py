@@ -136,6 +136,8 @@ class Speaker(models.Model):
     def accent(self):
         if 'accent' in self.info_dict:
             return self.info_dict['accent']
+        if 'dialectregion' in self.info_dict:
+            return self.info_dict['dialectregion']
 
 class Word(models.Model):
     dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}

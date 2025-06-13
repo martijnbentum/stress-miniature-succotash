@@ -1,6 +1,6 @@
 from text.models import Dataset, Language
 
-names = 'CGN,COMMON VOICE,COOLEST,MLS,IFADV'
+names = 'CGN,COMMON VOICE,COOLEST,MLS,IFADV,JASMIN,CHOREC'
 names = names.split(',')
 
 descriptions = []
@@ -9,6 +9,8 @@ descriptions.append('Mozilla Common Voice dataset')
 descriptions.append('Coolest dataset of Dutch lexical stress')
 descriptions.append('Multilingual LibriSpeech dataset')
 descriptions.append('IFA Dialogue Video corpus')
+descriptions.append('JASMIN corpus of child and elderly speech')
+descriptions.append('CHOREC corpus of child read aloud speech')
 
 def get_cv_languages():
     languages = 'Dutch,English,French,German,Italian,Spanish,Polish'
@@ -25,6 +27,8 @@ language_sets.append([Language.objects.get(language='Dutch')])
 language_sets.append(get_cv_languages())
 language_sets.append([Language.objects.get(language='Dutch')])
 language_sets.append(get_mls_languages())
+language_sets.append([Language.objects.get(language='Dutch')])
+language_sets.append([Language.objects.get(language='Dutch')])
 language_sets.append([Language.objects.get(language='Dutch')])
 
 
