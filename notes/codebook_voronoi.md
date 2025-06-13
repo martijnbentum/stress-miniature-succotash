@@ -1,5 +1,34 @@
 The structure of the codebook over pretraining visualized with a voronoi plot based on cosine similarity distance matrix 
 
+update show split of the two codebooks,
+
+left side (four plots) show phoneme t, and right side (four plots) show phoneme 'ə' (two most frequent phonemes in dutch)
+
+(per side)
+the upper plots show codebook 1 & 2 the lower plots show the location of the codevectors of both codebook in a single space
+
+for the upper plot the color intensity shows the number of times a codevector occurs for a phoneme
+lower left side shows spatial distribution of codevectors for codebook 1 in blue and codebook 2 in red
+lower right side color intensity shows the number of times a codevector occurs for a phoneme for both codebooks in one similarity space
+
+Checkpoint training Step 100
+
+<img width="1806" alt="voronoi_step_100" src="https://github.com/user-attachments/assets/d8b442bf-00d0-4c77-beef-e035060ee572" />
+
+Checkpoint training Step 1000
+
+<img width="1765" alt="voronoi_step_1000" src="https://github.com/user-attachments/assets/45604b9e-81e7-48de-9917-827f75645046" />
+
+Checkpoint training Step 10000
+
+<img width="1781" alt="voronoi_step_10_000" src="https://github.com/user-attachments/assets/1d4d765c-afc5-4efc-a038-1cc56fd078c9" />
+
+Checkpoint training Step 100000
+
+<img width="1820" alt="voronoi_step_100_000" src="https://github.com/user-attachments/assets/b70fe8fb-879f-4e2c-9bad-21c8ced13cfd" />
+
+older version (without splitting codebooks)
+
 The polygons are colored according to the counts for the specific codevector based on phoneme /t/
 
 
