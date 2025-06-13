@@ -1,4 +1,6 @@
 from . import link_audio_to_model
+from utils import locations
+import numpy as np
 from w2v2_hidden_states import codebook, load
 from utils import save_codevectors 
 from progressbar import progressbar
@@ -17,13 +19,26 @@ def language_step_to_model_checkpoint(language, step):
 
 def language_step_to_model_pt(language, step, gpu = False):
     checkpoint = language_step_to_model_checkpoint(language, step)
-    if checkpoint is None:
+    if not checkpoint:
         return None
     return load.load_model_pt(checkpoint, gpu = gpu)
 
-def language_step_to_codebook(language, step, gpu = False):
-    model_pt = language_step_to_model_pt(language, step, gpu = gpu)
-    return codebook.load_codebook(model_pt)
+def language_step_to_codebook(language, step, gpu = False, 
+    load_saved_codebook = False):
+    if not load_saved_codebook:
+        model_pt = language_step_to_model_pt(language, step, gpu = gpu)
+        if model_pt is None:
+            m =f'No model_pt found for language {language} and step {step}'
+            m += '\nIf you want to load a saved codebook, '
+            m += 'set load_saved_codebook=True'
+            raise ValueError(m)
+        return codebook.load_codebook(model_pt)
+    else:
+        name = language_step_to_model_name(language, step) + '.npy'
+        filename = str(locations.codebooks / name)
+        print(f'loading codebook from {filename}')
+        return np.load(filename)
+
 
 def language_codebooks(language, gpu = False):
     steps = step_list.steps
@@ -32,6 +47,12 @@ def language_codebooks(language, gpu = False):
         codebook = language_step_to_codebook(language, step, gpu = gpu)
         d[step] = codebook
     return d
+
+def save_codebook(language, step, gpu = False, overwrite = False):
+    codebook = language_step_to_codebook(language, step, gpu = gpu)
+    name = language_step_to_model_name(language, step) + '.npy'
+    filename = locations.codebooks / name
+    np.save(str(filename), codebook)
 
 
 def language_step_to_model_name(language, step):
