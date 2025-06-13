@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors, cm
 from matplotlib.colorbar import ColorbarBase
+import os
+import pickle
+from progressbar import progressbar
 from sklearn.metrics.pairwise import cosine_distances
 from sklearn.manifold import MDS
 from .step_list import steps
@@ -187,8 +190,15 @@ def step_to_voronoi(step, codebook = None):
 
 def step_to_voronoi_dict(steps):
     voronoi_dict = {}
-    for step in steps:
-        voronoi, mds_coords = step_to_voronoi(step)
+    for step in progressbar(steps):
+        filename = f'../voronoi/voronoi_nl-{step}.pickle'
+        if os.path.exists(filename):
+            with open(filename, 'rb') as f:
+                voronoi, mds_coords = pickle.load(f)
+        else:
+            voronoi, mds_coords = step_to_voronoi(step)
+            with open(filename, 'wb') as f:
+                pickle.dump((voronoi, mds_coords), f)
         voronoi_dict[step] = voronoi, mds_coords
     return voronoi_dict
 
