@@ -2,7 +2,7 @@
 
 import glob
 import json
-from tt import step_list
+from tt import step_list, select_materials
 from utils import locations
 from text.models import Audio
 

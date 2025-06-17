@@ -7,7 +7,8 @@ non_speech = 'ns'
 languages = [dutch, english, non_speech]
 
 steps = step_list.steps
-model_names = latm.all_model_names()
+try: model_names = latm.all_model_names()
+except: model_names = None
 
 hubert_base = 'hubert-base-ls960-cgn'
 hubert_multilingual = 'mHuBERT-147-cgn'

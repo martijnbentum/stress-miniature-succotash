@@ -147,6 +147,8 @@ dutch_orthographic_xlsr_dir = fd / 'orthographic_xlsr_300m/checkpoint-13671/'
 
 st_phonetics_base = Path('/vol/mlusers/mbentum/st_phonetics/')
 codebooks = st_phonetics_base / 'codebooks'
+if not codebooks.exists():
+    codebooks = Path('../codebooks')
 name = 'audio_to_hidden_state_number_dict.json'
 st_phonetics_audio_to_hidden_state_number_dict = st_phonetics_base / name
 
