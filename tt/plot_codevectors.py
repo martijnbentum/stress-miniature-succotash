@@ -11,7 +11,7 @@ from .step_list import steps
 from .general import flatten_list
 from . import select_materials
 from . import compute_codevectors as cc
-from scipy.spatial import Voronoi, voronoi_plot_2d
+from . import analyze_codebook
 import matplotlib.colors as mcolors
 
 def initialize_matrix(n_rows = 32, n_cols = 20):
@@ -58,33 +58,6 @@ def _handle_token(token, step, matrix, cmap, norm, alpha, index_mapper = None):
         rgba = compute_rgba(cmap, norm, step, alpha)
         matrix = update_matrix(matrix, row, col, rgba)
 
-def _grid_indices_to_index_mapper(grid_indices, n_rows = 32, n_cols = 20):
-    index_mapper = {}
-    for i in range(n_rows):
-        for j in range(n_cols):
-            index_mapper[ grid_indices[i, j] ] = (i, j)
-    return index_mapper
-
-def compute_distance_matrix(codebook):
-    distance_matrix = cosine_distances(codebook)
-    return distance_matrix
-
-def compute_mds(codebook, n_components=2, dissimilarity='precomputed', 
-    random_state=42):
-    distance_matrix = compute_distance_matrix(codebook)
-    mds = MDS(n_components=n_components, dissimilarity=dissimilarity, 
-    random_state=random_state)
-    mds_coords = mds.fit_transform(distance_matrix)
-    return mds_coords
-
-def compute_index_mapper(codebook, n_rows = 32, n_cols = 20,):
-    mds_coords = compute_mds(codebook)
-    sorted_indices = np.lexsort(mds_coords[:,0], mds_coords[:,1])
-    grid_indices = np.array(sorted_indices).reshape(n_rows, n_cols)
-    index_mapper = _grid_indices_to_index_mapper(grid_indices, n_rows, n_cols)
-    return index_mapper
-    
-
 def compute_matrix(d = None, phoneme = 't', limit = 1000, alpha = 0.01, 
     cmap_name='viridis', steps = steps, n_rows = 32, n_cols = 20,
     codebook = None, do_load_codebook = None, index_mapper = None, 
@@ -95,7 +68,7 @@ def compute_matrix(d = None, phoneme = 't', limit = 1000, alpha = 0.01,
         if codebook is None and index_mapper is None: 
             codebook = cc.language_step_to_codebook('nl',step)
         if index_mapper is None:
-            index_mapper = compute_index_mapper(codebook)
+            index_mapper = analyze_codebook.compute_index_mapper(codebook)
     matrix = initialize_matrix(n_rows, n_cols)
     cmap, norm = get_cmap_and_norm(cmap_name, steps)
     for model_name, tokens in d[phoneme].items():
@@ -115,13 +88,6 @@ def plot_matrix(matrix, cmap, norm):
     # cb.set_label('training Step')
     plt.show()
 
-def xy_points_to_min_max(xy_points):
-    """Convert a list of xy points to min and max values."""
-    x_min = min(xy_points[:, 0])
-    x_max = max(xy_points[:, 0])
-    y_min = min(xy_points[:, 1])
-    y_max = max(xy_points[:, 1])
-    return x_min, x_max, y_min, y_max
 
 def add_distant_dummy_points(mds_coords, dummy_points=None,):
     if dummy_points is None:
@@ -150,12 +116,15 @@ def codevector_index_to_polygon(voronoi, mds_coords):
     return d
             
 
-def codebook_to_voronoi(codebook):
-    mds_coords = compute_mds(codebook)
-    bbox = xy_points_to_min_max(mds_coords)
-    mds_coords_d = add_distant_dummy_points(mds_coords)
-    voronoi = Voronoi(mds_coords_d)
-    return voronoi, mds_coords 
+
+def codebook_to_voronoi_set(codebook):
+    vset, mdset = [], []
+    cb1, cb2 = codebook[:320], codebook[320:]
+    for cb in [cb1, cb2, codebook]:
+        v, mds = codebook_to_voronoi(cb)
+        vset.append(v)
+        mdset.append(mds)
+    return vset, mdset
 
 def plot_voronoi(voronoi = None, mds_coords = None, 
     codevector_index_to_color = None, codebook = None, phoneme = 't',
@@ -182,25 +151,6 @@ def plot_voronoi(voronoi = None, mds_coords = None,
     plt.show()
 
 
-def step_to_voronoi(step, codebook = None):
-    if codebook is None:
-        codebook = cc.language_step_to_codebook('nl', step)
-    voronoi, mds_coords = codebook_to_voronoi(codebook)
-    return voronoi, mds_coords
-
-def step_to_voronoi_dict(steps):
-    voronoi_dict = {}
-    for step in progressbar(steps):
-        filename = f'../voronoi/voronoi_nl-{step}.pickle'
-        if os.path.exists(filename):
-            with open(filename, 'rb') as f:
-                voronoi, mds_coords = pickle.load(f)
-        else:
-            voronoi, mds_coords = step_to_voronoi(step)
-            with open(filename, 'wb') as f:
-                pickle.dump((voronoi, mds_coords), f)
-        voronoi_dict[step] = voronoi, mds_coords
-    return voronoi_dict
 
 def plot_voronoi_steps(steps, voronoi_step_dict = None, phoneme = 't',
     d = None): 
