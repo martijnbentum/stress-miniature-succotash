@@ -105,14 +105,21 @@ def speaker_to_sentences(speaker):
     index = 0
     sentences, temp = [], []
     word_list= list(speaker.word_set.all())
+    last_audio_id = word_list[0].audio.identifier
+    last_start_time = word_list[0].start_time
     for word in word_list:
         info = word.info_dict
-        temp.append(word)
-        if info['eos']:
+        if (info['eos'] or word.audio.identifier != last_audio_id) and temp:
+            if word.audio.identifier == last_audio_id:
+                temp.append(word)
             sentence = Sentence(temp, speaker, index)
             sentences.append(sentence)
-            temp = []
             index += 1
+            if word.audio.identifier == last_audio_id: temp = []
+            else: temp = [word]
+        else: temp.append(word)
+        last_audio_id = word.audio.identifier
+
     if temp:
         sentence = Sentence(temp, speaker, index)
         sentences.append(sentence)
