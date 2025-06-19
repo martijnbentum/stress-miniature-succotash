@@ -123,6 +123,11 @@ def speaker_to_sentences(speaker):
     if temp:
         sentence = Sentence(temp, speaker, index)
         sentences.append(sentence)
+    used_words = []
+    for sentence in sentences:
+        used_words.extend(sentence.words)
+    if len(used_words) != len(word_list):
+        raise ValueError(f'Not all words used for speaker {speaker}')
     return sentences
 
 
