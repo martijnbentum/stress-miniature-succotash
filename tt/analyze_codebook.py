@@ -1,3 +1,9 @@
+import numpy as np
+from sklearn.metrics.pairwise import cosine_distances
+from sklearn.manifold import MDS
+from sklearn.metrics import pairwise_distances
+
+
 def compute_distance_matrix(codebook):
     distance_matrix = cosine_distances(codebook)
     return distance_matrix
@@ -16,3 +22,17 @@ def compute_index_mapper(codebook, n_rows = 32, n_cols = 20,):
     grid_indices = np.array(sorted_indices).reshape(n_rows, n_cols)
     index_mapper = _grid_indices_to_index_mapper(grid_indices, n_rows, n_cols)
     return index_mapper
+
+def compute_point_stress(codebook):
+    mds_coords = compute_mds(codebook)
+    distance_matrix = compute_distance_matrix(codebook)
+    diff = (distance_matrix - pairwise_distances(mds_coords)) **2
+    point_stress = np.sum(diff, axis = 1)
+    return point_stress
+
+def kruskal_stress(codebook):
+    mds_coords = compute_mds(codebook)
+    distance_matrix = compute_distance_matrix(codebook)
+    diff = (distance_matrix - pairwise_distances(mds_coords)) **2
+    kruskal_stress = np.sum(diff) / np.sum(distance_matrix ** 2)
+    return kruskal_stress ** .5
