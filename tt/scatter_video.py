@@ -6,6 +6,27 @@ import numpy as np
 from sklearn.manifold import TSNE
 from tt import select_materials
 from tt import compute_codevectors as cc
+from tt import step_list
+from matplotlib.colors import ListedColormap
+
+def run_animation(n_phones = 5, n_tokens = 100, function = None, d = None,):
+    if function is None:
+        tsne = TSNE(n_components=2, random_state=42, perplexity=30, 
+            init='pca')
+        function = tsne.fit_transform
+    if d is None:
+        d = select_materials.collect_phoneme_codevector_indices(limit = 1000)
+    data = make_data(step_list.steps, list(d.keys())[:n_phones], 
+        function = function, limit = n_tokens, d = d)
+    o = make_c(n_phones, n_tokens)
+    colors = colors = plt.cm.get_cmap('tab10', 10).colors
+    cmap = ListedColormap(colors[:n_phones])
+    make_scatter_animation(data, c = o, phones = list(d.keys())[:n_phones], 
+        cmap = cmap, interval = 500, frame_names = step_list.steps, alpha = 1)
+    args = {'data':data, 'c':o, 'phones':list(d.keys())[:n_phones], 
+        'cmap':cmap, 'interval':500, 'frame_names':step_list.steps, 'alpha':1}
+    return args
+
 
 def make_scatter_animation(data, c = None, phones = None, cmap = 'viridis', 
     interval = 500,frame_names = [], alpha = 1):
@@ -156,5 +177,18 @@ def make_data(steps, phones, function = None, cb_index = 0, limit = 100,
     return data
         
 
+def get_all_codebooks(steps, cb_index = 0):
+    """
+    Get all codebooks for the given steps.
+    
+    Parameters:
+    - steps: List of steps to get codebooks for.
+    - cb_index: Index of the codebook to return (0 or 1).
+    
+    Returns:
+    - np array of codebooks.
+    """
+    cbs = [get_cb_from_step(step, cb_index) for step in steps]
+    return np.concatenate(cbs, axis=0)
 
     
