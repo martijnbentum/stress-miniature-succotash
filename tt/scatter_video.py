@@ -6,6 +6,7 @@ import numpy as np
 import openTSNE
 from sklearn.manifold import TSNE, MDS
 from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from tt import select_materials
 from tt import compute_codevectors as cc
 from tt import step_list
@@ -159,11 +160,11 @@ def make_c(n_categories, n_tokens):
         
 
 def make_data(steps, phones, function = None, cb_index = 0, limit = 100, 
-    d = None):
+    d = None, dimensions = 2):
     if function is None: return tsne_function
     if d is None:
         d = select_materials.collect_phoneme_codevector_indices(limit = 1000)
-    data = np.zeros((len(steps), limit * len(phones), 2))
+    data = np.zeros((len(steps), limit * len(phones), dimensions))
     for i, step in enumerate(steps):
         cb = get_cb_from_step(step, cb_index)
         phones_cv = []
@@ -209,7 +210,7 @@ def tsne_function():
         init='pca')
     return tsne.fit_transform
 
-def open_tsne_function(train_data = None, cb_index = 0)
+def open_tsne_function(train_data = None, cb_index = 0):
     '''open tsne that can handle new data'''
     if train_data is None:
         # Get all codebooks for the steps
@@ -219,5 +220,25 @@ def open_tsne_function(train_data = None, cb_index = 0)
     tsne.fit(train_data)
     return tsne.transform
 
+def empty_function(data):
+    return data
+    
+
+def lda_function(n_phones = 5, n_tokens =1500,cb_index = 0, d = None):
+    '''lda can be applied on new data'''
+    if d is None:
+        d = select_materials.collect_phoneme_codevector_indices(limit = 1000)
+    phones = list(d.keys())[:n_phones]
+    X = make_data(step_list.steps, phones, 
+        function = empty_function, limit = n_tokens, d = d, dimensions= 128)
+    X = X.reshape(-1, X.shape[-1])  # Flatten the data for LDA
+    y = []
+    for step in step_list.steps:
+        for i in range(n_phones):
+            y.extend([i] * n_tokens)
+    y = np.array(y)
+    lda = LinearDiscriminantAnalysis(n_components=2)
+    lda.fit(X, y)  # Dummy labels
+    return lda, X, y
 
     
