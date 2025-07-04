@@ -3,7 +3,9 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.widgets import Button
 from matplotlib.colors import ListedColormap, BoundaryNorm
 import numpy as np
-from sklearn.manifold import TSNE
+import openTSNE
+from sklearn.manifold import TSNE, MDS
+from sklearn.decomposition import PCA
 from tt import select_materials
 from tt import compute_codevectors as cc
 from tt import step_list
@@ -158,10 +160,7 @@ def make_c(n_categories, n_tokens):
 
 def make_data(steps, phones, function = None, cb_index = 0, limit = 100, 
     d = None):
-    if function is None:
-        tsne = TSNE(n_components=2, random_state=42, perplexity=30, 
-            init='pca')
-        function = tsne.fit_transform
+    if function is None: return tsne_function
     if d is None:
         d = select_materials.collect_phoneme_codevector_indices(limit = 1000)
     data = np.zeros((len(steps), limit * len(phones), 2))
@@ -190,5 +189,35 @@ def get_all_codebooks(steps, cb_index = 0):
     """
     cbs = [get_cb_from_step(step, cb_index) for step in steps]
     return np.concatenate(cbs, axis=0)
+
+def pca_function(train_data = None, cb_index = 0):
+    '''pca can be applied on new data'''
+    if train_data is None:
+        train_data = get_all_codebooks(step_list.steps, cb_index = cb_index)
+    pca = PCA(n_components=2)
+    pca.fit(train_data)
+    return pca.transform
+
+def mds_function():
+    '''can only handle fitted data'''
+    mds = MDS(n_components=2, random_state=42)
+    return mds.fit_transform
+
+def tsne_function():
+    '''can only handle fitted data'''
+    tsne = TSNE(n_components=2, random_state=42, perplexity=30, 
+        init='pca')
+    return tsne.fit_transform
+
+def open_tsne_function(train_data = None, cb_index = 0)
+    '''open tsne that can handle new data'''
+    if train_data is None:
+        # Get all codebooks for the steps
+        train_data = get_all_codebooks(step_list.steps, cb_index = cb_index)
+    tsne = TSNE(n_components=2, random_state=42, perplexity=30, 
+        init='pca')
+    tsne.fit(train_data)
+    return tsne.transform
+
 
     
