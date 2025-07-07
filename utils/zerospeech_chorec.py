@@ -17,105 +17,26 @@ def handle_chorec(age_range = (6, 11)) :
     phonemes = make_phonemes(sentences)
     save_phonemes(phonemes)
 
-def _make_index_to_word_dict(spoken_words,aligned_spoken_words):
-    word_lengths = [len(x.word) +1 for x in spoken_words]
-    index = 0
-    current_length = word_lengths[index]
-    word = spoken_words[index]
-    d = {}
-    for i, char in enumerate(aligned_spoken_words):
-        print(f'{i} word: {char} spoken_word: {word.word} <--- test {index}',
-            current_length)
-        if char == '-':
-            d[i] = word
-            continue
-        if i >= current_length:
-            index += 1
-            if index >= len(spoken_words):
-                print('index out of range')
-            else:
-                current_length += word_lengths[index]
-                word = spoken_words[index]
-        d[i] = word
-    print(word_lengths, [x.word for x in spoken_words])
-    return d
-        
-def _align_text_to_spoken(text, spoken_text):
-    text = text.replace('<br>', '')
-    text= re.sub(r'\s+', ' ', text)
-    text, spoken_text  = nw.nw(text, spoken_text).split('\n')
-    return text, spoken_text
-        
-
-def _find_eos_indices(text, spoken_text):
-    index = 0
-    indices = []
-    text, spoken_text = _align_text_to_spoken(text, spoken_text)
-    for char, spoken_char in zip(text, spoken_text):
-        # print(f'word: {char} spoken_word: {spoken_char} <--- test')
-        if '.' == char or '?' == char or '!' == char:
-            indices.append(index) 
-            print(f'word: {char} spoken_word: {spoken_char}')
-        index += 1
-    return indices
-
-
-def _handle_section(section, speaker):
-    st, et = section.xmin, section.xmax
-    text = section.text
-    words = speaker.word_set.filter(start_time__gte=st, end_time__lte=et)
-    spoken_text = ' '.join([w.word for w in words])
-    print('\ntext:', text, ' spoken_text:', spoken_text)
-    indices = _find_eos_indices(text, spoken_text)
-    o = []
-    for i in indices:
-        # o.append(words[i])
-        pass
-    print('-')
-    return o
-
-
-def find_eos_words(speaker):
-    tg = speaker.textgrid_set.all()[0]
-    original_task = tg.load()['original task']
-    words = []
-    for section in original_task:
-        w = _handle_section(section, speaker)
-        if w: words.extend(w)
-    return words
-        
-    
-
-
-
-
-def get_speakers(age_range = None, simple_group = None):
-    dataset = Dataset.objects.get(name='JASMIN')
+def get_speakers(age_range = None):
+    dataset = Dataset.objects.get(name='CHOREC')
     s = Speaker.objects.filter(dataset=dataset)
-    if age_range is None and simple_group is None:
-        return list(s)
     if age_range:
         s = Speaker.objects.filter(dataset=dataset, age__lte= age_range[1])
         s = s.filter(age__gte=age_range[0])
-    if simple_group:
-        output = []
-        for x in s:
-            if x.info_dict['simple_group'] == simple_group:
-                output.append(x)
-    else: output = list(s)
-    return output
+    return list(s)
 
-def make_sentences(age_range = None, simple_group = None): 
-    speakers= get_speakers(age_range = age_range, simple_group = simple_group)
+def make_sentences(age_range = None): 
+    speakers= get_speakers(age_range = age_range)
     sentences = []
     error = []
     for speaker in progressbar(speakers):
         try: temp = speaker_to_sentences(speaker)
-        except ValueError: error.append(speaker)
+        except ValueError as e: error.append((speaker,e))
         else:sentences.extend(temp)
     if error:
-        for s in error:
-            print(f'Error with {s.identifier}')
+        for line in error:
+            s, e = line
+            print(f'Error with {s.identifier}, {e}')
         print('Errors:',len(error))
     return sentences
 
@@ -143,7 +64,7 @@ def save_phonemes(phonemes = None):
     if not phonemes: phonemes = make_phonemes(language_name = language_name)
     for phoneme in phonemes:
         o.append(phoneme.line)
-    with open(f'../dutch_jasmin_phonemes_zs.tsv','w') as f:
+    with open(f'../dutch_chorec_phonemes_zs.tsv','w') as f:
         f.write('\n'.join(o))
 
 def save_words(words = None):
@@ -153,38 +74,54 @@ def save_words(words = None):
     if not words: words = make_words(language_name = language_name)
     for word in words:
         o.append(word.line)
-    with open(f'../dutch_jasmin_words_zs.tsv','w') as f:
+    with open(f'../dutch_chorec_words_zs.tsv','w') as f:
         f.write('\n'.join(o))
 
 def save_sentences(sentences = None, filename = None):
     header = 'audio_filename\tstart_time\tend_time\tduration\ttext\tidentifier'
-    header += '\tspeaker_id\tage\tsimple_group\tgender'
+    header += '\tspeaker_id\tage\tgender'
     o = [header]
     if not sentences: sentences = make_sentences(language_name = language_name)
     for sentence in sentences:
         o.append(sentence.line)
     if filename is None:
-        filename = f'../dutch_jasmin_sentences_zs.tsv'
+        filename = f'../dutch_chorec_sentences_zs.tsv'
     with open(filename,'w') as f:
         f.write('\n'.join(o))
-    
+
 def speaker_to_sentences(speaker):
     index = 0
     sentences, temp = [], []
     word_list= list(speaker.word_set.all())
+    if word_list == []: 
+        m = f'No words for speaker {speaker.identifier}'
+        raise ValueError(m)
+    last_audio_id = word_list[0].audio.identifier
+    last_start_time = word_list[0].start_time
     for word in word_list:
         info = word.info_dict
-        temp.append(word)
-        if info['eos']:
+        if (info['eos'] or word.audio.identifier != last_audio_id) and temp:
+            if word.audio.identifier == last_audio_id:
+                temp.append(word)
             sentence = Sentence(temp, speaker, index)
             sentences.append(sentence)
-            temp = []
             index += 1
+            if word.audio.identifier == last_audio_id: temp = []
+            else: temp = [word]
+        else: temp.append(word)
+        last_audio_id = word.audio.identifier
+
     if temp:
         sentence = Sentence(temp, speaker, index)
         sentences.append(sentence)
+    used_words = []
+    for sentence in sentences:
+        used_words.extend(sentence.words)
+    if len(used_words) != len(word_list):
+        raise ValueError(f'Not all words used for speaker {speaker}')
     return sentences
 
+    
 
 class Sentence:
     def __init__(self, words, speaker, index):
@@ -202,7 +139,6 @@ class Sentence:
         self.speaker_id = self.speaker.identifier
         self.sentence = ' '.join([w.word for w in words])
         self.in_pretraining = False
-        self.simple_group = self.speaker.info_dict['simple_group']
         self.gender = self.speaker.gender
         self.age = self.speaker.age
 
@@ -224,11 +160,11 @@ class Sentence:
 
     @property
     def line(self):
-        m = f'JASMIN/{self.audio_filename.split("JASMIN/")[-1]}'
+        m = f'CHOREC-1.0/{self.audio_filename.split("CHOREC-1.0/")[-1]}'
         m += f'\t{self.start_time:.3f}\t{self.end_time:.3f}'
         m += f'\t{self.duration:.3f}\t"{self.sentence}"' 
         m += f'\t{self.identifier}\t{self.speaker_id}\t{self.age}' 
-        m += f'\t{self.simple_group}\t{self.gender}'
+        m += f'\t{self.gender}'
         return m
 
 class Word:
@@ -308,3 +244,34 @@ class IPA:
 
 
         
+
+def _handle_section(section, speaker):
+    st, et = section.xmin, section.xmax
+    text = section.text
+    words = list(speaker.word_set.filter(start_time__gte=st, end_time__lte=et))
+    final_word = words[-1]
+    info = final_word.info_dict
+    info['eos'] = True
+    final_word.info = json.dumps(info)
+    final_word.save()
+    return final_word
+
+
+def set_eos_words(speaker):
+    try:
+        tg = speaker.textgrid_set.all()[0]
+    except IndexError:
+        print(f'No textgrid for {speaker.identifier}')
+        return
+    original_task = tg.load()['original task']
+    words = []
+    for section in original_task:
+        w = _handle_section(section, speaker)
+        if w: words.append(w)
+    return words
+
+def set_eos_words_for_all_chorec_speakers():
+    speakers = get_speakers()
+    for speaker in speakers:
+        set_eos_words(speaker)
+    print('Done setting EOS for all chorec speakers')
