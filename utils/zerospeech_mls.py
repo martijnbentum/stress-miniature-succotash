@@ -211,7 +211,7 @@ class Word:
         self.n_phones = len(word.phonemes)
 
     def __repr__(self):
-        m = f'{self.filename} {self.speaker_id} {self.duration:.3f}' 
+        m = f'{self.audio_filename} {self.speaker_id} {self.duration:.3f}' 
         m += f' {self.word.word}'
         return m
 
