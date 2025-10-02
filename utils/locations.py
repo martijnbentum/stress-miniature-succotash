@@ -194,5 +194,5 @@ chorec_speaker_info_files = chorec_meta.glob('SpeakerInfo*.xls')
 cgn_phrases_repo = Path('/vol/mlusers/mbentum/cgn_phrases_strepo/repo/')
 cgn_phrases_root = Path('/vol/mlusers/mbentum/pretraining_clean/')
 cgn_phrases_audio = cgn_phrases_root / 'cgn_phrases'
-cgn_phrases_textgrids = cgn_phrases_root / 'cg_phrases_textgrids'
+cgn_phrases_textgrids = cgn_phrases_root / 'cgn_phrases_textgrids'
 cgn_phrases_ort = cgn_phrases_root / 'cgn_phrases_ort'
