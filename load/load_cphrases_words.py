@@ -17,21 +17,17 @@ def load_all_words(start_index = 0):
     print(f'Created {n_created} words in total')
 
 def handle_textgrid(textgrid):
-    n_created = 0
-    speaker = textgrid.speakers.first()
-    n_speaker_words = handle_speaker(speaker, textgrid)
-    n_created += n_speaker_words
-    print(f'Created {n_created} words for {textgrid.identifier}')
-    return n_created
-
-def handle_speaker(textgrid):
     if not Path(textgrid.filename).exists():
         print(f'File {textgrid.filename} does not exist')
         return 0
+    n_created = 0
     word_tier = textgrid.load()['ORT-MAU']
     word_index = 0
     n_created = 0
-    speaker = textgrid.speakers.first()
+    speaker = textgrid.speakers.first() # only one speaker per textgrid
+    if not speaker: 
+        print(f'No speaker for {textgrid.identifier}')
+        return 0
     dataset = textgrid.dataset
     language = textgrid.audio.language
     for interval_index, word_interval in enumerate(word_tier):
@@ -39,7 +35,9 @@ def handle_speaker(textgrid):
             interval_index, language, dataset)
         if ok: word_index += 1
         if created: n_created += 1
+    print(f'Created {n_created} words for {textgrid.identifier}')
     return n_created
+
 
 def clean_text(text):
     if '!' in text: return None
