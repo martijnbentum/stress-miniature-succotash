@@ -9,7 +9,7 @@ def load_all_phonemes(skip_if_ipa = True):
     from text.models import Language, Dataset
     language = Language.objects.get(language='Dutch')
     dataset = Dataset.objects.get(name = 'cgn-phrases')
-    maus_to_ipa = maus_phoneme_mapper.Maus(language_name).maus_to_ipa()
+    maus_to_ipa = maus_phoneme_mapper.Maus('Dutch').maus_to_ipa()
     handle_words(language, dataset, maus_to_ipa, skip_if_ipa)
 
 def handle_words(language, dataset, maus_to_ipa, skip_if_ipa = True):
