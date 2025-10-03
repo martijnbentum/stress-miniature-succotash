@@ -14,11 +14,13 @@ def _check_next_word(word, next_word, delta_between_words = 0.5):
 
 def select_words_and_next(word = 'zij', onset_ipa_next_word = None, 
     onset_phone_type_next_word = None, delta_between_words = 0.5, 
-    ipas_first_word = None, verbose = False,):
+    ipas_first_word = None, language_name = None, verbose = False,):
     if onset_phone_type_next_word not in ['vowel', 'consonant', None]:
         m = 'onset_next_word_phone_type must be vowel, consonant or None'
         raise ValueError(m)
-    words = Word.objects.filter(word__iexact = word)
+    if language_name: words = Word.objects.filter(word__iexact = word, 
+        language__language__iexact = language_name)
+    else:words = Word.objects.filter(word__iexact = word)
     n_words = len(words)
     if ipas_first_word:
         if type(ipas_first_word) == list:
@@ -52,17 +54,19 @@ def select_words_and_next(word = 'zij', onset_ipa_next_word = None,
     return next_words
 
 def make_zij_zijn_dataset(onset_ipa_next_word = 'n', 
-    delta_between_words = 0.5, verbose = False,):
+    delta_between_words = 0.5, verbose = False, language_name = 'Dutch'):
     zij_ipas = ['s ɛi', 'z ɛi']
     zij_and_next = select_words_and_next(word = 'zij',
         onset_ipa_next_word = onset_ipa_next_word,
         delta_between_words = delta_between_words,
-        ipas_first_word = zij_ipas, verbose = verbose,)
+        ipas_first_word = zij_ipas, language_name = language_name,
+        verbose = verbose,)
     zijn_ipas = ['z ɛi n', 's ɛi n']
     zijn_and_next = select_words_and_next(word = 'zijn',
         onset_phone_type_next_word = 'vowel',
         delta_between_words = delta_between_words,
-        ipas_first_word= zijn_ipas, verbose = verbose,)
+        ipas_first_word= zijn_ipas, language_name = language_name,
+        verbose = verbose,)
     return {'zij':zij_and_next, 'zijn':zijn_and_next}
 
 
