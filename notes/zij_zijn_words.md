@@ -1,5 +1,6 @@
-Selected Dutch zij and zijn words
-all zij words should be followed by word starting with n
+Selected Dutch zij (n = 28) and zijn (n = 50) words
+all zij words should be followed by word starting with consonant n
+model wav2vec2 xls-r 300m
 results on dutch common voice
 
 T-SNE plot on vowel ɛi for 'zij' and 'zijn' words for hs layer 11 - 19
