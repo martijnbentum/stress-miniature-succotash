@@ -49,7 +49,7 @@ def get_syllable_boundaries(audio):
     return boundaries
 
 def syllable_durations(audios = None):
-
+    pass
 
 def plot_audio(audio, width = 12, cutoff_frequency = 5.0):
     word_boundaries = get_word_boundaries(audio)
