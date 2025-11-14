@@ -2,9 +2,18 @@ from audio.audio import load_audio
 from matplotlib import pyplot as plt
 import numpy as np
 from pathlib import Path
-from scipy.signal import hilbert, butter, filtfilt, find_peaks
+from scipy.signal import hilbert, butter, filtfilt, find_peaks, welch
+from sklearn.metrics.pairwise import cosine_similarity
 from text.models import Word, Syllable, Language, Dataset, Audio
-from w2v2_hidden_states import frame
+from tt import st_phonetic_map_cnn_to_ci as sc
+from w2v2_hidden_states import frame, load
+from utils import wav2vec2 as wv
+
+model_name = wv.sc.step_to_model(100_000)['model']
+
+def load_model(model_name, gpu = False):
+    '''load the pretrained wav2vec2 model'''
+    return load.load_pretrained_model(model_name, gpu = gpu)
 
 def get_audios(language_name = 'Dutch', dataset_name = 'COMMON VOICE'):
     l = Language.objects.get(language__iexact = language_name)
@@ -51,7 +60,8 @@ def get_syllable_boundaries(audio):
 def syllable_durations(audios = None):
     pass
 
-def plot_audio(audio, width = 12, cutoff_frequency = 5.0):
+def plot_audio(audio, width = 12, cutoff_frequency = 5.0,
+    plot_embedding_distance = False, outputs = None, model = None, layer = 6):
     word_boundaries = get_word_boundaries(audio)
     syllable_boundaries = get_syllable_boundaries(audio)
     syllable_mids = mid_points(syllable_boundaries)
@@ -88,14 +98,47 @@ def plot_audio(audio, width = 12, cutoff_frequency = 5.0):
         plt.text((sb[0]+sb[1])/2, text_y, sb[2], color='blue', 
             horizontalalignment='center', verticalalignment='bottom',
             fontsize=12, rotation=90)
+    if plot_embedding_distance:
+        plot_embedding_distances(layer = layer,outputs = outputs, model = model, 
+            audio = audio, normalize = max_y)
     plt.legend(loc='upper right')
     plt.grid(alpha=0.3)
     plt.xlim(min_x, max_x)
     plt.show()
+    return envelope
+
+def plot_embedding_distances(layer = 6, outputs = None, model = None, 
+    audio = None, apply_smooth = False, normalize = 1):
+    distances, time_stamps = make_embedding_distances(layer, outputs, model, 
+        audio)
+    distances = distances / np.max(distances) * normalize 
+    if apply_smooth:
+        print(len(distances), len(time_stamps))
+        distances = smooth(distances, cutoff_frequency=5.0, order=4, 
+            sample_rate=50)
+        print(len(distances), len(time_stamps))
+    plt.plot(time_stamps, distances, color='green', linewidth=1.5,alpha=0.7,
+        label=f'distance layer-{layer}')
+    
         
+def make_embedding_distances(layer = 6, outputs = None, model = None, 
+    audio = None):
+    if outputs is None:
+        if audio is None:
+            raise ValueError('either outputs or audio must be provided')
+        if model is None: model = load_model(model_name)
+        outputs = wv.audio_to_vector(audio, model)
+    frames = frame.make_frames_with_outputs(outputs)
+    X = np.array([f.transformer(layer) for f in frames.frames])
+    similarities = cosine_similarity(X[:-1], X[1:])
+    distances = 1 - similarities.diagonal()
+    time_stamps = [x.end_time for x in frames.frames[:-1]]
+    return distances, time_stamps
+
+    
 
 def hilbert_envelope(signal, smooth_envelope = True, cutoff_frequency = 5.0,
-    sample_rate = 16_000):
+    sample_rate = 16_000, convolve = True):
     '''compute the hilbert envelope of a signal'''
     analytic_signal = hilbert(signal)
     amplitude_envelope = np.abs(analytic_signal)
@@ -121,8 +164,4 @@ def mid_point(start, end):
 def mid_points(boundaries):
     return [mid_point(b[0], b[1]) for b in boundaries]
 
-def peak_times_from_envelope(env, sample_rate=16_000, 
-    min_interval_ms=80, prominence=None):
-    distance = int(sample_rate * (min_interval_ms/1000))
-    peaks, _ = find_peaks(env, distance=distance, prominence=prominence)
-    return peaks / sample_rate
+
