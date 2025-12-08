@@ -1,4 +1,5 @@
 from audio.audio import load_audio
+from . import general
 from matplotlib import pyplot as plt
 import numpy as np
 from pathlib import Path
@@ -67,7 +68,7 @@ def plot_audio(audio, width = 12, cutoff_frequency = 5.0,
     syllable_mids = mid_points(syllable_boundaries)
     signal, sr = load_audio(audio)
     envelope = hilbert_envelope(signal, sample_rate = sr)
-    envelope_peaks = peak_times_from_envelope(envelope, sample_rate = sr)
+    envelope_peaks = general.peak_times_from_envelope(envelope, sample_rate = sr)
     x = np.arange(len(signal)) / sr
     min_y = np.min(signal)
     max_y = np.max(signal)
